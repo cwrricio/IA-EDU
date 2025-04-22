@@ -1,0 +1,47 @@
+.upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #f5f5f5;
+}
+
+.upload-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 30px;
+  width: 100%;
+  max-width: 650px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@media screen and (max-width: 768px) {
+  .upload-container {
+    padding: 15px;
+    align-items: flex-start;
+  }
+
+  .upload-card {
+    padding: 20px;
+    max-width: 100%;
+    border-radius: 10px;
+    max-height: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .upload-container {
+    padding: 10px;
+  }
+
+  .upload-card {
+    padding: 15px;
+    border-radius: 8px;
+  }
+}

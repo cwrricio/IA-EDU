@@ -1,8 +1,24 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinhar ao topo para melhor visibilidade em telas menores */
+  padding: 0;
+  margin: 0;
+}
+
+@media screen and (min-height: 800px) {
+  .app {
+    align-items: center; /* Centralizar verticalmente em telas mais altas */
+  }
 }
 
 .logo {

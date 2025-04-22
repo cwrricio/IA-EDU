@@ -1,0 +1,365 @@
+.objectives-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Remover max-height e overflow para eliminar scroll vertical */
+  max-height: none;
+  overflow: visible;
+  padding-right: 0; /* Remover espaço para scrollbar */
+}
+
+.objectives-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  padding: 0;
+}
+
+.objective-section {
+  margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #ffffff;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.objective-section:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.objective-section.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+.objective-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap; /* Permite quebra em telas pequenas */
+  gap: 8px;
+}
+
+.objective-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+  color: #334155;
+}
+
+.objective-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap; /* Permite quebra em telas pequenas */
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0;
+  outline: none;
+  flex-shrink: 0; /* Evita que o botão encolha */
+}
+
+.action-button:focus {
+  outline: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.action-button .icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.action-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  transform: scale(1.05);
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-button.edit {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.action-button.edit:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.action-button.edit.active {
+  background-color: #4b5563;
+  color: white;
+}
+
+.action-button.reload {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.action-button.reload:hover:not(:disabled) {
+  background-color: #bae6fd;
+  color: #0369a1;
+}
+
+.action-button.reload.loading {
+  background-color: #bae6fd;
+}
+
+.action-button.approve {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.action-button.approve:hover:not(:disabled) {
+  background-color: #d1fae5;
+}
+
+.action-button.approve.approved {
+  color: #ffffff;
+  background-color: #059669;
+  box-shadow: 0 2px 5px rgba(5, 150, 105, 0.3);
+  transform: scale(1.05);
+}
+
+.toggle-switch {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.toggle-switch:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.toggle-switch:hover {
+  transform: scale(1.05);
+}
+
+.toggle-icon {
+  transition: all 0.3s ease;
+}
+
+.toggle-icon.enabled {
+  color: #059669;
+}
+
+.toggle-icon.disabled {
+  color: #94a3b8;
+}
+
+.objective-content {
+  background-color: #f9fafb;
+  border-radius: 6px;
+  padding: 16px;
+  position: relative;
+  transition: all 0.2s ease;
+  min-height: auto;
+  max-height: none;
+  height: auto;
+  overflow: visible;
+}
+
+.objective-content.editing {
+  padding: 0;
+  height: auto; /* Altura ajustável ao conteúdo */
+}
+
+.objective-textarea {
+  width: 100%;
+  min-height: 150px; /* Altura mínima fixa para edição */
+  box-sizing: border-box;
+  border: none;
+  background-color: #f9fafb;
+  color: #334155;
+  padding: 16px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.6;
+  resize: none;
+  border-radius: 6px;
+  outline: none;
+  border: 1px solid #e5e7eb;
+  /* Permitir que o texto se ajuste sem scrolls */
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.objective-content.loading-content {
+  opacity: 0.7;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  z-index: 1;
+}
+
+.objective-content p,
+.objective-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
+  line-height: 1.6;
+  color: #334155;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  width: 100%; /* Garantir que o texto não ultrapasse a largura */
+}
+
+.objectives-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  position: relative; /* Alterar de sticky para relative */
+  background-color: white;
+  padding-bottom: 5px;
+}
+
+.objectives-back-btn {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 10px 22px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  outline: none;
+}
+
+.objectives-back-btn:focus {
+  outline: none;
+}
+
+.objectives-back-btn:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.objectives-continue-btn {
+  background-color: #1e293b;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  outline: none;
+}
+
+.objectives-continue-btn:focus {
+  outline: none;
+}
+
+.objectives-continue-btn:hover:not(:disabled) {
+  background-color: #334155;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.objectives-continue-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Animação de rotação para o ícone de loading */
+.spin-animation {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .objective-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .objective-actions {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .objectives-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .objectives-back-btn,
+  .objectives-continue-btn {
+    width: 100%;
+  }
+}

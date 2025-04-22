@@ -1,0 +1,113 @@
+.content-confirmation {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.confirmation-header {
+  position: relative;
+  text-align: left;
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+}
+
+.confirmation-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+}
+
+.confirmation-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 24px;
+  background-color: #059669;
+  color: white;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(5, 150, 105, 0.3);
+}
+
+.content-summary {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-left: 4px solid #059669;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.content-summary p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.confirmation-back-btn {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 10px 22px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  outline: none;
+}
+
+.confirmation-back-btn:focus {
+  outline: none;
+}
+
+.confirmation-back-btn:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.confirmation-continue-btn {
+  background-color: #1e293b;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  outline: none;
+}
+
+.confirmation-continue-btn:focus {
+  outline: none;
+}
+
+.confirmation-continue-btn:hover {
+  background-color: #334155;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media screen and (max-width: 600px) {
+  .confirmation-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .confirmation-back-btn,
+  .confirmation-continue-btn {
+    width: 100%;
+  }
+}

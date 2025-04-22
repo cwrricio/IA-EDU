@@ -1,0 +1,26 @@
+.upload-header {
+  position: relative;
+  text-align: left;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.upload-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+}
+
+.upload-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0 0 0;
+}
+
+.upload-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 24px;
+}
