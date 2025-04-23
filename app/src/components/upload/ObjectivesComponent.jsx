@@ -21,6 +21,7 @@ import {
   useSortable,
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
+import api from "../../services/api";
 import { CSS } from "@dnd-kit/utilities";
 import "./styles/ObjectivesComponent.css";
 
@@ -42,9 +43,9 @@ const SortableObjectiveItem = ({ id, text, onRemove, onEdit }) => {
   };
 
   return (
-    <li 
+    <li
       ref={setNodeRef}
-      className={`objectives-list-item ${isDragging ? 'dragging' : ''}`} 
+      className={`objectives-list-item ${isDragging ? 'dragging' : ''}`}
       style={style}
     >
       <div className="objectives-item-content">
@@ -52,14 +53,14 @@ const SortableObjectiveItem = ({ id, text, onRemove, onEdit }) => {
         <div className="objectives-item-handle" {...attributes} {...listeners}>
           <BiMove size={18} />
         </div>
-        
-        <span 
+
+        <span
           className="objectives-item-text"
           onClick={() => onEdit(id, text)}
         >
           {text}
         </span>
-        
+
         <button
           className="objectives-item-btn remove"
           onClick={() => onRemove(id)}
@@ -102,23 +103,40 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
   const [loadingGeneral, setLoadingGeneral] = useState(false);
   const [loadingSpecific, setLoadingSpecific] = useState(false);
 
-  // Estado para o objetivo geral
-  const [generalText, setGeneralText] = useState(
-    "O objetivo geral deste projeto é promover o uso de inteligência artificial como ferramenta auxiliar no processo educacional, melhorando a qualidade do ensino e facilitando a personalização do aprendizado de acordo com as necessidades individuais dos alunos."
-  );
-
-  // Estado para objetivos específicos como lista
-  const [specificItems, setSpecificItems] = useState([
-    { id: "1", text: "Identificar as principais tecnologias de IA aplicáveis ao contexto educacional" },
-    { id: "2", text: "Desenvolver habilidades para implementação de ferramentas de IA no processo de ensino" },
-    { id: "3", text: "Avaliar o impacto da IA na personalização da aprendizagem" },
-    { id: "4", text: "Criar estratégias de ensino potencializadas por sistemas de IA" },
-    { id: "5", text: "Compreender os aspectos éticos envolvidos na aplicação de IA na educação" }
-  ]);
+  const [generalText, setGeneralText] = useState(""); // Estado para o objetivo geral
+  const [specificItems, setSpecificItems] = useState([]); // Estado para objetivos específicos como lista
 
   // Estados para interação 
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemText, setNewItemText] = useState("");
+
+  useEffect(() => {
+    const fetchObjectives = async () => {
+      try {
+        setLoadingGeneral(true);
+        setLoadingSpecific(true);
+
+        const result = await api.generateObjectives({ "bom": "dia" });
+        console.log('API response:', result);
+
+        if (result) {
+          if (result.general) {
+            setGeneralText(Array.isArray(result.general) ? result.general[0] : result.general);
+          }
+          if (result.specific && Array.isArray(result.specific)) {
+            setSpecificItems(result.specific);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching objectives:', error);
+      } finally {
+        setLoadingGeneral(false);
+        setLoadingSpecific(false);
+      }
+    };
+
+    fetchObjectives();
+  }, []);
 
   // Sensores para o drag & drop
   const sensors = useSensors(
@@ -150,6 +168,26 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
     }, 1500);
   };
 
+  // // Função para regenerar o objetivo geral para implementação futura
+
+  // const regenerateGeneral = async () => {
+  //   try {
+  //     setLoadingGeneral(true);
+  //     setGeneralApproved(false);
+
+  //     const result = await api.generateObjectives({ "bom": "dia" });
+  //     console.log('API response:', result);
+
+  //     if (result && result.general) {
+  //       setGeneralText(Array.isArray(result.general) ? result.general[0] : result.general);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error regenerating general objective:', error);
+  //   } finally {
+  //     setLoadingGeneral(false);
+  //   }
+  // };
+
   const regenerateSpecific = () => {
     setLoadingSpecific(true);
     // Simular API call
@@ -166,15 +204,36 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
     }, 1500);
   };
 
+  // // Função para regenerar os objetivos específicos para implementação futura
+
+  // const regenerateSpecific = async () => {
+  //   try {
+  //     setLoadingSpecific(true);
+  //     setSpecificApproved(false);
+
+  //     const result = await api.generateObjectives({ "bom": "dia" });
+  //     console.log('API response:', result);
+
+  //     if (result && result.specific) {
+  //       setSpecificItems(result.specific);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error regenerating specific objectives:', error);
+  //   } finally {
+  //     setLoadingSpecific(false);
+  //   }
+  // }
+
+
   // Handler para finalizar o drag & drop
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
+
     if (active.id !== over.id) {
       setSpecificItems((items) => {
         const oldIndex = items.findIndex(item => item.id === active.id);
         const newIndex = items.findIndex(item => item.id === over.id);
-        
+
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -291,9 +350,9 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
 
         <div className={`objective-content ${loadingSpecific ? "loading-content" : ""}`}>
           <ul className="objectives-list">
-            <DndContext 
-              sensors={sensors} 
-              collisionDetection={closestCenter} 
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={specificItems.map(item => item.id)} strategy={verticalListSortingStrategy}>
