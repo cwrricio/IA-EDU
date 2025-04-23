@@ -5,11 +5,12 @@ import FileList from '../../components/upload/FileList';
 import UploadActions from '../../components/upload/UploadActions';
 import ContentConfirmation from '../../components/upload/ContentConfirmation';
 import ObjectivesComponent from '../../components/upload/ObjectivesComponent';
+import SyllabusComponent from '../../components/upload/SyllabusComponent';
 import './upload.css';
 
 const UploadPage = () => {
   const [files, setFiles] = useState([]);
-  const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'confirmation' ou 'objectives'
+  const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'confirmation', 'objectives', ou 'syllabus'
 
   const handleFilesSelected = (selectedFiles) => {
     const newFiles = selectedFiles.map(file => ({
@@ -48,6 +49,15 @@ const UploadPage = () => {
     setCurrentStep('confirmation');
   };
   
+  const handleContinueToSyllabus = () => {
+    console.log('Continuing to syllabus definition');
+    setCurrentStep('syllabus');
+  };
+
+  const handleBackToObjectives = () => {
+    setCurrentStep('objectives');
+  };
+  
   const handleFinish = () => {
     console.log('Workflow completed with files:', files);
     // Aqui você pode navegar para a próxima etapa do fluxo
@@ -78,6 +88,13 @@ const UploadPage = () => {
         {currentStep === 'objectives' && (
           <ObjectivesComponent
             onBack={handleBackToConfirmation}
+            onContinue={handleContinueToSyllabus}
+          />
+        )}
+
+        {currentStep === 'syllabus' && (
+          <SyllabusComponent
+            onBack={handleBackToObjectives}
             onContinue={handleFinish}
           />
         )}

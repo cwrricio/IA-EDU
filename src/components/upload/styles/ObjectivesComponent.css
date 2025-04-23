@@ -180,15 +180,16 @@
 }
 
 .objective-content {
-  background-color: #f9fafb;
-  border-radius: 6px;
-  padding: 16px;
+  background-color: transparent; /* Removendo a cor de fundo */
+  border-radius: 0;
+  padding: 0;
   position: relative;
   transition: all 0.2s ease;
   min-height: auto;
   max-height: none;
   height: auto;
   overflow: visible;
+  border: none; /* Removendo borda */
 }
 
 .objective-content.editing {
@@ -196,26 +197,16 @@
   height: auto; /* Altura ajustável ao conteúdo */
 }
 
-.objective-textarea {
-  width: 100%;
-  min-height: 150px; /* Altura mínima fixa para edição */
-  box-sizing: border-box;
-  border: none;
+.objective-content.editing.for-textarea {
+  padding: 0;
+  height: auto;
+}
+
+.objective-content.for-textarea {
   background-color: #f9fafb;
-  color: #334155;
-  padding: 16px;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: 1.6;
-  resize: none;
   border-radius: 6px;
-  outline: none;
+  padding: 16px;
   border: 1px solid #e5e7eb;
-  /* Permitir que o texto se ajuste sem scrolls */
-  overflow: visible;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
 }
 
 .objective-content.loading-content {
@@ -306,7 +297,162 @@
   cursor: not-allowed;
 }
 
-/* Animação de rotação para o ícone de loading */
+/* Estilos para a lista de objetivos específicos */
+.objectives-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px 8px 0 0; /* Apenas arredondamento superior */
+  overflow: hidden; /* Para garantir que a borda arredondada funcione */
+  background-color: #f9fafb;
+}
+
+.objectives-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+
+.objectives-list-item:last-child {
+  border-bottom: none;
+}
+
+.objectives-list-item:hover {
+  background-color: #f8fafc;
+}
+
+.objectives-item-text {
+  flex-grow: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.objectives-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.objectives-list-item:hover .objectives-item-actions {
+  opacity: 1;
+}
+
+.objectives-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  background-color: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.objectives-item-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.objectives-item-btn.edit:hover {
+  color: #0284c7;
+}
+
+.objectives-item-btn.remove:hover {
+  color: #ef4444;
+}
+
+.objectives-item-btn.save {
+  color: #059669;
+  background-color: #ecfdf5;
+}
+
+.objectives-item-btn.save:hover {
+  background-color: #d1fae5;
+}
+
+.objectives-item-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.objectives-item-edit {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.objectives-edit-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  
+}
+
+.objectives-edit-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Ajustando o botão de adicionar item */
+.objectives-add-item {
+  display: flex;
+  padding: 12px 16px;
+  background-color: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  border-bottom-left-radius: 8px; /* Arredondamento inferior */
+  border-bottom-right-radius: 8px; /* Arredondamento inferior */
+}
+
+.objectives-add-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.objectives-add-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Garantindo que o ícone apareça corretamente */
+.objectives-add-button {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px; /* Ajustado para o caractere Unicode */
+  line-height: 1;
+}
+
 .spin-animation {
   animation: spin 1.5s linear infinite;
 }
@@ -361,5 +507,9 @@
   .objectives-back-btn,
   .objectives-continue-btn {
     width: 100%;
+  }
+
+  .objectives-item-actions {
+    opacity: 1;
   }
 }

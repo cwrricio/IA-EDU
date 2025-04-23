@@ -1,0 +1,467 @@
+.syllabus-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.syllabus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.syllabus-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: #334155;
+}
+
+.syllabus-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.syllabus-content {
+  position: relative;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 0;
+  margin-bottom: 25px;
+  border: 1px solid #e5e7eb;
+  max-height: none; /* Removendo limitação de altura */
+  overflow-y: visible; /* Removendo scroll vertical */
+}
+
+.syllabus-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.syllabus-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: white;
+  transition: background-color 0.2s ease;
+}
+
+.syllabus-item:last-child {
+  border-bottom: none;
+}
+
+.syllabus-item:hover {
+  background-color: #f8fafc;
+}
+
+.syllabus-item-text {
+  flex-grow: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.syllabus-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.syllabus-item:hover .syllabus-item-actions {
+  opacity: 1;
+}
+
+.syllabus-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  background-color: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.syllabus-item-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.syllabus-item-btn.edit:hover {
+  color: #0284c7;
+}
+
+.syllabus-item-btn.remove:hover {
+  color: #ef4444;
+}
+
+.syllabus-item-btn.save {
+  color: #059669;
+  background-color: #ecfdf5;
+}
+
+.syllabus-item-btn.save:hover {
+  background-color: #d1fae5;
+}
+
+.syllabus-item-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.syllabus-item-edit {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.syllabus-edit-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.syllabus-edit-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.syllabus-add-item {
+  display: flex;
+  padding: 12px 16px;
+  background-color: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+}
+
+.syllabus-add-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.syllabus-add-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.syllabus-add-button {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px; /* Ajustado para o caractere Unicode */
+  line-height: 1;
+}
+
+.syllabus-add-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  color: #374151;
+  transform: translateX(2px);
+}
+
+.syllabus-add-button:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+}
+
+.syllabus-content.loading-content {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.syllabus-navigation {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.syllabus-back-btn {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 10px 22px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  outline: none;
+}
+
+.syllabus-back-btn:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.syllabus-continue-btn {
+  background-color: #1e293b;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  outline: none;
+}
+
+.syllabus-continue-btn:hover:not(:disabled) {
+  background-color: #334155;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.syllabus-continue-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Estilos para o aprofundamento de tópicos - versão simplificada */
+.topic-depth-container {
+  margin-bottom: 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 15px 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.topic-depth-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+.topic-depth-icon {
+  display: flex;
+  align-items: center;
+  color: #4b5563;
+}
+
+.topic-depth-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #374151;
+}
+
+.topic-depth-slider-container {
+  position: relative;
+  padding: 20px 0 35px; /* Aumentado para dar mais espaço */
+  margin: 0 10px; /* Margens laterais para alinhar com os rótulos */
+}
+
+.topic-depth-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 10px;
+  background: #e5e7eb; /* Cor de fundo cinza clara para área não preenchida */
+  outline: none;
+  transition: all 0.2s;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.topic-depth-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 10px;
+}
+
+.topic-depth-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2563eb; /* Azul mais sólido */
+  border: none; /* Removendo a borda */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+  margin-top: -8px;
+}
+
+.topic-depth-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.topic-depth-slider {
+  background: linear-gradient(to right, #2563eb 0%, #2563eb 0%, #e5e7eb 0%, #e5e7eb 100%);
+}
+
+.topic-depth-slider::-webkit-slider-thumb:hover {
+  background: #f0f9ff;
+  transform: scale(1.1);
+}
+
+.topic-depth-slider::-moz-range-thumb:hover {
+  background: #f0f9ff;
+  transform: scale(1.1);
+}
+
+.topic-depth-slider:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.topic-depth-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.topic-depth-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* Rótulos simplificados sem as linhas verticais */
+.topic-depth-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px; /* Aumentado para separar do slider */
+  width: calc(100% - 10px); /* Compensar o espaço da "bola" */
+  padding: 0 5px; /* Adicionar um pequeno padding para alinhar */
+  position: absolute; /* Posicionar absolutamente para melhor controle */
+  bottom: 0;
+  left: 5px; /* Alinhamento fino */
+}
+
+.depth-label {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+  transition: all 0.2s;
+  width: 20%; /* Cada label ocupa exatamente 1/5 do espaço */
+  position: relative;
+}
+
+/* Removido o pseudo-elemento ::before que criava as linhas */
+
+.depth-label.active {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.topic-depth-description {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+}
+
+.topic-depth-description p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+/* Para corrigir o alinhamento do primeiro e último rótulo */
+.depth-label:first-child {
+  transform: translateX(10px);
+}
+
+.depth-label:last-child {
+  transform: translateX(-10px);
+}
+
+/* Ao selecionar, não deslocamos mais para baixo, apenas destacamos a cor */
+.depth-label.active {
+  transform: none;
+}
+
+/* Fixar o primeiro e último rótulo quando ativos */
+.depth-label:first-child.active {
+  transform: translateX(10px);
+}
+
+.depth-label:last-child.active {
+  transform: translateX(-10px);
+}
+
+@media screen and (max-width: 600px) {
+  .syllabus-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .syllabus-actions {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .syllabus-item-actions {
+    opacity: 1;
+  }
+
+  .syllabus-navigation {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .syllabus-back-btn,
+  .syllabus-continue-btn {
+    width: 100%;
+  }
+
+  .topic-depth-labels {
+    display: none;
+  }
+
+  .topic-depth-description {
+    padding: 10px;
+  }
+}
