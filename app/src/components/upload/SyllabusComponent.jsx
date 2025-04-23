@@ -1,18 +1,100 @@
 import { useState, useEffect } from "react";
+import { VscDebugRestart, VscCheck, VscTrash } from "react-icons/vsc";
+import { BiLoaderAlt, BiTrendingUp, BiMove } from "react-icons/bi";
 import {
-  VscDebugRestart,
-  VscCheck,
-  VscEdit,
-  VscTrash,
-  VscSend,
-} from "react-icons/vsc";
-import { BiLoaderAlt, BiTrendingUp } from "react-icons/bi";
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  TouchSensor
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import "./styles/SyllabusComponent.css";
 
+// Componente para cada item arrastável
+const SortableSyllabusItem = ({ id, text, onRemove, onEdit }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <li 
+      ref={setNodeRef}
+      className={`syllabus-item ${isDragging ? 'dragging' : ''}`} 
+      style={style}
+    >
+      <div className="syllabus-item-content">
+        {/* Alça para arrastar */}
+        <div className="drag-handle" {...attributes} {...listeners}>
+          <BiMove size={18} />
+        </div>
+        
+        <span 
+          className="syllabus-item-text"
+          onClick={() => onEdit(id, text)}
+        >
+          {text}
+        </span>
+        
+        <button
+          className="syllabus-item-btn remove"
+          onClick={() => onRemove(id)}
+          title="Remover item"
+        >
+          <VscTrash size={16} />
+        </button>
+      </div>
+    </li>
+  );
+};
+
+// Componente editável
+const EditableSyllabusItem = ({ newItemText, setNewItemText, handleKeyDown, saveEditItem }) => {
+  return (
+    <li className="syllabus-item editing">
+      <div className="syllabus-item-edit">
+        <input
+          type="text"
+          value={newItemText}
+          onChange={(e) => setNewItemText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="syllabus-edit-input"
+          autoFocus
+        />
+        <button
+          className="syllabus-item-btn save"
+          onClick={saveEditItem}
+          title="Salvar"
+        >
+          <VscCheck size={16} />
+        </button>
+      </div>
+    </li>
+  );
+};
+
 const SyllabusComponent = ({ onBack, onContinue }) => {
-  const [syllabusApproved, setSyllabusApproved] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemText, setNewItemText] = useState("");
   const [topicDepth, setTopicDepth] = useState(3); // Nível de aprofundamento (1-5)
@@ -27,10 +109,41 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
     { id: "6", text: "Personalização do Ensino com Algoritmos Adaptativos" },
   ]);
 
+  // Sensores para o drag & drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handler para finalizar o drag & drop
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setSyllabusItems((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+        
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   // Regenerar a lista de itens da ementa
   const regenerateSyllabus = () => {
     setLoading(true);
-    setSyllabusApproved(false);
 
     // Simular chamada a uma API (timeout para demonstração)
     setTimeout(() => {
@@ -46,7 +159,6 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
           text: "Avaliação de Impacto de Tecnologias IA no Processo de Aprendizagem",
         },
       ]);
-      setTopicDepth(4); // Sugestão de novo nível de aprofundamento
       setLoading(false);
     }, 1200);
   };
@@ -57,14 +169,12 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
       const newId = Date.now().toString();
       setSyllabusItems([...syllabusItems, { id: newId, text: newItemText }]);
       setNewItemText("");
-      setSyllabusApproved(false);
     }
   };
 
   // Remover item da ementa
   const removeItem = (id) => {
     setSyllabusItems(syllabusItems.filter((item) => item.id !== id));
-    setSyllabusApproved(false);
   };
 
   // Iniciar edição de um item
@@ -83,24 +193,6 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
       );
       setEditingItemId(null);
       setNewItemText("");
-      setSyllabusApproved(false);
-    }
-  };
-
-  // Mover item para cima ou para baixo na lista
-  const moveItem = (id, direction) => {
-    const currentIndex = syllabusItems.findIndex((item) => item.id === id);
-    if (
-      (direction === "up" && currentIndex > 0) ||
-      (direction === "down" && currentIndex < syllabusItems.length - 1)
-    ) {
-      const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-      const newItems = [...syllabusItems];
-      const [movedItem] = newItems.splice(currentIndex, 1);
-      newItems.splice(newIndex, 0, movedItem);
-
-      setSyllabusItems(newItems);
-      setSyllabusApproved(false);
     }
   };
 
@@ -121,6 +213,9 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
       } else {
         addNewItem();
       }
+    } else if (e.key === "Escape") {
+      setEditingItemId(null);
+      setNewItemText("");
     }
   };
 
@@ -129,7 +224,6 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
     const value = parseInt(e.target.value);
     setTopicDepth(value);
     updateSliderBackground(value);
-    setSyllabusApproved(false);
   };
 
   // Inicializar o gradiente quando o componente for montado
@@ -163,22 +257,6 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
               <VscDebugRestart className="icon" size={20} />
             )}
           </button>
-          <button
-            className={`action-button edit ${editing ? "active" : ""}`}
-            onClick={() => setEditing(!editing)}
-            title={editing ? "Finalizar edição" : "Editar ementa"}
-          >
-            <VscEdit className="icon" size={20} />
-          </button>
-          <button
-            className={`action-button approve ${
-              syllabusApproved ? "approved" : ""
-            }`}
-            onClick={() => setSyllabusApproved(!syllabusApproved)}
-            title="Aprovar ementa"
-          >
-            <VscCheck className="icon" size={20} />
-          </button>
         </div>
       </div>
 
@@ -198,7 +276,6 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
             value={topicDepth}
             onChange={handleDepthChange}
             className="topic-depth-slider"
-            disabled={!editing}
             id="topicDepthSlider"
           />
           <div className="topic-depth-labels">
@@ -225,73 +302,36 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
 
       <div className={`syllabus-content ${loading ? "loading-content" : ""}`}>
         <ul className="syllabus-list">
-          {syllabusItems.map((item) => (
-            <li key={item.id} className="syllabus-item">
-              {editingItemId === item.id ? (
-                <div className="syllabus-item-edit">
-                  <input
-                    type="text"
-                    value={newItemText}
-                    onChange={(e) => setNewItemText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="syllabus-edit-input"
-                    autoFocus
+          <DndContext 
+            sensors={sensors} 
+            collisionDetection={closestCenter} 
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={syllabusItems.map(item => item.id)} strategy={verticalListSortingStrategy}>
+              {syllabusItems.map((item) => (
+                editingItemId === item.id ? (
+                  <EditableSyllabusItem
+                    key={item.id}
+                    newItemText={newItemText}
+                    setNewItemText={setNewItemText}
+                    handleKeyDown={handleKeyDown}
+                    saveEditItem={saveEditItem}
                   />
-                  <button
-                    className="syllabus-item-btn save"
-                    onClick={saveEditItem}
-                    title="Salvar"
-                  >
-                    <VscCheck size={16} />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="syllabus-item-text">{item.text}</span>
-                  {editing && (
-                    <div className="syllabus-item-actions">
-                      <button
-                        className="syllabus-item-btn move-up"
-                        onClick={() => moveItem(item.id, "up")}
-                        disabled={syllabusItems.indexOf(item) === 0}
-                        title="Mover para cima"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        className="syllabus-item-btn move-down"
-                        onClick={() => moveItem(item.id, "down")}
-                        disabled={
-                          syllabusItems.indexOf(item) ===
-                          syllabusItems.length - 1
-                        }
-                        title="Mover para baixo"
-                      >
-                        ↓
-                      </button>
-                      <button
-                        className="syllabus-item-btn edit"
-                        onClick={() => startEditItem(item.id, item.text)}
-                        title="Editar item"
-                      >
-                        <VscEdit size={16} />
-                      </button>
-                      <button
-                        className="syllabus-item-btn remove"
-                        onClick={() => removeItem(item.id)}
-                        title="Remover item"
-                      >
-                        <VscTrash size={16} />
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-            </li>
-          ))}
+                ) : (
+                  <SortableSyllabusItem
+                    key={item.id}
+                    id={item.id}
+                    text={item.text}
+                    onRemove={removeItem}
+                    onEdit={startEditItem}
+                  />
+                )
+              ))}
+            </SortableContext>
+          </DndContext>
         </ul>
 
-        {editing && editingItemId === null && (
+        {editingItemId === null && (
           <div className="syllabus-add-item">
             <input
               type="text"
@@ -300,14 +340,15 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
               onKeyDown={handleKeyDown}
               placeholder="Adicionar novo item à ementa..."
               className="syllabus-add-input"
+              disabled={editingItemId !== null}
             />
             <button
               className="syllabus-add-button"
               onClick={addNewItem}
-              disabled={!newItemText.trim()}
+              disabled={!newItemText.trim() || editingItemId !== null}
               title="Adicionar item"
             >
-              ➤
+              {window.innerWidth <= 600 ? "Adicionar" : "➤"}
             </button>
           </div>
         )}
@@ -326,7 +367,6 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
         <button
           className="syllabus-continue-btn"
           onClick={onContinue}
-          disabled={!syllabusApproved}
         >
           Avançar
         </button>

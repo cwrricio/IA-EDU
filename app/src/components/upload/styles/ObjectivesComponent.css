@@ -200,6 +200,8 @@
 .objective-content.editing.for-textarea {
   padding: 0;
   height: auto;
+  background-color: transparent;
+  border: none;
 }
 
 .objective-content.for-textarea {
@@ -207,6 +209,9 @@
   border-radius: 6px;
   padding: 16px;
   border: 1px solid #e5e7eb;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .objective-content.loading-content {
@@ -237,6 +242,32 @@
   overflow-wrap: break-word;
   word-wrap: break-word;
   width: 100%; /* Garantir que o texto não ultrapasse a largura */
+}
+
+.objective-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  resize: vertical;
+  background-color: white;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.objective-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .objectives-actions {
@@ -297,25 +328,209 @@
   cursor: not-allowed;
 }
 
-/* Estilos para a lista de objetivos específicos */
+/* Estilos para a lista de objetivos específicos - atualizados para drag-and-drop */
+
 .objectives-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px 8px 0 0; /* Apenas arredondamento superior */
-  overflow: hidden; /* Para garantir que a borda arredondada funcione */
-  background-color: #f9fafb;
 }
 
 .objectives-list-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e5e7eb;
   background-color: white;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.objectives-list-item.dragging {
+  z-index: 999;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: #f8fafc;
+}
+
+.objectives-item-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 8px 12px;
+}
+
+.objectives-item-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  margin-right: 10px;
+  color: #94a3b8;
+  cursor: grab;
+  border-radius: 4px;
   transition: background-color 0.2s ease;
+}
+
+.objectives-item-handle:hover {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.objectives-item-handle:active {
+  cursor: grabbing;
+}
+
+.objectives-item-text {
+  flex-grow: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #334155;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.objectives-item-text:hover {
+  color: #0284c7;
+}
+
+.objectives-item-btn.remove {
+  color: #ef4444;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.objectives-item-btn.remove:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.objectives-list-item.editing {
+  padding: 0;
+}
+
+.objectives-item-edit {
+  display: flex;
+  width: 100%;
+  padding: 8px 12px;
+}
+
+.objectives-edit-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+}
+
+.objectives-item-btn.save {
+  margin-left: 8px;
+  background-color: #22c55e;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.objectives-item-btn.save:hover {
+  background-color: #16a34a;
+}
+
+/* Ajustando o botão de adicionar item para ser igual ao da ementa */
+.objectives-add-item {
+  display: flex;
+  padding: 12px 16px;
+  background-color: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+}
+
+.objectives-add-button {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.objectives-add-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+  color: #374151;
+  transform: translateX(2px);
+}
+
+/* Ajustes específicos para mobile */
+@media screen and (max-width: 600px) {
+  .objectives-item-actions {
+    display: none;
+  }
+  
+  .objectives-item-handle {
+    display: flex;
+    align-items: center;
+  }
+  
+  .objectives-list-item.selected .objectives-item-delete {
+    display: flex;
+    position: absolute;
+    right: 16px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #fee2e2;
+    color: #ef4444;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .objectives-list-item {
+    padding-right: 48px; /* Espaço para o botão de delete */
+    cursor: pointer;
+    user-select: none;
+    touch-action: pan-y; /* Permite scroll vertical mas não horizontal */
+  }
+  
+  .objectives-item-text {
+    width: calc(100% - 48px);
+  }
+  
+  /* Quando estiver em edição */
+  .objectives-list-item.editing {
+    padding-right: 16px;
+  }
+  
+  .objectives-list-item.editing .objectives-item-handle,
+  .objectives-list-item.editing .objectives-item-delete {
+    display: none;
+  }
+
+  .objectives-add-button {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    background-color: #f3f4f6;
+    margin-top: 10px;
+    margin-left: 0;
+  }
+  
+  .objectives-add-item {
+    flex-direction: column;
+  }
 }
 
 .objectives-list-item:last-child {
@@ -324,13 +539,6 @@
 
 .objectives-list-item:hover {
   background-color: #f8fafc;
-}
-
-.objectives-item-text {
-  flex-grow: 1;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #334155;
 }
 
 .objectives-item-actions {
@@ -435,22 +643,61 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Garantindo que o ícone apareça corretamente */
-.objectives-add-button {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: none;
-  border-radius: 4px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 16px; /* Ajustado para o caractere Unicode */
-  line-height: 1;
+/* Remover o outline rosa ao clicar (bolas rosas) */
+button:focus,
+button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+button,
+input[type="range"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ajustes específicos para mobile */
+@media screen and (max-width: 600px) {
+  .objective-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .objective-actions {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .objectives-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .objectives-back-btn,
+  .objectives-continue-btn {
+    width: 100%;
+  }
+
+  /* Mostrar sempre as ações de item para mobile, mas esconder o botão de editar */
+  .objectives-item-actions {
+    opacity: 1;
+  }
+  
+  .objectives-item-btn.edit {
+    display: none;
+  }
+
+  /* Ajustar o campo de adicionar para mobile */
+  .objectives-add-item {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+  
+  .objectives-add-button {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 .spin-animation {
@@ -483,33 +730,6 @@
     opacity: 0;
   }
   100% {
-    opacity: 1;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .objective-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .objective-actions {
-    margin-top: 10px;
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .objectives-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .objectives-back-btn,
-  .objectives-continue-btn {
-    width: 100%;
-  }
-
-  .objectives-item-actions {
     opacity: 1;
   }
 }

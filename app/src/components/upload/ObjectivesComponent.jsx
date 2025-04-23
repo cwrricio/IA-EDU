@@ -1,30 +1,112 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   VscDebugRestart,
   VscCheck,
-  VscEdit,
-  VscTrash,
-  VscSend,
-  VscChevronDown,
-  VscChevronUp,
+  VscTrash
 } from "react-icons/vsc";
-import { BiLoaderAlt } from "react-icons/bi";
+import { BiLoaderAlt, BiMove } from "react-icons/bi";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  TouchSensor
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import "./styles/ObjectivesComponent.css";
 
+// Componente para cada item arrastável
+const SortableObjectiveItem = ({ id, text, onRemove, onEdit }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <li 
+      ref={setNodeRef}
+      className={`objectives-list-item ${isDragging ? 'dragging' : ''}`} 
+      style={style}
+    >
+      <div className="objectives-item-content">
+        {/* Alça para arrastar */}
+        <div className="objectives-item-handle" {...attributes} {...listeners}>
+          <BiMove size={18} />
+        </div>
+        
+        <span 
+          className="objectives-item-text"
+          onClick={() => onEdit(id, text)}
+        >
+          {text}
+        </span>
+        
+        <button
+          className="objectives-item-btn remove"
+          onClick={() => onRemove(id)}
+          title="Remover item"
+        >
+          <VscTrash size={16} />
+        </button>
+      </div>
+    </li>
+  );
+};
+
+// Componente editável
+const EditableObjectiveItem = ({ newItemText, setNewItemText, handleKeyDown, saveEditItem }) => {
+  return (
+    <li className="objectives-list-item editing">
+      <div className="objectives-item-edit">
+        <input
+          type="text"
+          value={newItemText}
+          onChange={(e) => setNewItemText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="objectives-edit-input"
+          autoFocus
+        />
+        <button
+          className="objectives-item-btn save"
+          onClick={saveEditItem}
+          title="Salvar"
+        >
+          <VscCheck size={16} />
+        </button>
+      </div>
+    </li>
+  );
+};
+
 const ObjectivesComponent = ({ onBack, onContinue }) => {
-  const [generalApproved, setGeneralApproved] = useState(false);
-  const [specificApproved, setSpecificApproved] = useState(false);
-  const [disableSpecific, setDisableSpecific] = useState(false);
   const [generalEditing, setGeneralEditing] = useState(false);
-  const [specificEditing, setSpecificEditing] = useState(false);
   const [loadingGeneral, setLoadingGeneral] = useState(false);
   const [loadingSpecific, setLoadingSpecific] = useState(false);
-  
+
   // Estado para o objetivo geral
   const [generalText, setGeneralText] = useState(
     "O objetivo geral deste projeto é promover o uso de inteligência artificial como ferramenta auxiliar no processo educacional, melhorando a qualidade do ensino e facilitando a personalização do aprendizado de acordo com as necessidades individuais dos alunos."
   );
-  
+
   // Estado para objetivos específicos como lista
   const [specificItems, setSpecificItems] = useState([
     { id: "1", text: "Identificar as principais tecnologias de IA aplicáveis ao contexto educacional" },
@@ -33,14 +115,32 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
     { id: "4", text: "Criar estratégias de ensino potencializadas por sistemas de IA" },
     { id: "5", text: "Compreender os aspectos éticos envolvidos na aplicação de IA na educação" }
   ]);
-  
-  // Estado para edição de objetivo específico
+
+  // Estados para interação 
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemText, setNewItemText] = useState("");
 
+  // Sensores para o drag & drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Funções para regenerar
   const regenerateGeneral = () => {
     setLoadingGeneral(true);
-    setGeneralApproved(false);
     // Simular API call
     setTimeout(() => {
       setGeneralText(
@@ -52,7 +152,6 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
 
   const regenerateSpecific = () => {
     setLoadingSpecific(true);
-    setSpecificApproved(false);
     // Simular API call
     setTimeout(() => {
       setSpecificItems([
@@ -67,19 +166,31 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
     }, 1500);
   };
 
-  // Funções para gerenciar objetivos específicos como lista
+  // Handler para finalizar o drag & drop
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setSpecificItems((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+        
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  // Funções para gerenciar objetivos específicos
   const addNewItem = () => {
     if (newItemText.trim()) {
       const newId = Date.now().toString();
       setSpecificItems([...specificItems, { id: newId, text: newItemText }]);
       setNewItemText("");
-      setSpecificApproved(false);
     }
   };
 
   const removeItem = (id) => {
     setSpecificItems(specificItems.filter(item => item.id !== id));
-    setSpecificApproved(false);
   };
 
   const startEditItem = (id, text) => {
@@ -90,28 +201,12 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
   const saveEditItem = () => {
     if (newItemText.trim() && editingItemId) {
       setSpecificItems(
-        specificItems.map(item => 
+        specificItems.map(item =>
           item.id === editingItemId ? { ...item, text: newItemText } : item
         )
       );
       setEditingItemId(null);
       setNewItemText("");
-      setSpecificApproved(false);
-    }
-  };
-
-  const moveItem = (id, direction) => {
-    const currentIndex = specificItems.findIndex(item => item.id === id);
-    if ((direction === 'up' && currentIndex > 0) || 
-        (direction === 'down' && currentIndex < specificItems.length - 1)) {
-      
-      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      const newItems = [...specificItems];
-      const [movedItem] = newItems.splice(currentIndex, 1);
-      newItems.splice(newIndex, 0, movedItem);
-      
-      setSpecificItems(newItems);
-      setSpecificApproved(false);
     }
   };
 
@@ -122,20 +217,10 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
       } else {
         addNewItem();
       }
+    } else if (e.key === 'Escape') {
+      setEditingItemId(null);
+      setNewItemText("");
     }
-  };
-
-  const toggleSpecificSection = () => {
-    setDisableSpecific(!disableSpecific);
-    if (!disableSpecific) {
-      setSpecificApproved(true);
-    } else {
-      setSpecificApproved(false);
-    }
-  };
-
-  const allApproved = () => {
-    return generalApproved && (specificApproved || disableSpecific);
   };
 
   return (
@@ -159,23 +244,12 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
                 <VscDebugRestart className="icon" size={20} />
               )}
             </button>
-            <button
-              className={`action-button edit ${generalEditing ? "active" : ""}`}
-              onClick={() => setGeneralEditing(!generalEditing)}
-              title="Editar objetivo geral"
-            >
-              <VscEdit className="icon" size={20} />
-            </button>
-            <button
-              className={`action-button approve ${generalApproved ? "approved" : ""}`}
-              onClick={() => setGeneralApproved(!generalApproved)}
-              title="Aprovar objetivo geral"
-            >
-              <VscCheck className="icon" size={20} />
-            </button>
           </div>
         </div>
-        <div className={`objective-content for-textarea ${loadingGeneral ? "loading-content" : ""} ${generalEditing ? "editing" : ""}`}>
+        <div
+          className={`objective-content for-textarea ${loadingGeneral ? "loading-content" : ""} ${generalEditing ? "editing for-textarea" : ""}`}
+          onClick={() => !generalEditing && setGeneralEditing(true)}
+        >
           {generalEditing ? (
             <textarea
               className="objective-textarea"
@@ -196,24 +270,14 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
       </div>
 
       {/* Seção de objetivos específicos */}
-      <div className={`objective-section ${disableSpecific ? "disabled" : ""}`}>
+      <div className="objective-section">
         <div className="objective-header">
           <h3>Objetivos Específicos</h3>
           <div className="objective-actions">
             <button
-              className="toggle-switch"
-              onClick={toggleSpecificSection}
-              title={disableSpecific ? "Habilitar objetivos específicos" : "Desabilitar objetivos específicos"}
-            >
-              <VscChevronDown
-                className={`toggle-icon ${disableSpecific ? "disabled" : "enabled"}`}
-                size={22}
-              />
-            </button>
-            <button
               className={`action-button reload ${loadingSpecific ? "loading" : ""}`}
               onClick={regenerateSpecific}
-              disabled={loadingSpecific || disableSpecific}
+              disabled={loadingSpecific}
               title="Regenerar objetivos específicos"
             >
               {loadingSpecific ? (
@@ -222,92 +286,41 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
                 <VscDebugRestart className="icon" size={20} />
               )}
             </button>
-            <button
-              className={`action-button edit ${specificEditing ? "active" : ""}`}
-              onClick={() => setSpecificEditing(!specificEditing)}
-              disabled={disableSpecific}
-              title="Editar objetivos específicos"
-            >
-              <VscEdit className="icon" size={20} />
-            </button>
-            <button
-              className={`action-button approve ${specificApproved ? "approved" : ""}`}
-              onClick={() => setSpecificApproved(!specificApproved)}
-              disabled={disableSpecific}
-              title="Aprovar objetivos específicos"
-            >
-              <VscCheck className="icon" size={20} />
-            </button>
           </div>
         </div>
 
-        {/* Lista de objetivos específicos */}
         <div className={`objective-content ${loadingSpecific ? "loading-content" : ""}`}>
           <ul className="objectives-list">
-            {specificItems.map((item) => (
-              <li key={item.id} className="objectives-list-item">
-                {editingItemId === item.id && specificEditing ? (
-                  <div className="objectives-item-edit">
-                    <input
-                      type="text"
-                      value={newItemText}
-                      onChange={(e) => setNewItemText(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="objectives-edit-input"
-                      autoFocus
+            <DndContext 
+              sensors={sensors} 
+              collisionDetection={closestCenter} 
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={specificItems.map(item => item.id)} strategy={verticalListSortingStrategy}>
+                {specificItems.map((item) => (
+                  editingItemId === item.id ? (
+                    <EditableObjectiveItem
+                      key={item.id}
+                      newItemText={newItemText}
+                      setNewItemText={setNewItemText}
+                      handleKeyDown={handleKeyDown}
+                      saveEditItem={saveEditItem}
                     />
-                    <button 
-                      className="objectives-item-btn save" 
-                      onClick={saveEditItem}
-                      title="Salvar"
-                    >
-                      <VscCheck size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <span className="objectives-item-text">{item.text}</span>
-                    {specificEditing && (
-                      <div className="objectives-item-actions">
-                        <button 
-                          className="objectives-item-btn move-up"
-                          onClick={() => moveItem(item.id, 'up')}
-                          disabled={specificItems.indexOf(item) === 0}
-                          title="Mover para cima"
-                        >
-                          ↑
-                        </button>
-                        <button 
-                          className="objectives-item-btn move-down"
-                          onClick={() => moveItem(item.id, 'down')}
-                          disabled={specificItems.indexOf(item) === specificItems.length - 1}
-                          title="Mover para baixo"
-                        >
-                          ↓
-                        </button>
-                        <button 
-                          className="objectives-item-btn edit"
-                          onClick={() => startEditItem(item.id, item.text)}
-                          title="Editar item"
-                        >
-                          <VscEdit size={16} />
-                        </button>
-                        <button 
-                          className="objectives-item-btn remove"
-                          onClick={() => removeItem(item.id)}
-                          title="Remover item"
-                        >
-                          <VscTrash size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </li>
-            ))}
+                  ) : (
+                    <SortableObjectiveItem
+                      key={item.id}
+                      id={item.id}
+                      text={item.text}
+                      onRemove={removeItem}
+                      onEdit={startEditItem}
+                    />
+                  )
+                ))}
+              </SortableContext>
+            </DndContext>
           </ul>
 
-          {specificEditing && editingItemId === null && (
+          {editingItemId === null && (
             <div className="objectives-add-item">
               <input
                 type="text"
@@ -316,14 +329,15 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
                 onKeyDown={handleKeyDown}
                 placeholder="Adicionar novo objetivo específico..."
                 className="objectives-add-input"
+                disabled={editingItemId !== null}
               />
-              <button 
+              <button
                 className="objectives-add-button"
                 onClick={addNewItem}
-                disabled={!newItemText.trim()}
+                disabled={!newItemText.trim() || editingItemId !== null}
                 title="Adicionar objetivo"
               >
-                ➤
+                {window.innerWidth <= 600 ? "Adicionar" : "➤"}
               </button>
             </div>
           )}
@@ -343,7 +357,6 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
         <button
           className="objectives-continue-btn"
           onClick={onContinue}
-          disabled={!allApproved()}
         >
           Avançar
         </button>

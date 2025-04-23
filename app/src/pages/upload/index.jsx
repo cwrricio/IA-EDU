@@ -3,14 +3,14 @@ import UploadHeader from '../../components/upload/UploadHeader';
 import DropZone from '../../components/upload/DropZone';
 import FileList from '../../components/upload/FileList';
 import UploadActions from '../../components/upload/UploadActions';
-import ContentConfirmation from '../../components/upload/ContentConfirmation';
 import ObjectivesComponent from '../../components/upload/ObjectivesComponent';
 import SyllabusComponent from '../../components/upload/SyllabusComponent';
+import ContentListComponent from '../../components/upload/ContentListComponent';
 import './upload.css';
 
 const UploadPage = () => {
   const [files, setFiles] = useState([]);
-  const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'confirmation', 'objectives', ou 'syllabus'
+  const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'objectives', 'syllabus', 'content'
 
   const handleFilesSelected = (selectedFiles) => {
     const newFiles = selectedFiles.map(file => ({
@@ -33,20 +33,11 @@ const UploadPage = () => {
 
   const handleAttach = () => {
     console.log('Files attached:', files);
-    setCurrentStep('confirmation');
+    setCurrentStep('objectives');
   };
   
   const handleBackToUpload = () => {
     setCurrentStep('upload');
-  };
-  
-  const handleContinueToObjectives = () => {
-    console.log('Continuing to objectives with files:', files);
-    setCurrentStep('objectives');
-  };
-  
-  const handleBackToConfirmation = () => {
-    setCurrentStep('confirmation');
   };
   
   const handleContinueToSyllabus = () => {
@@ -58,9 +49,17 @@ const UploadPage = () => {
     setCurrentStep('objectives');
   };
   
+  const handleContinueToContent = () => {
+    console.log('Continuing to content');
+    setCurrentStep('content');
+  };
+
+  const handleBackToSyllabus = () => {
+    setCurrentStep('syllabus');
+  };
+  
   const handleFinish = () => {
     console.log('Workflow completed with files:', files);
-    // Aqui você pode navegar para a próxima etapa do fluxo
     alert('Projeto finalizado com sucesso!');
   };
 
@@ -83,16 +82,9 @@ const UploadPage = () => {
           </>
         )}
         
-        {currentStep === 'confirmation' && (
-          <ContentConfirmation 
-            onBack={handleBackToUpload} 
-            onContinue={handleContinueToObjectives} 
-          />
-        )}
-        
         {currentStep === 'objectives' && (
           <ObjectivesComponent
-            onBack={handleBackToConfirmation}
+            onBack={handleBackToUpload}
             onContinue={handleContinueToSyllabus}
           />
         )}
@@ -100,6 +92,13 @@ const UploadPage = () => {
         {currentStep === 'syllabus' && (
           <SyllabusComponent
             onBack={handleBackToObjectives}
+            onContinue={handleContinueToContent}
+          />
+        )}
+
+        {currentStep === 'content' && (
+          <ContentListComponent
+            onBack={handleBackToSyllabus}
             onContinue={handleFinish}
           />
         )}

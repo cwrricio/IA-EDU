@@ -27,15 +27,16 @@
 
 .syllabus-content {
   position: relative;
-  background-color: #f9fafb;
+
   border-radius: 8px;
   padding: 0;
   margin-bottom: 25px;
-  border: 1px solid #e5e7eb;
+
   max-height: none; /* Removendo limitação de altura */
   overflow-y: visible; /* Removendo scroll vertical */
 }
 
+/* Estilos para o drag and drop - atualizados para seguir o padrão visual da lista de objetivos */
 .syllabus-list {
   list-style: none;
   padding: 0;
@@ -44,20 +45,46 @@
 
 .syllabus-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e5e7eb;
   background-color: white;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.syllabus-item.dragging {
+  z-index: 999;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: #f8fafc;
+}
+
+.syllabus-item-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 8px 12px;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  margin-right: 10px;
+  color: #94a3b8;
+  cursor: grab;
+  border-radius: 4px;
   transition: background-color 0.2s ease;
 }
 
-.syllabus-item:last-child {
-  border-bottom: none;
+.drag-handle:hover {
+  background-color: #f1f5f9;
+  color: #475569;
 }
 
-.syllabus-item:hover {
-  background-color: #f8fafc;
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .syllabus-item-text {
@@ -65,18 +92,12 @@
   font-size: 14px;
   line-height: 1.5;
   color: #334155;
+  padding: 8px 0;
+  cursor: pointer;
 }
 
-.syllabus-item-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.syllabus-item:hover .syllabus-item-actions {
-  opacity: 1;
+.syllabus-item-text:hover {
+  color: #0284c7;
 }
 
 .syllabus-item-btn {
@@ -98,41 +119,34 @@
   background-color: #f1f5f9;
 }
 
-.syllabus-item-btn.edit:hover {
-  color: #0284c7;
+.syllabus-item-btn.remove {
+  color: #ef4444;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .syllabus-item-btn.remove:hover {
-  color: #ef4444;
+  opacity: 1;
+  transform: scale(1.1);
+  background-color: #fee2e2;
 }
 
-.syllabus-item-btn.save {
-  color: #059669;
-  background-color: #ecfdf5;
-}
-
-.syllabus-item-btn.save:hover {
-  background-color: #d1fae5;
-}
-
-.syllabus-item-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.syllabus-item.editing {
+  padding: 0;
 }
 
 .syllabus-item-edit {
   display: flex;
-  align-items: center;
   width: 100%;
-  gap: 10px;
+  padding: 8px 12px;
 }
 
 .syllabus-edit-input {
   flex-grow: 1;
   padding: 8px 12px;
+  font-size: 14px;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
-  font-size: 14px;
   outline: none;
 }
 
@@ -141,11 +155,38 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
+.syllabus-item-btn.save {
+  margin-left: 8px;
+  background-color: #22c55e;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.syllabus-item-btn.save:hover {
+  background-color: #16a34a;
+}
+
+.syllabus-item-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .syllabus-add-item {
   display: flex;
   padding: 12px 16px;
   background-color: #f1f5f9;
   border-top: 1px solid #e2e8f0;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  border-bottom-left-radius: 8px; /* Arredondamento inferior */
+  border-bottom-right-radius: 8px; /* Arredondamento inferior */
 }
 
 .syllabus-add-input {
@@ -463,5 +504,34 @@
 
   .topic-depth-description {
     padding: 10px;
+  }
+
+  .drag-handle {
+    padding: 8px;
+  }
+  
+  .syllabus-item-text {
+    padding: 12px 0;
+  }
+  
+  .syllabus-add-button {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    background-color: #f3f4f6;
+    margin-top: 10px;
+    margin-left: 0;
+  }
+  
+  .syllabus-add-item {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+  
+  .syllabus-item-btn.edit {
+    display: none;
   }
 }
