@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react';
 import './styles/DropZone.css';
+import api from '../../services/api';
 
-const DropZone = ({ onFilesSelected }) => {
+const DropZone = ({ onFilesSelected, onUploadComplete }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
@@ -20,6 +22,7 @@ const DropZone = ({ onFilesSelected }) => {
     
     if (e.dataTransfer.files.length > 0) {
       onFilesSelected(Array.from(e.dataTransfer.files));
+      handleUpload(Array.from(e.dataTransfer.files));
     }
   };
 
@@ -30,6 +33,21 @@ const DropZone = ({ onFilesSelected }) => {
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
       onFilesSelected(Array.from(e.target.files));
+      handleUpload(Array.from(e.target.files));
+    }
+  };
+
+  const handleUpload = async (acceptedFiles) => {
+    setIsLoading(true);
+    try {
+      const file = acceptedFiles[0];
+      const result = await api.uploadDocument(file);
+      onUploadComplete(result);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      // Handle error state
+    } finally {
+      setIsLoading(false);
     }
   };
 

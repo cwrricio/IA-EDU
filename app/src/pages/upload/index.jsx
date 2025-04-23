@@ -64,13 +64,18 @@ const UploadPage = () => {
     alert('Projeto finalizado com sucesso!');
   };
 
+  const onUploadComplete = (result) => {
+    console.log('Upload complete:', result);
+    // Aqui você pode lidar com o resultado do upload, como armazenar os dados ou exibir uma mensagem
+  }
+
   return (
     <div className="upload-container">
       <div className="upload-card">
         {currentStep === 'upload' && (
           <>
             <UploadHeader />
-            <DropZone onFilesSelected={handleFilesSelected} />
+            <DropZone onFilesSelected={handleFilesSelected} onUploadComplete={onUploadComplete}/>
             {files.length > 0 && (
               <FileList files={files} onRemoveFile={handleRemoveFile} />
             )}
