@@ -18,7 +18,16 @@ const ContentListComponent = ({ onBack, onContinue }) => {
           <li>Introdução à orientação a objetos</li>
         </ul>
         <p>Este conteúdo é essencial para construir uma base sólida em desenvolvimento de software.</p>
-      `
+      `,
+      learningObjectives: [
+        "Compreender os princípios básicos de algoritmos e sua implementação",
+        "Aplicar estruturas de controle para resolver problemas simples",
+        "Desenvolver funções modulares para reutilização de código"
+      ],
+      relatedObjectives: [
+        "Desenvolver habilidades para implementação de ferramentas de IA no processo de ensino",
+        "Identificar as principais tecnologias de IA aplicáveis ao contexto educacional"
+      ]
     },
     {
       id: 2,
@@ -34,7 +43,16 @@ const ContentListComponent = ({ onBack, onContinue }) => {
           <li>Análise de complexidade</li>
         </ul>
         <p>Compreender estruturas de dados é fundamental para desenvolver algoritmos eficientes.</p>
-      `
+      `,
+      learningObjectives: [
+        "Selecionar estruturas de dados apropriadas para diferentes problemas",
+        "Implementar e manipular estruturas de dados complexas",
+        "Analisar a complexidade de tempo e espaço de algoritmos"
+      ],
+      relatedObjectives: [
+        "Avaliar o impacto da IA na personalização da aprendizagem",
+        "Criar estratégias de ensino potencializadas por sistemas de IA"
+      ]
     },
     {
       id: 3,
@@ -50,7 +68,16 @@ const ContentListComponent = ({ onBack, onContinue }) => {
           <li>Otimização de consultas</li>
         </ul>
         <p>Ao final, você será capaz de projetar e implementar soluções eficientes de armazenamento de dados.</p>
-      `
+      `,
+      learningObjectives: [
+        "Modelar bancos de dados relacionais utilizando normalização",
+        "Desenvolver consultas SQL para manipulação e extração de dados",
+        "Comparar bancos de dados relacionais e NoSQL para diferentes cenários"
+      ],
+      relatedObjectives: [
+        "Compreender os aspectos éticos envolvidos na aplicação de IA na educação",
+        "Desenvolver habilidades para implementação de ferramentas de IA no processo de ensino"
+      ]
     },
     {
       id: 4,
@@ -66,7 +93,16 @@ const ContentListComponent = ({ onBack, onContinue }) => {
           <li>Tecnologias sem fio</li>
         </ul>
         <p>Compreender redes é fundamental para desenvolver aplicações distribuídas e serviços web.</p>
-      `
+      `,
+      learningObjectives: [
+        "Explicar os modelos de rede e suas camadas funcionais",
+        "Configurar redes básicas com roteamento e endereçamento IP",
+        "Implementar protocolos de segurança em redes corporativas"
+      ],
+      relatedObjectives: [
+        "Identificar as principais tecnologias de IA aplicáveis ao contexto educacional",
+        "Avaliar o impacto da IA na personalização da aprendizagem"
+      ]
     }
   ];
 
@@ -81,6 +117,8 @@ const ContentListComponent = ({ onBack, onContinue }) => {
             title={item.title}
             description={item.description}
             content={item.content}
+            learningObjectives={item.learningObjectives}
+            relatedObjectives={item.relatedObjectives}
           />
         ))}
       </div>

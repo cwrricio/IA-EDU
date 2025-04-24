@@ -78,6 +78,33 @@
   background-color: #f9fafb;
 }
 
+.content-item-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  margin: 20px 0 10px 0;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.content-item-objectives-list,
+.content-item-related-list {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+.content-item-objectives-list li,
+.content-item-related-list li {
+  margin-bottom: 6px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.content-item-related-list li {
+  font-style: italic;
+  color: #475569;
+}
+
 @keyframes expand {
   0% {
     max-height: 0;

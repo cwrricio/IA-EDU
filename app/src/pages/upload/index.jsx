@@ -6,11 +6,12 @@ import UploadActions from '../../components/upload/UploadActions';
 import ObjectivesComponent from '../../components/upload/ObjectivesComponent';
 import SyllabusComponent from '../../components/upload/SyllabusComponent';
 import ContentListComponent from '../../components/upload/ContentListComponent';
+import CompletionScreen from '../../components/upload/CompletionScreen';
 import './upload.css';
 
 const UploadPage = () => {
   const [files, setFiles] = useState([]);
-  const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'objectives', 'syllabus', 'content'
+  const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'objectives', 'syllabus', 'content', 'completion'
 
   const handleFilesSelected = (selectedFiles) => {
     const newFiles = selectedFiles.map(file => ({
@@ -60,7 +61,7 @@ const UploadPage = () => {
   
   const handleFinish = () => {
     console.log('Workflow completed with files:', files);
-    alert('Projeto finalizado com sucesso!');
+    setCurrentStep('completion');
   };
 
   const onUploadComplete = (result) => {
@@ -101,6 +102,10 @@ const UploadPage = () => {
             onBack={handleBackToSyllabus}
             onContinue={handleFinish}
           />
+        )}
+
+        {currentStep === 'completion' && (
+          <CompletionScreen />
         )}
       </div>
     </div>

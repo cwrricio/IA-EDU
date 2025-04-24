@@ -2,7 +2,13 @@ import { useState } from "react";
 import { VscChevronDown, VscChevronUp } from "react-icons/vsc";
 import "./styles/ContentItemComponent.css";
 
-const ContentItemComponent = ({ title, description, content }) => {
+const ContentItemComponent = ({ 
+  title, 
+  description, 
+  content, 
+  learningObjectives, 
+  relatedObjectives 
+}) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => {
@@ -24,7 +30,29 @@ const ContentItemComponent = ({ title, description, content }) => {
       {expanded && (
         <div className="content-item-details">
           <div className="content-item-content">
-            {content || "Conteúdo detalhado será carregado aqui."}
+            <div dangerouslySetInnerHTML={{ __html: content || "Conteúdo detalhado será carregado aqui." }} />
+            
+            {learningObjectives && learningObjectives.length > 0 && (
+              <div className="content-item-objectives">
+                <h4 className="content-item-section-title">Objetivos de Aprendizagem</h4>
+                <ul className="content-item-objectives-list">
+                  {learningObjectives.map((objective, index) => (
+                    <li key={index}>{objective}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {relatedObjectives && relatedObjectives.length > 0 && (
+              <div className="content-item-related">
+                <h4 className="content-item-section-title">Objetivos Específicos Relacionados</h4>
+                <ul className="content-item-related-list">
+                  {relatedObjectives.map((objective, index) => (
+                    <li key={index}>{objective}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       )}
