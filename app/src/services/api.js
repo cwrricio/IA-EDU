@@ -1,26 +1,43 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://localhost:8000/api';
 
 const api = {
   uploadDocument: async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await axios.post(`${API_URL}/api/upload-document`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(`${API_URL}/upload-document`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
   },
-  
-  generateObjectives: async (documentData) => {
-    const response = await axios.post(`${API_URL}/api/generate-objectives`, documentData);
-    return response.data;
+
+  generateObjectives: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/generate-objectives`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating objectives:', error);
+      throw error;
+    }
   },
-  
-  generateSyllabus: async (objectives) => {
-    const response = await axios.post(`${API_URL}/api/generate-syllabus`, { objectives });
-    return response.data;
+
+  generateSyllabus: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/generate-syllabus`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating syllabus:', error);
+      throw error;
+    }
   }
 };
 

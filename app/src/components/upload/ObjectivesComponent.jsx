@@ -116,7 +116,10 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
         setLoadingGeneral(true);
         setLoadingSpecific(true);
 
-        const result = await api.generateObjectives({ "bom": "dia" });
+        const result = await api.generateObjectives({ 
+          "context": "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences" 
+        });
+        
         console.log('API response:', result);
 
         if (result) {
