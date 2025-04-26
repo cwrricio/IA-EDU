@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .vite
+.env
 
 # Editor directories and files
 .vscode/*
@@ -25,4 +26,3 @@ dist-ssr
 *.sw?
 
 __pycache__
-.env

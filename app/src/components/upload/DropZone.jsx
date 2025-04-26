@@ -72,6 +72,7 @@ const DropZone = ({ onFilesSelected, onUploadComplete }) => {
         type="file" 
         ref={fileInputRef} 
         className="drop-zone-input" 
+        accept=".pdf,.txt,.doc,.docx" 
         onChange={handleFileChange}
         multiple
       />

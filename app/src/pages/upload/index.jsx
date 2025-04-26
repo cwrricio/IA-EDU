@@ -7,11 +7,14 @@ import ObjectivesComponent from '../../components/upload/ObjectivesComponent';
 import SyllabusComponent from '../../components/upload/SyllabusComponent';
 import ContentListComponent from '../../components/upload/ContentListComponent';
 import CompletionScreen from '../../components/upload/CompletionScreen';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import './upload.css';
 
 const UploadPage = () => {
   const [files, setFiles] = useState([]);
   const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'objectives', 'syllabus', 'content', 'completion'
+  const [documentAnalysis, setDocumentAnalysis] = useState(null);
 
   const handleFilesSelected = (selectedFiles) => {
     const newFiles = selectedFiles.map(file => ({
@@ -19,7 +22,7 @@ const UploadPage = () => {
       file,
       progress: Math.floor(Math.random() * 100) // Simulação de progresso
     }));
-    
+
     setFiles(prev => [...prev, ...newFiles]);
   };
 
@@ -33,14 +36,20 @@ const UploadPage = () => {
   };
 
   const handleAttach = () => {
+    if (files.length === 0) {
+      // Mostrar mensagem de erro
+      toast.error("Por favor, anexe pelo menos um documento antes de continuar.");
+      return;
+    }
+
     console.log('Files attached:', files);
     setCurrentStep('objectives');
   };
-  
+
   const handleBackToUpload = () => {
     setCurrentStep('upload');
   };
-  
+
   const handleContinueToSyllabus = () => {
     console.log('Continuing to syllabus definition');
     setCurrentStep('syllabus');
@@ -49,7 +58,7 @@ const UploadPage = () => {
   const handleBackToObjectives = () => {
     setCurrentStep('objectives');
   };
-  
+
   const handleContinueToContent = () => {
     console.log('Continuing to content');
     setCurrentStep('content');
@@ -58,7 +67,7 @@ const UploadPage = () => {
   const handleBackToSyllabus = () => {
     setCurrentStep('syllabus');
   };
-  
+
   const handleFinish = () => {
     console.log('Workflow completed with files:', files);
     setCurrentStep('completion');
@@ -66,6 +75,7 @@ const UploadPage = () => {
 
   const onUploadComplete = (result) => {
     console.log('Upload complete:', result);
+    setDocumentAnalysis(result.analysis);
     // Aqui você pode lidar com o resultado do upload, como armazenar os dados ou exibir uma mensagem
   }
 
@@ -75,18 +85,19 @@ const UploadPage = () => {
         {currentStep === 'upload' && (
           <>
             <UploadHeader />
-            <DropZone onFilesSelected={handleFilesSelected} onUploadComplete={onUploadComplete}/>
+            <DropZone onFilesSelected={handleFilesSelected} onUploadComplete={onUploadComplete} />
             {files.length > 0 && (
               <FileList files={files} onRemoveFile={handleRemoveFile} />
             )}
             <UploadActions onCancel={handleCancel} onAttach={handleAttach} />
           </>
         )}
-        
+
         {currentStep === 'objectives' && (
           <ObjectivesComponent
             onBack={handleBackToUpload}
             onContinue={handleContinueToSyllabus}
+            documentAnalysis={documentAnalysis}
           />
         )}
 

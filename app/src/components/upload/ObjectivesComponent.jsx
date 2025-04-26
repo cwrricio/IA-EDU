@@ -98,7 +98,7 @@ const EditableObjectiveItem = ({ newItemText, setNewItemText, handleKeyDown, sav
   );
 };
 
-const ObjectivesComponent = ({ onBack, onContinue }) => {
+const ObjectivesComponent = ({ onBack, onContinue, documentAnalysis }) => {
   const [generalEditing, setGeneralEditing] = useState(false);
   const [loadingGeneral, setLoadingGeneral] = useState(false);
   const [loadingSpecific, setLoadingSpecific] = useState(false);
@@ -110,17 +110,27 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemText, setNewItemText] = useState("");
 
+  const apiCallMadeRef = useRef(false);
+  const prevDocumentAnalysis = useRef(null);
+
   useEffect(() => {
+    // Somente chama a API se o documento mudar ou for a primeira chamada
+    if (documentAnalysis === prevDocumentAnalysis.current) return;
+    prevDocumentAnalysis.current = documentAnalysis;
+
     const fetchObjectives = async () => {
       try {
         setLoadingGeneral(true);
         setLoadingSpecific(true);
 
-        const result = await api.generateObjectives({ 
-          "context": "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences" 
-        });
-        
+        // Usar o conteúdo do documento como contexto se disponível
+        const context = documentAnalysis ||
+          "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences";
+
+        const result = await api.generateObjectives({ context });
+
         console.log('API response:', result);
+        apiCallMadeRef.current = true;  // Marcar que a chamada foi feita
 
         if (result) {
           if (result.general) {
@@ -139,7 +149,7 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
     };
 
     fetchObjectives();
-  }, []);
+  }, [documentAnalysis]);
 
   // Sensores para o drag & drop
   const sensors = useSensors(
@@ -159,73 +169,47 @@ const ObjectivesComponent = ({ onBack, onContinue }) => {
     })
   );
 
-  // Funções para regenerar
-  const regenerateGeneral = () => {
-    setLoadingGeneral(true);
-    // Simular API call
-    setTimeout(() => {
-      setGeneralText(
-        "Este projeto tem como objetivo principal integrar tecnologias de inteligência artificial no ambiente educacional, visando aprimorar os processos de ensino-aprendizagem, otimizar a prática docente e proporcionar experiências personalizadas aos estudantes conforme suas necessidades e ritmos individuais."
-      );
+  const regenerateGeneral = async () => {
+    try {
+      setLoadingGeneral(true);
+
+      // Usar o mesmo contexto do documento anexado
+      const context = documentAnalysis ||
+        "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences";
+
+      const result = await api.generateObjectives({ context });
+      console.log('API response for general regeneration:', result);
+
+      if (result && result.general) {
+        setGeneralText(Array.isArray(result.general) ? result.general[0] : result.general);
+      }
+    } catch (error) {
+      console.error('Error regenerating general objective:', error);
+    } finally {
       setLoadingGeneral(false);
-    }, 1500);
+    }
   };
 
-  // // Função para regenerar o objetivo geral para implementação futura
+  const regenerateSpecific = async () => {
+    try {
+      setLoadingSpecific(true);
 
-  // const regenerateGeneral = async () => {
-  //   try {
-  //     setLoadingGeneral(true);
-  //     setGeneralApproved(false);
+      // Usar o mesmo contexto do documento anexado
+      const context = documentAnalysis ||
+        "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences";
 
-  //     const result = await api.generateObjectives({ "bom": "dia" });
-  //     console.log('API response:', result);
+      const result = await api.generateObjectives({ context });
+      console.log('API response for specific regeneration:', result);
 
-  //     if (result && result.general) {
-  //       setGeneralText(Array.isArray(result.general) ? result.general[0] : result.general);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error regenerating general objective:', error);
-  //   } finally {
-  //     setLoadingGeneral(false);
-  //   }
-  // };
-
-  const regenerateSpecific = () => {
-    setLoadingSpecific(true);
-    // Simular API call
-    setTimeout(() => {
-      setSpecificItems([
-        { id: "1", text: "Explorar diferentes aplicações de IA para resolução de desafios educacionais" },
-        { id: "2", text: "Capacitar educadores para o uso crítico de ferramentas baseadas em IA" },
-        { id: "3", text: "Analisar dados educacionais para tomada de decisões pedagógicas informadas" },
-        { id: "4", text: "Desenvolver projetos de aprendizagem adaptativa com suporte de IA" },
-        { id: "5", text: "Avaliar a eficácia de sistemas de tutoria inteligente no progresso dos alunos" },
-        { id: "6", text: "Promover a inclusão digital através de tecnologias adaptativas de IA" }
-      ]);
+      if (result && result.specific && Array.isArray(result.specific)) {
+        setSpecificItems(result.specific);
+      }
+    } catch (error) {
+      console.error('Error regenerating specific objectives:', error);
+    } finally {
       setLoadingSpecific(false);
-    }, 1500);
+    }
   };
-
-  // // Função para regenerar os objetivos específicos para implementação futura
-
-  // const regenerateSpecific = async () => {
-  //   try {
-  //     setLoadingSpecific(true);
-  //     setSpecificApproved(false);
-
-  //     const result = await api.generateObjectives({ "bom": "dia" });
-  //     console.log('API response:', result);
-
-  //     if (result && result.specific) {
-  //       setSpecificItems(result.specific);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error regenerating specific objectives:', error);
-  //   } finally {
-  //     setLoadingSpecific(false);
-  //   }
-  // }
 
 
   // Handler para finalizar o drag & drop

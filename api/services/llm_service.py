@@ -16,26 +16,26 @@ class LLMService:
         self.model = "llama-3.3-70b-versatile"  # editável
     
     async def generate_objectives(self, context):
-        """Generate educational objectives based on context"""
+        """Gere um conjunto abrangente de objetivos de aprendizagem com base no contexto educacional fornecido."""
         prompt = f"""
-        Based on the following educational context, generate a comprehensive set of learning objectives.
-        Include one general objective and 3-5 specific objectives.
+        Baseado nas seguintes informações educacionais, gere um conjunto abrangente de objetivos de aprendizagem.
+        Inclua um objetivo geral e de 3 a 5 objetivos específicos.
         
-        Context: {context}
+        Contexto: {context}
         
-        Format the response as a valid JSON object with the following structure:
+        Formate a resposta como um objeto JSON válido com a seguinte estrutura:
         {{
-            "general": "The general objective statement",
+            "general": "O objetivo geral do curso",
             "specific": [
-                {{"id": "1", "text": "First specific objective"}},
-                {{"id": "2", "text": "Second specific objective"}},
-                {{"id": "3", "text": "Third specific objective"}}
+                {{"id": "1", "text": "Primeiro objetivo específico"}},
+                {{"id": "2", "text": "Segundo objetivo específico"}},
+                {{"id": "3", "text": "Terceiro objetivo específico"}},
             ]
         }}
         
-        IMPORTANT: Make sure the JSON is properly formatted with all curly braces and brackets correctly balanced.
-        Each object in the 'specific' array MUST have a closing curly brace.
-        DO NOT use code block markers (```) in your response.
+        IMPORTANTE: Certifique-se de que o JSON esteja formatado corretamente, com todas as chaves e colchetes balanceados.
+        Cada objeto no array 'specific' DEVE ter uma chave de fechamento.
+        NÃO use marcadores de bloco de código (```) em sua resposta.
         """
         
         response = self.client.chat.completions.create(
@@ -52,23 +52,23 @@ class LLMService:
         return self._clean_and_validate_json(content)
     
     async def generate_syllabus(self, context):
-        """Generate a course syllabus based on context"""
+        """Gere um plano de curso com base no contexto educacional fornecido."""
         prompt = f"""
-        Based on the following educational context, generate a course syllabus with relevant topics.
+        Baseado nas seguintes informações educacionais, gere um plano de curso abrangente com tópicos relevantes.
         
-        Context: {context}
+        Contexto: {context}
         
-        Format the response as a JSON object with the following structure:
+        Formate a resposta como um objeto JSON válido com a seguinte estrutura:
         {{
             "topics": [
-                {{"id": 1, "title": "Topic title", "depth": 3}},
-                {{"id": 2, "title": "Another topic", "depth": 4}},
+                {{"id": 1, "title": "Título do Tópico", "depth": 3}},
+                {{"id": 2, "title": "Outro tópico", "depth": 4}},
                 ...
             ]
         }}
-        Where depth is a value from 1-5 indicating the recommended depth of coverage.
+        Onde 'profundidade' é um valor de 1 a 5 indicando a profundidade recomendada de cobertura.
         
-        IMPORTANT: Make sure the JSON is properly formatted. DO NOT use code block markers (```) in your response.
+        IMPORTANTE: Certifique-se de que o JSON esteja formatado corretamente, com todas as chaves e colchetes balanceados.
         """
         
         response = self.client.chat.completions.create(
@@ -130,13 +130,13 @@ class LLMService:
             return json.loads(fixed_content)
     
     async def process_document(self, document_content):
-        """Extract key information from an educational document"""
+        """Extraia as informações-chave de um documento educacional."""
         prompt = f"""
-        Please analyze this educational document and extract key information that could be useful for course planning.
+        Por favor, analise este documento educacional e extraia informações-chave que possam ser úteis para o planejamento de cursos.
         
-        Document content: {document_content}
+        Conteúdo do documento: {document_content}
         
-        Identify main topics, learning objectives, and recommended teaching approaches.
+        Identifique os principais tópicos, objetivos de aprendizagem e abordagens de ensino recomendadas.
         """
         
         response = self.client.chat.completions.create(
