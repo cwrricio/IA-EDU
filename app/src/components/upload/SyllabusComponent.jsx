@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { VscDebugRestart, VscCheck, VscTrash } from "react-icons/vsc";
 import { BiLoaderAlt, BiTrendingUp, BiMove } from "react-icons/bi";
 import {
@@ -18,6 +18,7 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import api from "../../services/api";
 import "./styles/SyllabusComponent.css";
 
 // Componente para cada item arrastável
@@ -38,9 +39,9 @@ const SortableSyllabusItem = ({ id, text, onRemove, onEdit }) => {
   };
 
   return (
-    <li 
+    <li
       ref={setNodeRef}
-      className={`syllabus-item ${isDragging ? 'dragging' : ''}`} 
+      className={`syllabus-item ${isDragging ? 'dragging' : ''}`}
       style={style}
     >
       <div className="syllabus-item-content">
@@ -48,14 +49,14 @@ const SortableSyllabusItem = ({ id, text, onRemove, onEdit }) => {
         <div className="drag-handle" {...attributes} {...listeners}>
           <BiMove size={18} />
         </div>
-        
-        <span 
+
+        <span
           className="syllabus-item-text"
           onClick={() => onEdit(id, text)}
         >
           {text}
         </span>
-        
+
         <button
           className="syllabus-item-btn remove"
           onClick={() => onRemove(id)}
@@ -93,21 +94,52 @@ const EditableSyllabusItem = ({ newItemText, setNewItemText, handleKeyDown, save
   );
 };
 
-const SyllabusComponent = ({ onBack, onContinue }) => {
+const SyllabusComponent = ({ onBack, onContinue, documentAnalysis }) => {
   const [loading, setLoading] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemText, setNewItemText] = useState("");
   const [topicDepth, setTopicDepth] = useState(3); // Nível de aprofundamento (1-5)
+  const [syllabusItems, setSyllabusItems] = useState([]);
 
-  // Estado inicial com itens da ementa
-  const [syllabusItems, setSyllabusItems] = useState([
-    { id: "1", text: "Introdução à Inteligência Artificial na Educação" },
-    { id: "2", text: "Fundamentos Pedagógicos para Implementação de IA" },
-    { id: "3", text: "Ferramentas e Plataformas de IA para Ensino" },
-    { id: "4", text: "Metodologias de Ensino Potencializadas por IA" },
-    { id: "5", text: "Avaliação de Aprendizagem Assistida por IA" },
-    { id: "6", text: "Personalização do Ensino com Algoritmos Adaptativos" },
-  ]);
+  const apiCallMadeRef = useRef(false);
+  const prevDocumentAnalysis = useRef(null);
+
+  // Carregar a ementa baseada no documento quando o componente montar
+  useEffect(() => {
+    // Somente chamar a API se o documento mudar ou for a primeira chamada
+    if (documentAnalysis === prevDocumentAnalysis.current) return;
+    prevDocumentAnalysis.current = documentAnalysis;
+
+    const fetchSyllabus = async () => {
+      try {
+        setLoading(true);
+
+        // Usar o conteúdo do documento como contexto
+        const context = documentAnalysis ||
+          "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences";
+
+        const result = await api.generateSyllabus({ context });
+        console.log('API response for syllabus:', result);
+
+        if (result && result.topics && Array.isArray(result.topics)) {
+          // Converter o formato da resposta da API para o formato usado pelo componente
+          const formattedItems = result.topics.map(topic => ({
+            id: topic.id.toString(),
+            text: topic.title,
+            depth: topic.depth
+          }));
+          setSyllabusItems(formattedItems);
+        }
+      } catch (error) {
+        console.error('Error fetching syllabus:', error);
+        // Manter os itens padrão em caso de erro
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSyllabus();
+  }, [documentAnalysis]);
 
   // Sensores para o drag & drop
   const sensors = useSensors(
@@ -130,37 +162,43 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
   // Handler para finalizar o drag & drop
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
+
     if (active.id !== over.id) {
       setSyllabusItems((items) => {
         const oldIndex = items.findIndex(item => item.id === active.id);
         const newIndex = items.findIndex(item => item.id === over.id);
-        
+
         return arrayMove(items, oldIndex, newIndex);
       });
     }
   };
 
   // Regenerar a lista de itens da ementa
-  const regenerateSyllabus = () => {
-    setLoading(true);
+  const regenerateSyllabus = async () => {
+    try {
+      setLoading(true);
 
-    // Simular chamada a uma API (timeout para demonstração)
-    setTimeout(() => {
-      setSyllabusItems([
-        { id: "1", text: "Contexto Histórico da Tecnologia Educacional" },
-        { id: "2", text: "Paradigmas de IA Aplicados à Educação" },
-        { id: "3", text: "Análise de Dados Educacionais" },
-        { id: "4", text: "Design de Experiências de Aprendizagem com IA" },
-        { id: "5", text: "Ética e Responsabilidade no Uso de IA na Educação" },
-        { id: "6", text: "Implementação de Sistemas Tutores Inteligentes" },
-        {
-          id: "7",
-          text: "Avaliação de Impacto de Tecnologias IA no Processo de Aprendizagem",
-        },
-      ]);
+      // Usar o mesmo contexto do documento anexado
+      const context = documentAnalysis ||
+        "Course on AI applications in education to help teachers utilize technology for enhancing student learning experiences";
+
+      const result = await api.generateSyllabus({ context });
+      console.log('API response for syllabus regeneration:', result);
+
+      if (result && result.topics && Array.isArray(result.topics)) {
+        // Converter o formato da resposta da API
+        const formattedItems = result.topics.map(topic => ({
+          id: topic.id.toString(),
+          text: topic.title,
+          depth: topic.depth || 3 // Usar profundidade padrão 3 se não especificada
+        }));
+        setSyllabusItems(formattedItems);
+      }
+    } catch (error) {
+      console.error('Error regenerating syllabus:', error);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   // Adicionar novo item à ementa
@@ -280,8 +318,8 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
           />
           <div className="topic-depth-labels">
             {depthDescriptions.map((label, index) => (
-              <span 
-                key={index} 
+              <span
+                key={index}
                 className={`depth-label ${index + 1 === topicDepth ? 'active' : ''}`}
               >
                 {label}
@@ -302,9 +340,9 @@ const SyllabusComponent = ({ onBack, onContinue }) => {
 
       <div className={`syllabus-content ${loading ? "loading-content" : ""}`}>
         <ul className="syllabus-list">
-          <DndContext 
-            sensors={sensors} 
-            collisionDetection={closestCenter} 
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
             <SortableContext items={syllabusItems.map(item => item.id)} strategy={verticalListSortingStrategy}>

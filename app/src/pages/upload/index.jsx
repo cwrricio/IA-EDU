@@ -105,6 +105,7 @@ const UploadPage = () => {
           <SyllabusComponent
             onBack={handleBackToObjectives}
             onContinue={handleContinueToContent}
+            documentAnalysis={documentAnalysis} // Passar a análise do documento para a ementa
           />
         )}
 
