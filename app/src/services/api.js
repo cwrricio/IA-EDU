@@ -38,6 +38,26 @@ const api = {
       console.error('Error generating syllabus:', error);
       throw error;
     }
+  },
+
+  generateContent: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/generate-content`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating content:', error);
+      throw error;
+    }
+  },
+
+  saveProgress: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/save-progress`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      throw error;
+    }
   }
 };
 

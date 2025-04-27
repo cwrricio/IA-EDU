@@ -6,6 +6,9 @@ import uvicorn
 from controllers.document import router as document_router
 from controllers.objectives import router as objectives_router
 from controllers.syllabus import router as syllabus_router
+from controllers.content import router as content_router
+from controllers.progress import router as progress_router
+from controllers.course import router as courses_router
 
 app = FastAPI(title="IA-EDU API")
 
@@ -22,6 +25,9 @@ app.add_middleware(
 app.include_router(document_router)
 app.include_router(objectives_router)
 app.include_router(syllabus_router)
+app.include_router(content_router)
+app.include_router(progress_router)
+app.include_router(courses_router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
