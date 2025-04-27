@@ -1,0 +1,70 @@
+/* Configuração do layout principal */
+.layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilização da sidebar */
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  flex-shrink: 0;
+  background-color: #2962ff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+/* Container do conteúdo principal com espaçamento controlado */
+.content-container {
+  flex: 1;
+  margin-left: 262px; /* 250px da sidebar + 12px de espaçamento */
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Estilização da top bar */
+.top-bar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: #f5f7fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  width: calc(100% - 40px); /* Ajusta para compensar o padding */
+}
+
+/* Conteúdo principal */
+.main-content {
+  padding: 20px;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+  }
+
+  .content-container {
+    margin-left: 82px; /* 70px da sidebar + 12px de espaçamento */
+  }
+}
+
+/* Se a sidebar pode ser recolhida */
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar.collapsed + .content-container {
+  margin-left: 82px; /* 70px + 12px de espaçamento */
+}

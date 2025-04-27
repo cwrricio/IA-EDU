@@ -1,0 +1,20 @@
+.status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-badge.concluido {
+  background-color: #e6f7ee;
+  color: #26a65b;
+}
+
+.status-badge.andamento {
+  background-color: #e6f0ff;
+  color: #3366cc;
+}
