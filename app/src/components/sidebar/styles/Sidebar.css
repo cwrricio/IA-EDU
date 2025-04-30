@@ -1,0 +1,196 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh; /* Altura total da viewport */
+  height: -webkit-fill-available; /* Para iOS Safari */
+  max-height: 100vh; /* Garante compatibilidade com diferentes navegadores */
+  background-color: #288de095 !important; /* Alterado para azul */
+  color: white;
+  width: 250px;
+
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    position: fixed; /* Reforçando que a posição é fixa */
+    height: 100%; /* Altura total */
+    height: 100vh;
+    height: -webkit-fill-available;
+    /* Outros estilos permanecem iguais... */
+  }
+
+  /* Fix para o problema de altura em iOS */
+  html,
+  body {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Ajuste para dispositivos muito pequenos */
+@media (max-height: 500px) {
+  .sidebar {
+    overflow-y: auto; /* Habilita rolagem vertical para a sidebar */
+    padding-bottom: 60px; /* Espaço extra para garantir acesso a todos os itens */
+  }
+
+  .sidebar-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #288de095;
+    padding-top: 10px;
+    margin-top: auto;
+  }
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar-header {
+  padding: 20px 15px;
+}
+
+.sidebar-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-subtitle {
+  font-size: 0.9rem;
+  margin: 5px 0 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+
+.sidebar-nav {
+  flex: 1;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu-item.active {
+  background-color: #4d97d395; /* Azul mais escuro para o item ativo */
+}
+
+.sidebar-icon {
+  font-size: 20px;
+  min-width: 20px;
+}
+
+.sidebar-menu-item span {
+  margin-left: 15px;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-footer {
+  padding: 20px 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-help {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sidebar-help span {
+  margin-left: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout {
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 15px;
+}
+
+/* Remover o botão de toggle do menu mobile */
+.mobile-menu-toggle {
+  display: none;
+}
+
+/* Adicionar padding ao conteúdo principal para comportar a sidebar */
+.main-content {
+  transition: margin-left 0.3s ease;
+  margin-left: 250px;
+  min-height: 100vh;
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 70px;
+}
+
+/* Estilos para o logo e container */
+.sidebar-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.sidebar-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ajustes para sidebar colapsada */
+.sidebar.collapsed .sidebar-logo-container {
+  justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-menu-item {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar.collapsed .sidebar-help {
+  justify-content: center;
+}

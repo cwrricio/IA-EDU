@@ -1,0 +1,103 @@
+.quadrado-trilha-container {
+  width: 280px;
+  height: 280px;
+  background-color: #bedef8;
+  border-radius: 24px;
+  position: relative;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Adiciona as formas curvas de fundo */
+.quadrado-trilha-container::before {
+  content: "";
+  position: absolute;
+  bottom: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: rgba(23, 93, 255, 0.3);
+  z-index: 0;
+}
+
+.quadrado-trilha-container::after {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: rgba(66, 152, 250, 0.3);
+  z-index: 0;
+}
+
+.special-tag {
+  background-color: white;
+  border-radius: 16px;
+  padding: 8px 16px;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.quadrado-content {
+  position: relative;
+  z-index: 2;
+  height: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.quadrado-content h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.get-started-button {
+  background-color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: fit-content;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.get-started-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.arrow-circle {
+  background-color: #333;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.arrow-circle svg {
+  color: white;
+  width: 14px;
+  height: 14px;
+}
