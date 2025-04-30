@@ -2,3 +2,16 @@
   width: 100%;
   padding-bottom: 30px;
 }
+
+.featured-content-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .featured-content-row {
+    flex-direction: column;
+  }
+}

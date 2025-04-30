@@ -1,6 +1,6 @@
 import React from "react";
 import StatusBadge from "./StatusBadge";
-import codefolioImg from "../../assets/codefolio.png"; // Certifique-se de adicionar a imagem ao projeto
+import codefolioImg from "../../assets/codefolio.png";
 import "./styles/TrilhaCard.css";
 
 const TrilhaCard = ({ trilha }) => {
@@ -8,8 +8,12 @@ const TrilhaCard = ({ trilha }) => {
 
   return (
     <div className="trilha-card">
-      <div className="trilha-image">
-        <img src={codefolioImg} alt={title} />
+      <div className="trilha-image-container">
+        <div className="trilha-image">
+          <div className="trilha-image-wrapper">
+            <img src={codefolioImg} alt={title} />
+          </div>
+        </div>
       </div>
 
       <h3 className="trilha-title">{title}</h3>
@@ -29,6 +33,12 @@ const TrilhaCard = ({ trilha }) => {
       </div>
 
       <p className="trilha-description">{description}</p>
+
+      <div className="trilha-actions">
+        <button className="trilha-button">
+          {status === "concluido" ? "Ver detalhes" : "Continuar"}
+        </button>
+      </div>
     </div>
   );
 };

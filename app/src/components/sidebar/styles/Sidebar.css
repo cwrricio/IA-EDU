@@ -5,9 +5,10 @@
   height: 100vh; /* Altura total da viewport */
   height: -webkit-fill-available; /* Para iOS Safari */
   max-height: 100vh; /* Garante compatibilidade com diferentes navegadores */
-  background-color: #2563eb; /* Alterado para azul */
+  background-color: #288de095 !important; /* Alterado para azul */
   color: white;
   width: 250px;
+
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -50,7 +51,7 @@
   .sidebar-footer {
     position: sticky;
     bottom: 0;
-    background-color: #d6615e;
+    background-color: #288de095;
     padding-top: 10px;
     margin-top: auto;
   }
@@ -105,7 +106,7 @@
 }
 
 .sidebar-menu-item.active {
-  background-color: #1e40af; /* Azul mais escuro para o item ativo */
+  background-color: #4d97d395; /* Azul mais escuro para o item ativo */
 }
 
 .sidebar-icon {

@@ -15,6 +15,6 @@
 }
 
 .status-badge.andamento {
-  background-color: #e6f0ff;
-  color: #3366cc;
+  background-color: #e7f2fc; /* Cor suave derivada da cor principal */
+  color: #288de0; /* Cor principal */
 }

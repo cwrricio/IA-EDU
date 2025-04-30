@@ -1,10 +1,14 @@
 .trilha-card {
-  flex: 0 0 250px;
+  flex: 0 0 320px;
   border-radius: 12px;
   background-color: white;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 380px;
+  position: relative;
 }
 
 .trilha-card:hover {
@@ -12,26 +16,38 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
+.trilha-image-container {
+  padding: 15px 15px 0 15px;
+}
+
 .trilha-image {
   width: 100%;
-  height: 160px; /* Ajuste a altura para melhor acomodar a imagem codefolio.png */
+  height: 140px;
+  border-radius: 12px;
   overflow: hidden;
-  background-color: #f5f7fb;
+  background-color: #f8f5ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trilha-image-wrapper {
+  width: 90%;
+  height: 90%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .trilha-image img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain; /* Alterado para 'contain' para manter proporções */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .trilha-title {
-  padding: 16px 16px 8px 16px;
+  padding: 12px 16px 4px 16px;
   margin: 0;
   font-size: 16px;
   font-weight: 600;
@@ -42,7 +58,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px 12px 16px;
+  padding: 0 16px 8px 16px;
 }
 
 .instructor-info {
@@ -81,9 +97,40 @@
 }
 
 .trilha-description {
-  padding: 0 16px 16px;
+  padding: 0 16px;
   margin: 0;
   font-size: 12px;
   color: #666;
   line-height: 1.5;
+  flex-grow: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.trilha-actions {
+  padding: 16px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+}
+
+.trilha-button {
+  background-color: #7397ec;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.trilha-button:hover {
+  background-color: #4f46e5;
 }
