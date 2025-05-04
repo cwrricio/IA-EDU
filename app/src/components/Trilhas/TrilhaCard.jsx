@@ -19,16 +19,23 @@ const TrilhaCard = ({ trilha }) => {
       <h3 className="trilha-title">{title}</h3>
 
       <div className="trilha-info">
-        <div className="instructor-info">
-          <div className="instructor-avatar">
-            <img src={instructor.avatar} alt={instructor.name} />
+        {instructor ? (
+          <div className="instructor-info">
+            <div className="instructor-avatar">
+              <img src={instructor.avatar} alt={instructor.name} />
+            </div>
+            <div className="instructor-details">
+              <div className="instructor-name">{instructor.name}</div>
+              <div className="instructor-role">{instructor.role}</div>
+            </div>
           </div>
-          <div className="instructor-details">
-            <div className="instructor-name">{instructor.name}</div>
-            <div className="instructor-role">{instructor.role}</div>
+        ) : (
+          <div className="instructor-info">
+            <div className="instructor-details">
+              <div className="instructor-name">Sem instrutor definido</div>
+            </div>
           </div>
-        </div>
-
+        )}
         <StatusBadge status={status} />
       </div>
 
@@ -36,7 +43,7 @@ const TrilhaCard = ({ trilha }) => {
 
       <div className="trilha-actions">
         <button className="trilha-button">
-          {status === "concluido" ? "Ver detalhes" : "Continuar"}
+          {status === "concluido" ? "Ver detalhes" : "Editar"}
         </button>
       </div>
     </div>
