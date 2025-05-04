@@ -1,25 +1,29 @@
 .trilhas-carousel-container {
   width: 100%;
-  overflow: hidden;
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden; /* Impede que o conteúdo se estenda além do contêiner */
 }
 
 .trilhas-carousel {
-  display: flex;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding: 10px 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
+  padding: 10px 0;
   width: 100%;
 }
 
-.trilhas-carousel::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Opera */
-}
-
+/* Para telas menores, ajustar o tamanho dos cards */
 @media (max-width: 768px) {
   .trilhas-carousel {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 15px;
+  }
+}
+
+/* Para telas muito pequenas, mostrar apenas um card por vez */
+@media (max-width: 480px) {
+  .trilhas-carousel {
+    grid-template-columns: 1fr;
   }
 }

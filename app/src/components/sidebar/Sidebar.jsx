@@ -31,6 +31,11 @@ const Sidebar = () => {
     return location.pathname === path;
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Remove user data from localStorage
+    handleNavigation("/login")
+  };
+
   return (
     <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <div className="sidebar-header">
@@ -77,7 +82,7 @@ const Sidebar = () => {
 
           <li
             className="sidebar-menu-item logout"
-            onClick={() => handleNavigation("/logout")}
+            onClick={handleLogout}
           >
             <VscSignOut className="sidebar-icon" />
             {!collapsed && <span>Sair</span>}
