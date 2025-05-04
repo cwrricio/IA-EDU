@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TrilhasHeader from "./TrilhasHeader";
 import TrilhasCarousel from "./TrilhasCarousel";
 import "./styles/Trilhas.css";
@@ -6,6 +6,9 @@ import ContinueLearning from "./ContinueLearning";
 import QuadradoDaTrilha from "./QuadradoDaTrilha";
 
 const Trilhas = () => {
+  // Adicionar estado para filtrar trilhas
+  const [filtro, setFiltro] = useState("all");
+
   // Dados de exemplo para as trilhas
   const trilhasData = [
     {
@@ -43,8 +46,19 @@ const Trilhas = () => {
       status: "andamento",
       description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    }
+    },
   ];
+
+  // Filtrar trilhas de acordo com o status selecionado
+  const trilhasFiltradas =
+    filtro === "all"
+      ? trilhasData
+      : trilhasData.filter((trilha) => trilha.status === filtro);
+
+  // Handler para quando o filtro muda no TrilhasHeader
+  const handleFiltroChange = (novoFiltro) => {
+    setFiltro(novoFiltro);
+  };
 
   return (
     <div className="trilhas-container">
@@ -52,8 +66,8 @@ const Trilhas = () => {
         <ContinueLearning />
         <QuadradoDaTrilha />
       </div>
-      <TrilhasHeader />
-      <TrilhasCarousel trilhas={trilhasData} />
+      <TrilhasHeader onFiltroChange={handleFiltroChange} filtroAtual={filtro} />
+      <TrilhasCarousel trilhas={trilhasFiltradas} />
     </div>
   );
 };
