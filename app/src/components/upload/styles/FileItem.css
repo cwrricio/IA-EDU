@@ -6,11 +6,12 @@
   display: flex;
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
 }
 
 .file-item-icon {
   margin-right: 15px;
-  color: #333;
+  color: #288de0;
 }
 
 .file-item-info {
@@ -21,17 +22,18 @@
 .file-item-name {
   font-weight: 500;
   margin-bottom: 2px;
+  color: #334155;
 }
 
 .file-item-size {
   font-size: 12px;
-  color: #666;
+  color: #64748b;
 }
 
 .file-item-progress-container {
   width: 50%;
   height: 6px;
-  background-color: #f1f1f1;
+  background-color: #f1f5f9;
   border-radius: 3px;
   margin: 0 10px;
   overflow: hidden;
@@ -39,13 +41,13 @@
 
 .file-item-progress-bar {
   height: 100%;
-  background-color: #646cff;
+  background-color: #288de0;
   border-radius: 3px;
   transition: width 0.3s ease-in-out;
 }
 
 .file-item-progress-bar.success {
-  background-color: #10b981;
+  background-color: #059669;
   animation: pulse-green 1s ease;
 }
 
@@ -58,12 +60,12 @@
   width: 40px;
   text-align: right;
   font-size: 12px;
-  color: #666;
+  color: #64748b;
   transition: color 0.3s ease;
 }
 
 .file-item-progress-text.success {
-  color: #10b981;
+  color: #059669;
   font-weight: 600;
 }
 
@@ -75,7 +77,7 @@
 .file-item-remove {
   background: none;
   border: none;
-  color: #666;
+  color: #64748b;
   cursor: pointer;
   padding: 5px;
   border-radius: 50%;
@@ -83,19 +85,19 @@
 }
 
 .file-item-remove:hover {
-  background-color: #f1f1f1;
+  background-color: #f1f5f9;
   color: #ef4444;
 }
 
 @keyframes pulse-green {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 10px rgba(5, 150, 105, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0);
   }
 }
 

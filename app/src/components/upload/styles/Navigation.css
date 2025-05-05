@@ -1,0 +1,62 @@
+/* Estilo para botões de navegação consistentes */
+.nav-button-back {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 10px 22px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.nav-button-back:hover {
+  background-color: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.nav-button-next {
+  background-color: #288de0;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.nav-button-next:hover:not(:disabled) {
+  background-color: #1a7fd1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(40, 141, 224, 0.3);
+}
+
+.nav-button-next:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.nav-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+  margin-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+  .nav-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-button-back,
+  .nav-button-next {
+    width: 100%;
+  }
+}

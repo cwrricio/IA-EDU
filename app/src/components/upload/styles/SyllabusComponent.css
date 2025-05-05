@@ -276,7 +276,7 @@
 }
 
 .syllabus-continue-btn {
-  background-color: #1e293b;
+  background-color: #288de0;
   color: white;
   border: none;
   padding: 10px 25px;
@@ -287,14 +287,16 @@
 }
 
 .syllabus-continue-btn:hover:not(:disabled) {
-  background-color: #334155;
+  background-color: #1a7fd1;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(40, 141, 224, 0.3);
 }
 
 .syllabus-continue-btn:disabled {
   background-color: #94a3b8;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Estilos para o aprofundamento de tópicos - versão simplificada */
@@ -377,7 +379,13 @@
 }
 
 .topic-depth-slider {
-  background: linear-gradient(to right, #2563eb 0%, #2563eb 0%, #e5e7eb 0%, #e5e7eb 100%);
+  background: linear-gradient(
+    to right,
+    #2563eb 0%,
+    #2563eb 0%,
+    #e5e7eb 0%,
+    #e5e7eb 100%
+  );
 }
 
 .topic-depth-slider::-webkit-slider-thumb:hover {
@@ -509,11 +517,11 @@
   .drag-handle {
     padding: 8px;
   }
-  
+
   .syllabus-item-text {
     padding: 12px 0;
   }
-  
+
   .syllabus-add-button {
     width: 100%;
     height: auto;
@@ -524,13 +532,13 @@
     margin-top: 10px;
     margin-left: 0;
   }
-  
+
   .syllabus-add-item {
     flex-direction: column;
     gap: 10px;
     padding: 12px;
   }
-  
+
   .syllabus-item-btn.edit {
     display: none;
   }

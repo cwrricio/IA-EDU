@@ -47,7 +47,7 @@
 }
 
 .content-list-continue-btn {
-  background-color: #1e293b;
+  background-color: #288de0;
   color: white;
   border: none;
   padding: 10px 25px;
@@ -62,14 +62,16 @@
 }
 
 .content-list-continue-btn:hover:not(:disabled) {
-  background-color: #334155;
+  background-color: #1a7fd1;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(40, 141, 224, 0.3);
 }
 
 .content-list-continue-btn:disabled {
   background-color: #94a3b8;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 @media screen and (max-width: 600px) {
