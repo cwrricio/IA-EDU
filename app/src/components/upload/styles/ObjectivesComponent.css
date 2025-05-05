@@ -303,14 +303,9 @@
 }
 
 .objectives-continue-btn {
-  background-color: #1e293b;
+  background-color: #288de0;
   color: white;
-  border: none;
-  padding: 10px 25px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border-radius: 6px;
-  outline: none;
+  /* restante das propriedades será herdado do UploadActions.css */
 }
 
 .objectives-continue-btn:focus {
@@ -318,9 +313,7 @@
 }
 
 .objectives-continue-btn:hover:not(:disabled) {
-  background-color: #334155;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: #1a7fd1;
 }
 
 .objectives-continue-btn:disabled {
@@ -475,12 +468,12 @@
   .objectives-item-actions {
     display: none;
   }
-  
+
   .objectives-item-handle {
     display: flex;
     align-items: center;
   }
-  
+
   .objectives-list-item.selected .objectives-item-delete {
     display: flex;
     position: absolute;
@@ -495,23 +488,23 @@
     border: none;
     cursor: pointer;
   }
-  
+
   .objectives-list-item {
     padding-right: 48px; /* Espaço para o botão de delete */
     cursor: pointer;
     user-select: none;
     touch-action: pan-y; /* Permite scroll vertical mas não horizontal */
   }
-  
+
   .objectives-item-text {
     width: calc(100% - 48px);
   }
-  
+
   /* Quando estiver em edição */
   .objectives-list-item.editing {
     padding-right: 16px;
   }
-  
+
   .objectives-list-item.editing .objectives-item-handle,
   .objectives-list-item.editing .objectives-item-delete {
     display: none;
@@ -527,7 +520,7 @@
     margin-top: 10px;
     margin-left: 0;
   }
-  
+
   .objectives-add-item {
     flex-direction: column;
   }
@@ -608,7 +601,6 @@
   border-radius: 4px;
   font-size: 14px;
   outline: none;
-  
 }
 
 .objectives-edit-input:focus {
@@ -682,7 +674,7 @@ input[type="range"] {
   .objectives-item-actions {
     opacity: 1;
   }
-  
+
   .objectives-item-btn.edit {
     display: none;
   }
@@ -693,7 +685,7 @@ input[type="range"] {
     gap: 10px;
     padding: 12px;
   }
-  
+
   .objectives-add-button {
     width: 100%;
     margin-left: 0;
