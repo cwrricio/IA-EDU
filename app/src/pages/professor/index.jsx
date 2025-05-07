@@ -1,33 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./professor.css";
 import Sidebar from "../../components/sidebar/Sidebar";
 import TrilhaCard from "../../components/Trilhas/TrilhaCard";
+import api from "../../services/api";
 
 const ProfessorPage = () => {
   const navigate = useNavigate();
   const [filterType, setFilterType] = useState("all");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Dados de exemplo para as trilhas do professor
-  const trilhasData = [
-    {
-      id: 1,
-      title: "Estrutura de Dados",
-      status: "em andamento",
-      date: "Atualizado em 20/07/2023",
-      description:
-        "Estudo das principais estruturas de dados e suas aplicações práticas.",
-    },
-    {
-      id: 2,
-      title: "Programação Orientada a Objetos",
-      status: "em andamento",
-      date: "Atualizado em 05/08/2023",
-      description:
-        "Conceitos avançados de orientação a objetos com implementações práticas.",
-    },
-  ];
+  // Buscar cursos do professor ao montar o componente
+  useEffect(() => {
+    const fetchProfessorCourses = async () => {
+      try {
+        setLoading(true);
+        // Obter o usuário do localStorage
+        const userString = localStorage.getItem('user');
+        if (!userString) {
+          navigate('/login'); // Redirecionar para login se não houver usuário
+          return;
+        }
+
+        const user = JSON.parse(userString);
+        // Chamar a API para buscar cursos deste professor
+        const result = await api.getCoursesByProfessor(user.id);
+
+        if (result && result.courses) {
+          // Transformar os dados do formato de objeto para array
+          const coursesArray = Object.entries(result.courses).map(([id, data]) => ({
+            id,
+            title: data.title,
+            status: data.status || "em andamento",
+            date: formatDate(data.created_at),
+            description: data.description || "Descrição não disponível",
+            created_by: data.created_by || "1"
+          }));
+
+          setCourses(coursesArray);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar cursos:", err);
+        setError("Não foi possível carregar os cursos. Tente novamente mais tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfessorCourses();
+  }, [navigate]);
+
+  // Função auxiliar para formatar datas
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "Data desconhecida";
+
+    // Se timestamp é número, converter para objeto Date
+    const date = typeof timestamp === 'number'
+      ? new Date(timestamp * 1000)  // Converter de Unix timestamp para Date
+      : new Date(timestamp);        // Já é string de data
+
+    return `Atualizado em ${date.toLocaleDateString('pt-BR')}`;
+  };
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -43,6 +79,11 @@ const ProfessorPage = () => {
     navigate("/upload");
   };
 
+  // Filtrar cursos com base no critério de filtro
+  const filteredCourses = filterType === "all"
+    ? courses
+    : courses.filter(course => course.status === filterType);
+
   return (
     <div className="app-container">
       <Sidebar />
@@ -56,10 +97,12 @@ const ProfessorPage = () => {
                 <button className="filter-button" onClick={toggleDropdown}>
                   {filterType === "all"
                     ? "Todas as Trilhas"
-                    : filterType === "completed"
-                    ? "Trilhas Concluídas"
-                    : "Trilhas em Progresso"}{" "}
-                  ▼
+                    : filterType === "concluido"
+                      ? "Trilhas Concluídas"
+                      : "Trilhas em Progresso"}{" "}
+                  <span className={`dropdown-icon ${dropdownOpen ? "open" : ""}`}>
+                    ▼
+                  </span>
                 </button>
 
                 {dropdownOpen && (
@@ -72,7 +115,7 @@ const ProfessorPage = () => {
                     </div>
                     <div
                       className="filter-item"
-                      onClick={() => handleFilterSelect("completed")}
+                      onClick={() => handleFilterSelect("concluido")}
                     >
                       Trilhas Concluídas
                     </div>
@@ -92,15 +135,24 @@ const ProfessorPage = () => {
             </div>
           </div>
 
-          <div className="trilhas-grid">
-            {trilhasData
-              .filter(
-                (trilha) => filterType === "all" || trilha.status === filterType
-              )
-              .map((trilha) => (
-                <TrilhaCard key={trilha.id} trilha={trilha} />
+          {loading ? (
+            <div className="loading-message">Carregando trilhas...</div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : filteredCourses.length === 0 ? (
+            <div className="empty-state">
+              <p>Nenhuma trilha encontrada.</p>
+              <button className="nova-trilha-btn" onClick={redirectToUpload}>
+                Criar sua primeira trilha
+              </button>
+            </div>
+          ) : (
+            <div className="trilhas-grid">
+              {filteredCourses.map((course) => (
+                <TrilhaCard key={course.id} trilha={course} />
               ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

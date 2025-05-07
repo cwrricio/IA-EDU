@@ -21,6 +21,26 @@
   box-sizing: border-box;
 }
 
+.course-metadata-preview {
+  background-color: #f0f9ff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2563eb;
+}
+
+.course-title-preview, .course-description-preview {
+  margin-bottom: 8px;
+  color: #1e3a8a;
+}
+
+.metadata-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+  font-style: italic;
+}
+
 @media screen and (max-width: 768px) {
   .upload-container {
     padding: 15px;

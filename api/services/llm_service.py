@@ -16,6 +16,62 @@ class LLMService:
         self.client = Groq(api_key=api_key)
         self.model = "llama-3.3-70b-versatile"  # editável
 
+    async def generate_title(self, context):
+        """Generate a concise and descriptive course title based on the document content."""
+        prompt = f"""
+        Based on the following educational document content, generate a concise, professional, and descriptive course title in Portuguese.
+        Keep it under 60 characters and make it attractive and representative of the subject matter.
+        
+        Document content: {context}
+        
+        Return ONLY the title text, with no quotes, explanations, or additional formatting.
+        """
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": "You are an educational content expert skilled at creating concise and descriptive course titles in Portuguese."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=60,
+        )
+        
+        # Extract just the title text
+        title = response.choices[0].message.content.strip()
+        # Remove quotes if present
+        title = title.strip('"\'')
+        
+        return title
+    
+    async def generate_description(self, context):
+        """Generate a brief course description based on the document content."""
+        prompt = f"""
+        Based on the following educational document content, generate a brief and enticing course description in Portuguese.
+        Keep it under 150 characters and make it informative about what the learner will gain from the course.
+        
+        Document content: {context}
+        
+        Return ONLY the description text, with no quotes, explanations, or additional formatting.
+        """
+        
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": "You are an educational content expert skilled at creating compelling course descriptions in Portuguese."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=150,
+        )
+        
+        # Extract just the description text
+        description = response.choices[0].message.content.strip()
+        # Remove quotes if present
+        description = description.strip('"\'')
+        
+        return description
+
     async def generate_objectives(self, context):
         """Gere um conjunto abrangente de objetivos de aprendizagem com base no contexto educacional fornecido."""
         prompt = f"""

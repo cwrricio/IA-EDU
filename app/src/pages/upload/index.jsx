@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import UploadHeader from '../../components/upload/UploadHeader';
 import DropZone from '../../components/upload/DropZone';
 import FileList from '../../components/upload/FileList';
@@ -16,12 +16,12 @@ const UploadPage = () => {
   const [files, setFiles] = useState([]);
   const [currentStep, setCurrentStep] = useState('upload'); // 'upload', 'objectives', 'syllabus', 'content', 'completion'
   const [documentAnalysis, setDocumentAnalysis] = useState(null);
-  
-  // Add these new state variables
   const courseIdRef = useRef(null);
   const [objectivesData, setObjectivesData] = useState(null);
   const [syllabusData, setSyllabusData] = useState(null);
   const [contentData, setContentData] = useState(null);
+  const [courseTitle, setCourseTitle] = useState("");
+  const [courseDescription, setCourseDescription] = useState("");
 
   const handleFilesSelected = (selectedFiles) => {
     const newFiles = selectedFiles.map(file => ({
@@ -70,27 +70,31 @@ const UploadPage = () => {
         })
       )
     };
-    
+
     setObjectivesData(objectivesComponentData);
-    
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : { id: "1" };
+
     try {
       // Save progress to the database
       const response = await api.saveProgress({
-        user_id: "1", // You can implement proper user auth later
+        user_id: user.id,
         course_id: courseIdRef.current,
         step: "objectives",
         content: objectivesComponentData,
-        title: "Course from " + files[0]?.file.name || "Uploaded Document"
+        title: courseTitle || "Curso Educacional",
+        description: courseDescription || "" // Ensure it's always at least an empty string
       });
-      
+
       // Store the course ID for future updates
       if (!courseIdRef.current && response.course_id) {
         courseIdRef.current = response.course_id;
       }
-      
+
       console.log('Objectives saved:', response);
       toast.success("Objetivos salvos com sucesso!");
-      
+
       // Continue to next step
       setCurrentStep('syllabus');
     } catch (error) {
@@ -107,6 +111,10 @@ const UploadPage = () => {
 
   // Update this handler to collect syllabus data
   const handleContinueToContent = async () => {
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : { id: "1" };
+
     // Get syllabus data from the SyllabusComponent
     const syllabusComponentData = {
       topics: Array.from(document.querySelectorAll('.syllabus-item-text')).map(
@@ -117,21 +125,22 @@ const UploadPage = () => {
         })
       )
     };
-    
+
     setSyllabusData(syllabusComponentData);
-    
+
     try {
       // Save progress to the database
       const response = await api.saveProgress({
-        user_id: "1", 
+        user_id: user.id,
         course_id: courseIdRef.current,
         step: "syllabus",
-        content: syllabusComponentData
+        content: syllabusComponentData,
+        description: courseDescription || "" // Ensure it's always at least an empty string
       });
-      
+
       console.log('Syllabus saved:', response);
       toast.success("Ementa salva com sucesso!");
-      
+
       // Continue to next step
       setCurrentStep('content');
     } catch (error) {
@@ -148,6 +157,10 @@ const UploadPage = () => {
 
   // Update this handler to collect content data
   const handleFinish = async () => {
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : { id: "1" };
+
     // Get content data from ContentListComponent
     const contentComponentData = {
       content_items: Array.from(document.querySelectorAll('.content-item')).map(
@@ -158,21 +171,22 @@ const UploadPage = () => {
         })
       )
     };
-    
+
     setContentData(contentComponentData);
-    
+
     try {
       // Save progress to the database
       const response = await api.saveProgress({
-        user_id: "1", 
+        user_id: user.id,
         course_id: courseIdRef.current,
         step: "content",
-        content: contentComponentData
+        content: contentComponentData,
+        description: courseDescription || "" // Ensure it's always at least an empty string
       });
-      
+
       console.log('Content saved:', response);
       toast.success("Conteúdo salvo com sucesso!");
-      
+
       // Continue to completion screen
       setCurrentStep('completion');
     } catch (error) {
@@ -183,11 +197,61 @@ const UploadPage = () => {
     }
   };
 
-  const onUploadComplete = (result) => {
+  const onUploadComplete = async (result) => {
     console.log('Upload complete:', result);
     setDocumentAnalysis(result.analysis);
-    // Aqui você pode lidar com o resultado do upload, como armazenar os dados ou exibir uma mensagem
-  }
+    
+    try {
+      // Gerar um título para o curso
+      const titleResponse = await api.generateTitle({ context: result.analysis });
+      if (titleResponse && titleResponse.title) {
+        setCourseTitle(titleResponse.title);
+        
+        // Depois de obter o título, gere a descrição
+        const descResponse = await api.generateDescription({ 
+          context: result.analysis,
+          title: titleResponse.title 
+        });
+        
+        if (descResponse && descResponse.description) {
+          setCourseDescription(descResponse.description);
+        }
+      }
+    } catch (error) {
+      console.error('Error generating course metadata:', error);
+      // Fallback: gerar um título baseado no nome do arquivo
+      if (files && files.length > 0) {
+        const fileName = files[0].file.name.replace(/\.\w+$/, "");
+        const formattedTitle = fileName
+          .replace(/[-_]/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        setCourseTitle(`Curso de ${formattedTitle}`);
+        setCourseDescription(`Material educacional sobre ${formattedTitle}`);
+      }
+    }
+  };
+
+  // Adicione esta função ao seu UploadPage component
+  const generateTitleFromAnalysis = async () => {
+    if (!documentAnalysis) return;
+
+    try {
+      const titleResponse = await api.generateTitle({ context: documentAnalysis });
+      if (titleResponse && titleResponse.title) {
+        setCourseTitle(titleResponse.title);
+      }
+    } catch (error) {
+      console.error('Error generating title:', error);
+      // Manter o título atual ou gerar um baseado no nome do arquivo
+    }
+  };
+
+  // Chame essa função após o upload ser completado
+  useEffect(() => {
+    if (documentAnalysis) {
+      generateTitleFromAnalysis();
+    }
+  }, [documentAnalysis]);
 
   return (
     <div className="upload-container">
@@ -204,11 +268,25 @@ const UploadPage = () => {
         )}
 
         {currentStep === 'objectives' && (
-          <ObjectivesComponent
-            onBack={handleBackToUpload}
-            onContinue={handleContinueToSyllabus}
-            documentAnalysis={documentAnalysis}
-          />
+          <>
+            {documentAnalysis && currentStep === 'objectives' && (
+              <div className="course-metadata-preview">
+                <h3>Curso gerado:</h3>
+                <div className="course-title-preview">
+                  <strong>Título:</strong> {courseTitle}
+                </div>
+                <div className="course-description-preview">
+                  <strong>Descrição:</strong> {courseDescription}
+                </div>
+                <p className="metadata-note">Estes dados foram gerados automaticamente e serão salvos com o curso.</p>
+              </div>
+            )}
+            <ObjectivesComponent
+              onBack={handleBackToUpload}
+              onContinue={handleContinueToSyllabus}
+              documentAnalysis={documentAnalysis}
+            />
+          </>
         )}
 
         {currentStep === 'syllabus' && (

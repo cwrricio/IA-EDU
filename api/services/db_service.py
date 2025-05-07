@@ -2,17 +2,19 @@ import json
 import os
 import time
 from datetime import datetime
+import traceback
 
 # Use absolute path to ensure consistency
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATABASE_PATH = os.path.join(BASE_DIR, "database.json")
+
 
 class DatabaseService:
     """
     Serviço de banco de dados que abstrai operações de armazenamento.
     Atualmente usa um arquivo JSON, mas pode ser facilmente modificado para usar um SGBD no futuro.
     """
-    
+
     @classmethod
     def read_all(cls):
         """Read all data from the database"""
@@ -22,69 +24,143 @@ class DatabaseService:
         except (FileNotFoundError, json.JSONDecodeError):
             # Return basic structure if file doesn't exist or is invalid
             return {"users": {}, "courses": {}}
-    
+
     @classmethod
     def save_all(cls, data):
         """Write all data to the database"""
         with open(DATABASE_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
         return True
-    
+
     @classmethod
-    def get_user(cls, user_id):
-        """Get a user by ID"""
+    def get_user_by_id(cls, user_id):
+        """Get user by ID"""
         db = cls.read_all()
-        return db.get("users", {}).get(str(user_id))
-    
+        if "users" in db and user_id in db["users"]:
+            return db["users"][user_id]
+        return None
+
     @classmethod
     def get_all_users(cls):
         """Get all users"""
         db = cls.read_all()
         return db.get("users", {})
-    
+
     @classmethod
     def save_user(cls, user_id, user_data):
         """Save or update user data"""
         db = cls.read_all()
         if "users" not in db:
             db["users"] = {}
-        
+
         db["users"][str(user_id)] = user_data
         cls.save_all(db)
         return user_data
-    
+
     @classmethod
     def get_course(cls, course_id):
         """Get a course by ID"""
         db = cls.read_all()
         return db.get("courses", {}).get(str(course_id))
-    
+
     @classmethod
     def get_all_courses(cls):
         """Get all courses"""
         db = cls.read_all()
         return db.get("courses", {})
-    
+
+    @classmethod
+    def get_courses_by_professor(cls, professor_id):
+        """Get all courses for a specific professor"""
+        db = cls.read_all()
+        professor_courses = {}
+
+        if "courses" in db:
+            for course_id, course_data in db["courses"].items():
+                if course_data.get("created_by") == professor_id:
+                    professor_courses[course_id] = course_data
+
+        return professor_courses
+
     @classmethod
     def save_course(cls, course_id, course_data):
         """Save or update course data"""
         db = cls.read_all()
         if "courses" not in db:
             db["courses"] = {}
-        
+
         db["courses"][str(course_id)] = course_data
         cls.save_all(db)
         return course_data
-    
+
+    @classmethod
+    def save_progress(
+        cls, user_id, course_id, step, content, title=None, description=None
+    ):
+        """Save progress for a specific step in a course"""
+        try:
+            print(
+                f"DB Service: Saving progress for {user_id}, course {course_id}, step {step}"
+            )
+            db = cls.read_all()
+
+            # Initialize courses dict if not exists
+            if "courses" not in db:
+                db["courses"] = {}
+
+            # Create or update course
+            now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+            if course_id not in db["courses"]:
+                # Create new course
+                course_data = {
+                    "title": title or f"Course {course_id}",
+                    "description": description
+                    or "",  # Garantir que description seja uma string
+                    "created_by": user_id,
+                    "created_at": now,
+                    "steps": {},
+                }
+                db["courses"][course_id] = course_data
+                print(f"Created new course: {course_id}")
+            else:
+                # Update existing course if title or description provided
+                if title:
+                    db["courses"][course_id]["title"] = title
+
+                # Garantir que description seja atualizada corretamente
+                if description is not None:  # Permitir string vazia
+                    db["courses"][course_id]["description"] = description
+
+                print(f"Updated existing course: {course_id}")
+
+            # Update the specific step
+            if "steps" not in db["courses"][course_id]:
+                db["courses"][course_id]["steps"] = {}
+
+            db["courses"][course_id]["steps"][step] = content
+            print(f"Updated step {step} for course {course_id}")
+
+            # Save the updated database
+            cls.save_all(db)
+            print("Database saved successfully")
+            return True
+        except Exception as e:
+            import traceback
+
+            traceback.print_exc()  # Imprime stack trace completo
+            print(f"Error in save_progress: {str(e)}")
+            raise e  # Re-raise para propagar o erro
+
     @classmethod
     def save_course_step(cls, course_id, step, content, metadata=None):
         """Save a course step's content"""
         db = cls.read_all()
-        
+
         # Ensure courses key exists
         if "courses" not in db:
             db["courses"] = {}
-        
+
         # Create course if it doesn't exist
         if course_id not in db["courses"]:
             # Use metadata if provided, otherwise create default
@@ -97,21 +173,17 @@ class DatabaseService:
                     "title": "Untitled Course",
                     "created_by": "1",
                     "created_at": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                    "steps": {}
+                    "steps": {},
                 }
-        
+
         # Update the step content
         db["courses"][course_id]["steps"][step] = content
-        
+
         # Save all data
         cls.save_all(db)
-        
-        return {
-            "course_id": course_id,
-            "step": step,
-            "content": content
-        }
-    
+
+        return {"course_id": course_id, "step": step, "content": content}
+
     @classmethod
     def delete_course(cls, course_id):
         """Delete a course by ID"""
@@ -121,7 +193,7 @@ class DatabaseService:
             cls.save_all(db)
             return True
         return False
-    
+
     @classmethod
     def generate_course_id(cls):
         """Generate a unique course ID"""

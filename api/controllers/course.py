@@ -4,6 +4,7 @@ from services.db_service import DatabaseService
 
 router = APIRouter(prefix="/api", tags=["courses"])
 
+
 @router.get("/courses")
 async def get_all_courses():
     """Get all courses."""
@@ -12,6 +13,17 @@ async def get_all_courses():
         return {"courses": courses}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/courses/professor/{professor_id}")
+async def get_courses_by_professor(professor_id: str):
+    """Get all courses for a specific professor."""
+    try:
+        courses = DatabaseService.get_courses_by_professor(professor_id)
+        return {"courses": courses}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/courses/{course_id}")
 async def get_course(course_id: str):
@@ -25,6 +37,7 @@ async def get_course(course_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.delete("/courses/{course_id}")
 async def delete_course(course_id: str):
