@@ -37,6 +37,25 @@ async def get_course(course_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+# Certifique-se de que o endpoint de progresso do curso esteja salvando o conteúdo completo
+
+@router.post("/courses/progress")
+async def save_course_progress(data: dict):
+    # Extract data from request
+    user_id = data.get("user_id")
+    course_id = data.get("course_id")
+    step = data.get("step")
+    content = data.get("content")
+    title = data.get("title", "")
+    description = data.get("description", "")
+    
+    # Use service to save content
+    result = await DatabaseService.save_course_progress(
+        user_id, course_id, step, content, title, description
+    )
+    
+    return result
 
 
 @router.delete("/courses/{course_id}")
