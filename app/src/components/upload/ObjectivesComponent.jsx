@@ -98,7 +98,7 @@ const EditableObjectiveItem = ({ newItemText, setNewItemText, handleKeyDown, sav
   );
 };
 
-const ObjectivesComponent = ({ onBack, onContinue, documentAnalysis }) => {
+const ObjectivesComponent = ({ onBack, onContinue, documentAnalysis, savedData }) => {
   const [generalEditing, setGeneralEditing] = useState(false);
   const [loadingGeneral, setLoadingGeneral] = useState(false);
   const [loadingSpecific, setLoadingSpecific] = useState(false);
@@ -114,7 +114,18 @@ const ObjectivesComponent = ({ onBack, onContinue, documentAnalysis }) => {
   const prevDocumentAnalysis = useRef(null);
 
   useEffect(() => {
-    // Somente chama a API se o documento mudar ou for a primeira chamada
+    // Se temos dados salvos, use-os em vez de chamar a API
+    if (savedData) {
+      if (savedData.general) {
+        setGeneralText(savedData.general);
+      }
+      if (savedData.specific && Array.isArray(savedData.specific)) {
+        setSpecificItems(savedData.specific);
+      }
+      return;
+    }
+
+    // Somente chama a API se não tivermos dados salvos e o documento mudar ou for a primeira chamada
     if (documentAnalysis === prevDocumentAnalysis.current) return;
     prevDocumentAnalysis.current = documentAnalysis;
 
@@ -149,7 +160,7 @@ const ObjectivesComponent = ({ onBack, onContinue, documentAnalysis }) => {
     };
 
     fetchObjectives();
-  }, [documentAnalysis]);
+  }, [documentAnalysis, savedData]);
 
   // Sensores para o drag & drop
   const sensors = useSensors(

@@ -196,6 +196,39 @@ class LLMService:
         content = response.choices[0].message.content
         return self._clean_and_validate_json(content)
 
+    @classmethod
+    def generate_detailed_content(cls, title, description):
+        """Generate detailed content for a specific content item."""
+        try:
+            # Aqui você usaria o modelo LLM para gerar conteúdo detalhado
+            # Por simplicidade, estou retornando dados mockados
+            content = f"Conteúdo detalhado para {title}. {description} Este tópico aborda conceitos fundamentais e aplicações práticas."
+            
+            learning_objectives = [
+                f"Compreender os conceitos fundamentais de {title}",
+                f"Aplicar conhecimentos de {title} em situações práticas",
+                f"Analisar e avaliar diferentes abordagens para {title}"
+            ]
+            
+            related_objectives = [
+                f"Relacionar {title} com outros tópicos do curso",
+                f"Desenvolver habilidades práticas em {title}"
+            ]
+            
+            return {
+                "content": content,
+                "learning_objectives": learning_objectives,
+                "related_objectives": related_objectives
+            }
+        except Exception as e:
+            print(f"Error generating detailed content: {str(e)}")
+            # Retornar dados vazios em caso de erro
+            return {
+                "content": "",
+                "learning_objectives": [],
+                "related_objectives": []
+            }
+
     def _clean_and_validate_json(self, content):
         """Clean and validate JSON from LLM response"""
         # Remove code block markers if present

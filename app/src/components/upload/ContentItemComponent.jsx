@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VscChevronDown, VscChevronUp } from "react-icons/vsc";
 import "./styles/ContentItemComponent.css";
 
@@ -7,27 +7,48 @@ const ContentItemComponent = ({
   description, 
   content, 
   learningObjectives, 
-  relatedObjectives 
+  relatedObjectives,
+  id,
+  onContentReady
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Método para obter o conteúdo completo
+  const getFullContent = () => {
+    return {
+      id,
+      title,
+      description,
+      content,
+      learning_objectives: learningObjectives,
+      related_objectives: relatedObjectives
+    };
+  };
+  
+  // Adicionar esta função ao componente através de um ref ou propriedade
+  useEffect(() => {
+    if (typeof onContentReady === 'function') {
+      onContentReady(id, getFullContent);
+    }
+  }, [id, title, description, content, learningObjectives, relatedObjectives]);
 
   const toggleExpand = () => {
-    setExpanded(!expanded);
+    setIsExpanded(!isExpanded);
   };
 
   return (
-    <div className={`content-item ${expanded ? 'expanded' : ''}`}>
+    <div className={`content-item ${isExpanded ? 'expanded' : ''}`}>
       <div className="content-item-header" onClick={toggleExpand}>
         <div className="content-item-title-container">
           <h3 className="content-item-title">{title}</h3>
           <p className="content-item-description">{description}</p>
         </div>
         <div className="content-item-toggle">
-          {expanded ? <VscChevronUp size={20} /> : <VscChevronDown size={20} />}
+          {isExpanded ? <VscChevronUp size={20} /> : <VscChevronDown size={20} />}
         </div>
       </div>
       
-      {expanded && (
+      {isExpanded && (
         <div className="content-item-details">
           <div className="content-item-content">
             <div dangerouslySetInnerHTML={{ __html: content || "Conteúdo detalhado será carregado aqui." }} />

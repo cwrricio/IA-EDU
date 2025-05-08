@@ -105,7 +105,17 @@ const UploadPage = () => {
     }
   };
 
-  const handleBackToObjectives = () => {
+  const handleBackToObjectives = async () => {
+    if (courseIdRef.current) {
+      try {
+        const courseData = await fetchSavedCourseData(courseIdRef.current);
+        if (courseData && courseData.steps && courseData.steps.objectives) {
+          setObjectivesData(courseData.steps.objectives);
+        }
+      } catch (error) {
+        console.error('Error loading saved objectives:', error);
+      }
+    }
     setCurrentStep('objectives');
   };
 
@@ -151,7 +161,17 @@ const UploadPage = () => {
     }
   };
 
-  const handleBackToSyllabus = () => {
+  const handleBackToSyllabus = async () => {
+    if (courseIdRef.current) {
+      try {
+        const courseData = await fetchSavedCourseData(courseIdRef.current);
+        if (courseData && courseData.steps && courseData.steps.syllabus) {
+          setSyllabusData(courseData.steps.syllabus);
+        }
+      } catch (error) {
+        console.error('Error loading saved syllabus:', error);
+      }
+    }
     setCurrentStep('syllabus');
   };
 
@@ -197,22 +217,60 @@ const UploadPage = () => {
     }
   };
 
+  // Na função handleContinueToCompletion, certifique-se de incluir o título
+  const handleContinueToCompletion = async (contentData) => {
+    setContentData(contentData);
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : { id: "1" };
+
+    try {
+      // Salvar o título e descrição junto com o conteúdo
+      const response = await api.saveProgress({
+        user_id: user.id,
+        course_id: courseIdRef.current,
+        step: "content",
+        content: contentData,
+        title: courseTitle, // Manter o título
+        description: courseDescription || "" // Manter a descrição
+      });
+
+      console.log('Resposta do salvamento:', response);
+      toast.success("Conteúdo salvo com sucesso!");
+
+      // Continue to completion screen
+      setCurrentStep('completion');
+    } catch (error) {
+      console.error('Erro detalhado ao salvar conteúdo:', error);
+
+      if (error.message) {
+        toast.error(`Erro ao salvar conteúdo: ${error.message}`);
+      } else {
+        toast.error("Erro desconhecido ao salvar conteúdo");
+      }
+
+      // Ainda move para a tela de conclusão mesmo se houver falha no salvamento
+      setCurrentStep('completion');
+    }
+  };
+
+
   const onUploadComplete = async (result) => {
     console.log('Upload complete:', result);
     setDocumentAnalysis(result.analysis);
-    
+
     try {
       // Gerar um título para o curso
       const titleResponse = await api.generateTitle({ context: result.analysis });
       if (titleResponse && titleResponse.title) {
         setCourseTitle(titleResponse.title);
-        
+
         // Depois de obter o título, gere a descrição
-        const descResponse = await api.generateDescription({ 
+        const descResponse = await api.generateDescription({
           context: result.analysis,
-          title: titleResponse.title 
+          title: titleResponse.title
         });
-        
+
         if (descResponse && descResponse.description) {
           setCourseDescription(descResponse.description);
         }
@@ -253,6 +311,19 @@ const UploadPage = () => {
     }
   }, [documentAnalysis]);
 
+  // Adicionar estas funções para buscar dados do curso atual
+
+  const fetchSavedCourseData = async (courseId) => {
+    if (!courseId) return null;
+    try {
+      const result = await api.getCourseById(courseId);
+      return result;
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+      return null;
+    }
+  };
+
   return (
     <div className="upload-container">
       <div className="upload-card">
@@ -285,6 +356,7 @@ const UploadPage = () => {
               onBack={handleBackToUpload}
               onContinue={handleContinueToSyllabus}
               documentAnalysis={documentAnalysis}
+              savedData={objectivesData} // Passar dados salvos
             />
           </>
         )}
@@ -294,14 +366,16 @@ const UploadPage = () => {
             onBack={handleBackToObjectives}
             onContinue={handleContinueToContent}
             documentAnalysis={documentAnalysis}
+            savedData={syllabusData} // Passar dados salvos
           />
         )}
 
         {currentStep === 'content' && (
           <ContentListComponent
             onBack={handleBackToSyllabus}
-            onContinue={handleFinish}
+            onContinue={handleContinueToCompletion}
             documentAnalysis={documentAnalysis}
+            savedData={contentData} // Passar dados salvos
           />
         )}
 
