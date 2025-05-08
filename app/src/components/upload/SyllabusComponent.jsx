@@ -94,7 +94,7 @@ const EditableSyllabusItem = ({ newItemText, setNewItemText, handleKeyDown, save
   );
 };
 
-const SyllabusComponent = ({ onBack, onContinue, documentAnalysis }) => {
+const SyllabusComponent = ({ onBack, onContinue, documentAnalysis, savedData }) => {
   const [loading, setLoading] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
   const [newItemText, setNewItemText] = useState("");
@@ -104,8 +104,20 @@ const SyllabusComponent = ({ onBack, onContinue, documentAnalysis }) => {
   const apiCallMadeRef = useRef(false);
   const prevDocumentAnalysis = useRef(null);
 
-  // Carregar a ementa baseada no documento quando o componente montar
+  // Modificar o useEffect que busca a ementa
+
   useEffect(() => {
+    // Se temos dados salvos, use-os em vez de chamar a API
+    if (savedData && savedData.topics && Array.isArray(savedData.topics)) {
+      const formattedItems = savedData.topics.map(topic => ({
+        id: topic.id.toString(),
+        text: topic.title,
+        depth: topic.depth || 3
+      }));
+      setSyllabusItems(formattedItems);
+      return; // Saia do useEffect sem chamar a API
+    }
+
     // Somente chamar a API se o documento mudar ou for a primeira chamada
     if (documentAnalysis === prevDocumentAnalysis.current) return;
     prevDocumentAnalysis.current = documentAnalysis;
@@ -139,7 +151,7 @@ const SyllabusComponent = ({ onBack, onContinue, documentAnalysis }) => {
     };
 
     fetchSyllabus();
-  }, [documentAnalysis]);
+  }, [documentAnalysis, savedData]);
 
   // Sensores para o drag & drop
   const sensors = useSensors(

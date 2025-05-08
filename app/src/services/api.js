@@ -122,6 +122,16 @@ const api = {
       return { description: "Curso educacional com material didático e recursos interativos." };  // Descrição padrão em caso de erro
     }
   },
+
+  getCourseById: async (courseId) => {
+    try {
+      const response = await axios.get(`${API_URL}/courses/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching course data:', error);
+      throw error;
+    }
+  },
 };
 
 export default api;
