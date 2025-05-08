@@ -1,8 +1,15 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import LoginPage from "./pages/login-page";
 import HomePage from "./pages/home-page";
 import ProfessorPage from "./pages/professor";
 import TrilhasPage from "./pages/trilhas-page";
+import SlidesPage from "./pages/slides";
 import UploadPage from "./pages/upload";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,7 +28,8 @@ function App() {
             <PrivateRoute>
               <HomePage />
             </PrivateRoute>
-          } />
+          }
+        />
 
         <Route
           path="/professor"
@@ -29,7 +37,8 @@ function App() {
             <PrivateRoute>
               <ProfessorPage />
             </PrivateRoute>
-          } />
+          }
+        />
 
         <Route
           path="/trilhas"
@@ -37,7 +46,8 @@ function App() {
             <PrivateRoute>
               <TrilhasPage />
             </PrivateRoute>
-          } />
+          }
+        />
 
         <Route
           path="/upload"
@@ -45,8 +55,17 @@ function App() {
             <PrivateRoute>
               <UploadPage />
             </PrivateRoute>
-          } />
+          }
+        />
 
+        <Route
+          path="/slides"
+          element={
+            <PrivateRoute>
+              <SlidesPage />
+            </PrivateRoute>
+          }
+        />
       </Routes>
       <ToastContainer position="bottom-right" />
     </BrowserRouter>
@@ -56,14 +75,12 @@ function App() {
 // Fix: Added children prop and useLocation hook
 function PrivateRoute({ children }) {
   const location = useLocation();
-  const currentUser = localStorage.getItem("user");
+  const isAuthenticated = localStorage.getItem("user") !== null;
 
-  if (!currentUser) {
-    // Pass the current location to be redirected back after login
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  
-  // Return the children if authenticated
+
   return children;
 }
 
