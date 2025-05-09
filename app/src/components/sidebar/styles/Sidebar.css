@@ -16,6 +16,8 @@
   z-index: 100;
   overflow-x: hidden;
   overflow-y: auto;
+
+  transform: translateX(0);
 }
 
 /* Ajuste para telas pequenas */
@@ -59,6 +61,8 @@
 
 .sidebar.collapsed {
   width: 70px;
+  transform: translateX(-60px); /* Mantém 10px visíveis */
+  /* Alternativa: transform: translateX(calc(-100% + 20px)); */
 }
 
 .sidebar-header {
@@ -193,4 +197,22 @@
 
 .sidebar.collapsed .sidebar-help {
   justify-content: center;
+}
+
+/* Adicione um estilo para o botão semi-circular */
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  right: -15px; /* Posiciona o botão para fora da sidebar */
+  width: 30px;
+  height: 60px;
+  border-radius: 0 30px 30px 0;
+  background-color: #288de095;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 5px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }

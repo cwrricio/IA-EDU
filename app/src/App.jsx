@@ -14,60 +14,63 @@ import UploadPage from "./pages/upload";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
+import { SidebarProvider } from "./contexts/SidebarContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginPage />} />
+      <SidebarProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<LoginPage />} />
 
-        <Route
-          path="/home"
-          element={
-            <PrivateRoute>
-              <HomePage />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <HomePage />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/professor"
-          element={
-            <PrivateRoute>
-              <ProfessorPage />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/professor"
+            element={
+              <PrivateRoute>
+                <ProfessorPage />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/trilhas"
-          element={
-            <PrivateRoute>
-              <TrilhasPage />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/trilhas"
+            element={
+              <PrivateRoute>
+                <TrilhasPage />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/upload"
-          element={
-            <PrivateRoute>
-              <UploadPage />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/upload"
+            element={
+              <PrivateRoute>
+                <UploadPage />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/slides"
-          element={
-            <PrivateRoute>
-              <SlidesPage />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-      <ToastContainer position="bottom-right" />
+          <Route
+            path="/slides"
+            element={
+              <PrivateRoute>
+                <SlidesPage />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+        <ToastContainer position="bottom-right" />
+      </SidebarProvider>
     </BrowserRouter>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   VscHome,
@@ -7,21 +7,13 @@ import {
   VscQuestion,
   VscPerson,
 } from "react-icons/vsc";
+import { useSidebar } from "../../contexts/SidebarContext";
 import "./styles/Sidebar.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setCollapsed(window.innerWidth <= 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const { collapsed, toggleSidebar } = useSidebar();
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -33,11 +25,13 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user"); // Remove user data from localStorage
-    handleNavigation("/login")
+    handleNavigation("/login");
   };
 
   return (
     <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+ 
+
       <div className="sidebar-header">
         <div className="sidebar-logo-container">
           <img src="/mentor.svg" alt="MentorIA Logo" className="sidebar-logo" />
@@ -80,10 +74,7 @@ const Sidebar = () => {
             {!collapsed && <span>Professor</span>}
           </li>
 
-          <li
-            className="sidebar-menu-item logout"
-            onClick={handleLogout}
-          >
+          <li className="sidebar-menu-item logout" onClick={handleLogout}>
             <VscSignOut className="sidebar-icon" />
             {!collapsed && <span>Sair</span>}
           </li>
