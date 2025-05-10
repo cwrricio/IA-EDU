@@ -1,37 +1,83 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import TextoSlide from "../../components/Slides/TextoSlide";
 import TopicosSlide from "../../components/Slides/TopicosSlide";
 import QuizSlide from "../../components/Slides/QuizSlide";
 import ConclusaoSlide from "../../components/Slides/ConclusaoSlide";
-import { mockTrilha } from "../../components/data/mockTrilha";
+import api from "../../services/api";
 import "./slides-page.css";
 
 const SlidesPage = () => {
+  const { courseId } = useParams(); // Obter o ID do curso da URL
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slideData, setSlideData] = useState(null);
   const [trilhaData, setTrilhaData] = useState(null);
+  const [allSlides, setAllSlides] = useState([]); // Novo estado para armazenar todos os slides
   const [totalSlides, setTotalSlides] = useState(0);
   const [quizScore, setQuizScore] = useState({ score: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Referências para funções do quiz
   const quizNextRef = useRef(null);
   const quizPrevRef = useRef(null);
 
-  // Carregue os dados da primeira trilha ao iniciar
+  // Carregar dados do curso e slides quando o componente montar
   useEffect(() => {
-    if (Array.isArray(mockTrilha) && mockTrilha.length > 0) {
-      // Utilize a primeira trilha disponível
-      const primeiraTriha = mockTrilha[0];
-      setTrilhaData(primeiraTriha);
+    const fetchCourseData = async () => {
+      if (!courseId) return;
 
-      if (primeiraTriha.slides && primeiraTriha.slides.length > 0) {
-        setSlideData(primeiraTriha.slides[currentSlideIndex]);
-        setTotalSlides(primeiraTriha.slides.length);
+      try {
+        setLoading(true);
+        const courseData = await api.getCourseById(courseId);
+
+        if (courseData) {
+          setTrilhaData({
+            titulo: courseData.title,
+            descricao: courseData.description,
+            id: courseId
+          });
+
+          // Verificar se há conteúdo e slides
+          if (courseData.steps?.content?.content_items) {
+            const contentItems = courseData.steps.content.content_items;
+            let slidesCollection = [];
+
+            // Coletar todos os slides de todos os itens de conteúdo
+            contentItems.forEach(item => {
+              if (item.slides && item.slides.length > 0) {
+                slidesCollection = [...slidesCollection, ...item.slides];
+              }
+            });
+
+            if (slidesCollection.length > 0) {
+              setAllSlides(slidesCollection); // Armazenar todos os slides
+              setTotalSlides(slidesCollection.length);
+              setSlideData(slidesCollection[0]); // Definir o primeiro slide
+            } else {
+              setError("Este curso não possui slides disponíveis.");
+            }
+          } else {
+            setError("Este curso não possui conteúdo disponível.");
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados do curso:", err);
+        setError("Não foi possível carregar os dados do curso. Tente novamente mais tarde.");
+      } finally {
+        setLoading(false);
       }
-    } else {
-      console.error("Dados não disponíveis ou em formato incorreto");
+    };
+
+    fetchCourseData();
+  }, [courseId]);
+
+  // Atualizar slide quando mudar o índice
+  useEffect(() => {
+    if (allSlides.length > 0 && currentSlideIndex >= 0 && currentSlideIndex < allSlides.length) {
+      setSlideData(allSlides[currentSlideIndex]);
     }
-  }, [currentSlideIndex]);
+  }, [currentSlideIndex, allSlides]);
 
   // Navegar para o próximo slide (ou próxima pergunta no quiz)
   const nextSlide = () => {
@@ -72,43 +118,76 @@ const SlidesPage = () => {
   // Handler para quando o quiz for completado
   const handleQuizComplete = (score, total) => {
     setQuizScore({ score, total });
+
+    // Armazenar resultado do quiz (opcional, para uso futuro)
+    const quizResults = JSON.parse(localStorage.getItem('quizResults') || '{}');
+    quizResults[`${courseId}-${currentSlideIndex}`] = { score, total, timestamp: Date.now() };
+    localStorage.setItem('quizResults', JSON.stringify(quizResults));
+
     // Avançar para o slide após o quiz
     if (currentSlideIndex < totalSlides - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
     }
   };
 
-  // Renderiza o conteúdo do slide com base no tipo
+  // Renderiza o conteúdo do slide com base no tipo  
   const renderSlideContent = () => {
     if (!slideData) return <div>Carregando...</div>;
 
     switch (slideData.tipo) {
-      case "texto":
+      case "problema":
         return (
           <TextoSlide titulo={slideData.titulo} conteudo={slideData.conteudo} />
         );
-      case "topicos":
+      case "objetivos":
         return (
-          <TopicosSlide titulo={slideData.titulo} topicos={slideData.topicos} />
+          <TopicosSlide titulo={slideData.titulo} topicos={slideData.objetivos} />
         );
-      case "quiz":
+      case "quiz_diagnostico":
+      case "quiz_avaliativo":
         return (
           <QuizSlide
+            titulo={slideData.titulo}
+            perguntas={slideData.perguntas}
             onNext={quizNextRef}
             onPrev={quizPrevRef}
             onComplete={handleQuizComplete}
           />
         );
-      case "conclusao":
+      case "conteudo":
+        // Verifica se tem tópicos ou conteúdo em parágrafo
+        if (slideData.topicos) {
+          return (
+            <TopicosSlide
+              titulo={slideData.titulo}
+              subtitulo={slideData.subtitulo}
+              topicos={slideData.topicos}
+            />
+          );
+        } else {
+          return (
+            <TextoSlide
+              titulo={slideData.titulo}
+              subtitulo={slideData.subtitulo}
+              conteudo={slideData.paragrafo || slideData.conteudo}
+            />
+          );
+        }
+      case "resumo":
         return (
-          <ConclusaoSlide
-            titulo="Parabéns!"
-            mensagem={`Você concluiu a TRILHA de "${trilhaData?.titulo}" com sucesso! Continue explorando mais conteúdos para aprimorar seus conhecimentos.`}
-            quizScore={quizScore}
+          <TextoSlide
+            titulo={slideData.titulo}
+            conteudo={slideData.conteudo}
+            isResumo={true}
           />
         );
       default:
-        return <div>Tipo de slide não reconhecido</div>;
+        return (
+          <div>
+            <h3>Tipo de slide não reconhecido: {slideData.tipo}</h3>
+            <pre>{JSON.stringify(slideData, null, 2)}</pre>
+          </div>
+        );
     }
   };
 
@@ -124,13 +203,13 @@ const SlidesPage = () => {
       // Tenta avançar no quiz sem realmente mudar o estado
       // Se não conseguir avançar (nenhuma opção selecionada), desabilita o botão
       const canAdvance = quizNextRef.current && quizNextRef.current();
-      
+
       // Se retornar false, significa que não há opção selecionada
       // ou estamos na última pergunta do quiz
       if (!canAdvance) {
         return true;
       }
-      
+
       // Desfaz a mudança que testamos (para não avançar realmente)
       quizPrevRef.current && quizPrevRef.current();
     }
@@ -140,39 +219,52 @@ const SlidesPage = () => {
 
   return (
     <div className="slides-page-container">
-      <div className="slide-box">
-        <div className="slide-header">
-          <div className="slide-logo">
-            <img src="/mentor.svg" alt="MentorIA" />
+      {loading ? (
+        <div className="loading-message">Carregando conteúdo do curso...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
+      ) : (
+        <>
+          <div className="slide-box">
+            <div className="slide-header">
+              <div className="slide-logo">
+                <img src="/mentor.svg" alt="MentorIA" />
+              </div>
+              <h3 className="slide-trilha">
+                {trilhaData?.titulo || "Nome da Trilha"}
+              </h3>
+            </div>
+            <div className="slide-content-block">{renderSlideContent()}</div>
           </div>
-          <h3 className="slide-trilha">
-            {trilhaData?.titulo || "Nome da Trilha"}
-          </h3>
-        </div>
-        <div className="slide-content-block">{renderSlideContent()}</div>
-      </div>
 
-      <button
-        className="nav-button prev"
-        onClick={prevSlide}
-        disabled={currentSlideIndex === 0}
-        aria-label="Slide anterior"
-      >
-        &#10094;
-      </button>
+          {/* Esconder botões de navegação durante quiz */}
+          {(slideData?.tipo !== "quiz_diagnostico" && slideData?.tipo !== "quiz_avaliativo") && (
+            <>
+              <button
+                className="nav-button prev"
+                onClick={prevSlide}
+                disabled={currentSlideIndex === 0}
+                aria-label="Slide anterior"
+              >
+                &#10094;
+              </button>
 
-      <button
-        className="nav-button next"
-        onClick={nextSlide}
-        disabled={isNextButtonDisabled()}
-        aria-label="Próximo slide"
-      >
-        &#10095;
-      </button>
+              <button
+                className="nav-button next"
+                onClick={nextSlide}
+                disabled={isNextButtonDisabled()}
+                aria-label="Próximo slide"
+              >
+                &#10095;
+              </button>
 
-      <div className="slide-indicator">
-        {currentSlideIndex + 1} / {totalSlides}
-      </div>
+              <div className="slide-indicator">
+                {currentSlideIndex + 1} / {totalSlides}
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 };

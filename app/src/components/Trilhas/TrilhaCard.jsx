@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Adicionar o hook de navegação
 import StatusBadge from "./StatusBadge";
 import codefolioImg from "../../assets/codefolio.png";
 import "./styles/TrilhaCard.css";
@@ -8,6 +9,12 @@ const TrilhaCard = ({ trilha }) => {
   const { id, title, status, description, created_by } = trilha;
   const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Hook para navegação
+
+  // Função para navegar para a página de slides
+  const handleAccessTrilha = () => {
+    navigate(`/slides/${id}`); // Navegar para a página de slides com o ID da trilha
+  };
 
   // Fetch creator information when component mounts
   useEffect(() => {
@@ -78,8 +85,8 @@ const TrilhaCard = ({ trilha }) => {
       <p className="trilha-description">{description || "Sem descrição disponível"}</p>
 
       <div className="trilha-actions">
-        <button className="trilha-button">
-          {status === "concluido" ? "Ver detalhes" : "Editar"}
+        <button className="trilha-button" onClick={handleAccessTrilha}>
+          Acessar
         </button>
       </div>
     </div>

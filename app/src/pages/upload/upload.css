@@ -103,6 +103,18 @@
   animation: spin 1.5s linear infinite;
 }
 
+.loading-tip {
+  margin-top: 16px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-size: 14px;
+  color: #e0e0e0;
+  font-style: italic;
+  max-width: 500px;
+  text-align: center;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);

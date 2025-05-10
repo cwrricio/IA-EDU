@@ -1,42 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./QuizSlide.css";
 
-// Dados de exemplo para as questões do quiz
-const quizQuestions = [
-  {
-    pergunta:
-      "Qual é o principal benefício da Inteligência Artificial na educação?",
-    alternativas: [
-      "Substituir completamente os professores",
-      "Personalizar o aprendizado conforme as necessidades do aluno",
-      "Eliminar a necessidade de avaliações",
-      "Aumentar o custo da educação",
-    ],
-    resposta: 1,
-  },
-  {
-    pergunta: "Qual das seguintes tecnologias NÃO é considerada parte da IA?",
-    alternativas: [
-      "Machine Learning",
-      "Processamento de Linguagem Natural",
-      "Bancos de dados relacionais",
-      "Redes neurais",
-    ],
-    resposta: 2,
-  },
-  {
-    pergunta: "Qual é um exemplo de aplicação ética da IA na educação?",
-    alternativas: [
-      "Monitorar alunos sem consentimento",
-      "Compartilhar dados dos estudantes com terceiros",
-      "Identificar alunos com dificuldades para oferecer suporte adicional",
-      "Automatizar completamente o processo de avaliação",
-    ],
-    resposta: 2,
-  },
-];
-
-const QuizSlide = ({ onNext, onPrev, onComplete }) => {
+const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
+  // Usar as perguntas recebidas via props em vez de usar os dados de exemplo fixos
+  const quizQuestions = perguntas || [];
+  
   const [questionIndex, setQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState(
     Array(quizQuestions.length).fill(null)
@@ -44,10 +12,24 @@ const QuizSlide = ({ onNext, onPrev, onComplete }) => {
   const [showSummary, setShowSummary] = useState(false);
   const [score, setScore] = useState(0);
 
-  const currentQuestion = quizQuestions[questionIndex];
+  // Atualizar estado de respostas quando as perguntas mudarem
+  useEffect(() => {
+    setUserAnswers(Array(quizQuestions.length).fill(null));
+    setShowSummary(false);
+    setQuestionIndex(0);
+    setScore(0);
+  }, [perguntas]);
+
+  const currentQuestion = quizQuestions[questionIndex] || {
+    pergunta: "Carregando...",
+    alternativas: [],
+    resposta: 0
+  };
 
   // Processar as respostas e calcular a pontuação
   const processAnswers = () => {
+    if (!quizQuestions.length) return;
+    
     let correctAnswers = 0;
     userAnswers.forEach((answer, index) => {
       if (answer === quizQuestions[index].resposta) {
@@ -105,95 +87,132 @@ const QuizSlide = ({ onNext, onPrev, onComplete }) => {
     }
   }, [questionIndex, userAnswers, showSummary, score]);
 
-  // Exibir o resumo final
-  if (showSummary) {
+  // Verificar se há perguntas
+  if (!quizQuestions || quizQuestions.length === 0) {
     return (
-      <div className="quiz-summary">
-        <h2 className="quiz-summary-title">Resultado</h2>
-        <div className="quiz-score">
-          Você acertou {score} de {quizQuestions.length} questões!
-          <div className="quiz-score-percentage">
-            {Math.round((score / quizQuestions.length) * 100)}%
+      <div className="quiz-error">
+        <h2>Erro: Nenhuma pergunta disponível</h2>
+        <p>Não foi possível carregar as perguntas para este quiz.</p>
+      </div>
+    );
+  }
+
+  // 1. Para o modo de perguntas (não summary)
+  if (!showSummary) {
+    return (
+      <div className="quiz-slide-content">
+        <h2 className="quiz-title">{titulo || "Quiz"}</h2>
+        
+        <div className="quiz-progress">
+          <span>
+            Questão {questionIndex + 1} de {quizQuestions.length}
+          </span>
+          <div className="quiz-progress-bar">
+            <div
+              className="quiz-progress-fill"
+              style={{
+                width: `${((questionIndex + 1) / quizQuestions.length) * 100}%`,
+              }}
+            ></div>
           </div>
         </div>
 
-        <div className="quiz-review">
-          {quizQuestions.map((question, index) => {
-            const isCorrect = userAnswers[index] === question.resposta;
-            return (
-              <div
-                key={index}
-                className={`quiz-review-item ${
-                  isCorrect ? "correct" : "incorrect"
-                }`}
-              >
-                <div className="quiz-review-question">
-                  <span className="quiz-review-number">{index + 1}.</span>
-                  <span>{question.pergunta}</span>
-                </div>
-                <div className="quiz-review-answers">
-                  <div>
-                    <strong>Sua resposta:</strong>{" "}
-                    {question.alternativas[userAnswers[index]]}
-                    {isCorrect ? " ✓" : " ✗"}
-                  </div>
-                  {!isCorrect && (
-                    <div>
-                      <strong>Resposta correta:</strong>{" "}
-                      {question.alternativas[question.resposta]}
-                    </div>
-                  )}
-                </div>
+        <div className="quiz-question">
+          <p>{currentQuestion.pergunta}</p>
+        </div>
+
+        <div className="quiz-options">
+          {currentQuestion.alternativas.map((alternativa, index) => (
+            <div
+              key={index}
+              className={`quiz-option ${
+                userAnswers[questionIndex] === index ? "selected" : ""
+              }`}
+              onClick={() => handleOptionSelect(index)}
+            >
+              <div className="quiz-option-content">
+                <span className="quiz-option-text">{alternativa}</span>
               </div>
-            );
-          })}
+            </div>
+          ))}
+        </div>
+
+        {userAnswers[questionIndex] === null && (
+          <div className="quiz-select-hint">
+            Selecione uma opção para continuar
+          </div>
+        )}
+
+        <div className="quiz-navigation">
+          {questionIndex > 0 && (
+            <button className="quiz-nav-button prev" onClick={goToPrevQuestion}>
+              Anterior
+            </button>
+          )}
+          <div className="quiz-nav-spacer"></div>
+          <button 
+            className="quiz-nav-button next" 
+            onClick={goToNextQuestion}
+            disabled={userAnswers[questionIndex] === null}
+          >
+            {questionIndex < quizQuestions.length - 1 ? "Próxima" : "Finalizar"}
+          </button>
         </div>
       </div>
     );
   }
 
-  // Exibir a questão atual
+  // 2. Para o modo de resumo
   return (
-    <div className="quiz-slide-content">
-      <div className="quiz-progress">
-        <span>
-          Questão {questionIndex + 1} de {quizQuestions.length}
-        </span>
-        <div className="quiz-progress-bar">
-          <div
-            className="quiz-progress-fill"
-            style={{
-              width: `${((questionIndex + 1) / quizQuestions.length) * 100}%`,
-            }}
-          ></div>
+    <div className="quiz-summary">
+      <h2 className="quiz-summary-title">{titulo || "Resultado do Quiz"}</h2>
+      <div className="quiz-score">
+        Você acertou {score} de {quizQuestions.length} questões!
+        <div className="quiz-score-percentage">
+          {Math.round((score / quizQuestions.length) * 100)}%
         </div>
       </div>
 
-      <div className="quiz-question">
-        <p>{currentQuestion.pergunta}</p>
-      </div>
-
-      <div className="quiz-options">
-        {currentQuestion.alternativas.map((alternativa, index) => (
-          <div
-            key={index}
-            className={`quiz-option ${
-              userAnswers[questionIndex] === index ? "selected" : ""
-            }`}
-            onClick={() => handleOptionSelect(index)}
-          >
-            <div className="quiz-option-content">
-              <span className="quiz-option-text">{alternativa}</span>
+      <div className="quiz-review">
+        {quizQuestions.map((question, index) => {
+          const isCorrect = userAnswers[index] === question.resposta;
+          return (
+            <div
+              key={index}
+              className={`quiz-review-item ${
+                isCorrect ? "correct" : "incorrect"
+              }`}
+            >
+              <div className="quiz-review-question">
+                <span className="quiz-review-number">{index + 1}.</span>
+                <span>{question.pergunta}</span>
+              </div>
+              <div className="quiz-review-answers">
+                <div>
+                  <strong>Sua resposta:</strong>{" "}
+                  {question.alternativas[userAnswers[index]]}
+                  {isCorrect ? " ✓" : " ✗"}
+                </div>
+                {!isCorrect && (
+                  <div>
+                    <strong>Resposta correta:</strong>{" "}
+                    {question.alternativas[question.resposta]}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-
-      {userAnswers[questionIndex] === null && (
-        <div className="quiz-select-hint">
-          Selecione uma opção para continuar
-        </div>
-      )}
+      
+      <div className="quiz-completion">
+        <button 
+          className="quiz-complete-button" 
+          onClick={() => onComplete && onComplete(score, quizQuestions.length)}
+        >
+          Continuar
+        </button>
+      </div>
     </div>
   );
 };

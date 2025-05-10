@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProjectCard = ({ project }) => {
   const { title, status, date, description } = project;
@@ -23,6 +24,11 @@ const ProjectCard = ({ project }) => {
 
 const TrilhaCard = ({ trilha }) => {
   const { id, title, status, date, description } = trilha;
+  const navigate = useNavigate();
+
+  const handleViewTrilha = () => {
+    navigate(`/slides/${id}`);
+  };
 
   return (
     <div className="trilha-card">
@@ -38,7 +44,7 @@ const TrilhaCard = ({ trilha }) => {
       <p className="trilha-descricao">{description}</p>
 
       <div className="trilha-acoes">
-        <button className="ver-trilha-btn">Ver trilha</button>
+        <button className="ver-trilha-btn" onClick={handleViewTrilha}>Acessar</button>
         <button className="editar-btn">Editar</button>
       </div>
     </div>

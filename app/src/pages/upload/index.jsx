@@ -222,48 +222,8 @@ const UploadPage = () => {
   // Na função handleContinueToCompletion, certifique-se de incluir o título
   const handleContinueToCompletion = async (contentData) => {
     setContentData(contentData);
-    setIsLoading(true); // Ativar o estado de loading
-
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : { id: "1" };
-
-    try {
-      // Salvar o título e descrição junto com o conteúdo
-      const response = await api.saveProgress({
-        user_id: user.id,
-        course_id: courseIdRef.current,
-        step: "content",
-        content: contentData,
-        title: courseTitle, // Manter o título
-        description: courseDescription || "" // Manter a descrição
-      });
-
-      console.log('Resposta do salvamento:', response);
-      toast.success("Conteúdo salvo com sucesso!");
-
-      // Aguardar 2 segundos antes de mostrar a tela de conclusão
-      setTimeout(() => {
-        setIsLoading(false);
-        setCurrentStep('completion');
-      }, 2000);
-      
-    } catch (error) {
-      console.error('Erro detalhado ao salvar conteúdo:', error);
-
-      if (error.message) {
-        toast.error(`Erro ao salvar conteúdo: ${error.message}`);
-      } else {
-        toast.error("Erro desconhecido ao salvar conteúdo");
-      }
-
-      // Mesmo em caso de erro, mostrar a tela de loading e depois ir para conclusão
-      setTimeout(() => {
-        setIsLoading(false);
-        setCurrentStep('completion');
-      }, 2000);
-    }
+    await generateSlidesForCourse(contentData);
   };
-
 
   const onUploadComplete = async (result) => {
     console.log('Upload complete:', result);
@@ -334,6 +294,89 @@ const UploadPage = () => {
     }
   };
 
+  // Add this function to the component where you handle content completion
+
+  const generateSlidesForCourse = async (contentData) => {
+    setIsLoading(true);
+    
+    try {
+      // Criar uma cópia dos dados de conteúdo
+      const contentWithSlides = { ...contentData };
+      contentWithSlides.content_items = [...contentData.content_items];
+      
+      // Exibir feedback inicial
+      toast.info(`Iniciando geração de slides para ${contentWithSlides.content_items.length} tópicos...`);
+      
+      // Processar cada item de conteúdo sequencialmente
+      for (let i = 0; i < contentWithSlides.content_items.length; i++) {
+        const item = contentWithSlides.content_items[i];
+        
+        // Exibir progresso atual
+        toast.info(`Gerando slides para: ${item.title} (${i+1}/${contentWithSlides.content_items.length})`);
+        
+        try {
+          // Verificar se o item tem conteúdo necessário
+          if (!item.content) {
+            console.warn(`Item ${item.id}: Conteúdo vazio, usando descrição como conteúdo.`);
+            item.content = item.description;
+          }
+          
+          console.log(`Gerando slides para item ${item.id}: ${item.title}`);
+          
+          // Adicionar um timeout para evitar sobrecarga da API
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const slidesResult = await api.generateSlides(item);
+          
+          console.log(`Slides gerados para item ${item.id}:`, slidesResult);
+          
+          // Adicionar os slides ao item de conteúdo
+          contentWithSlides.content_items[i] = {
+            ...item,
+            slides: slidesResult?.slides || []
+          };
+          
+        } catch (error) {
+          console.error(`Erro ao gerar slides para o item ${item.id}:`, error);
+          toast.error(`Erro ao gerar slides para: ${item.title}`);
+          // Continuar com o próximo item mesmo se este falhar
+          contentWithSlides.content_items[i] = {
+            ...item,
+            slides: [] // Array vazio para itens com falha
+          };
+        }
+        
+        // Pequena pausa entre requisições para evitar sobrecarga
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      
+      // Salvar o conteúdo com os slides gerados
+      const userString = localStorage.getItem('user');
+      const user = userString ? JSON.parse(userString) : { id: "1" };
+      
+      toast.info("Salvando conteúdo com slides...");
+      
+      const response = await api.saveProgress({
+        user_id: user.id,
+        course_id: courseIdRef.current,
+        step: "content",
+        content: contentWithSlides,
+        title: courseTitle,
+        description: courseDescription || ""
+      });
+      
+      console.log('Conteúdo com slides salvo:', response);
+      toast.success("Conteúdo e slides salvos com sucesso!");
+      
+    } catch (error) {
+      console.error('Erro no processo de geração de slides:', error);
+      toast.error("Erro ao gerar slides: " + (error.message || "Erro desconhecido"));
+    } finally {
+      setIsLoading(false);
+      setCurrentStep('completion');
+    }
+  };
+
   return (
     <div className="upload-container">
       <div className="upload-card">
@@ -388,13 +431,20 @@ const UploadPage = () => {
             savedData={contentData} // Passar dados salvos
           />
         )}
-
+        
         {isLoading && (
           <div className="loading-screen">
             <div className="loading-content">
               <BiLoaderAlt className="loading-icon spin-animation" size={40} />
               <h2 className="loading-title">Preparando seu curso...</h2>
-              <p className="loading-message">Aguarde enquanto finalizamos tudo para você.</p>
+              <p className="loading-message">
+                Estamos gerando slides personalizados para cada tópico do seu conteúdo.
+                Este processo pode levar alguns minutos.
+              </p>
+              <div className="loading-tip">
+                Dica: A geração de slides é baseada no conteúdo fornecido para cada tópico. 
+                Quanto mais detalhado for o conteúdo, melhores serão os slides.
+              </div>
             </div>
           </div>
         )}

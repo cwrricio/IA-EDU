@@ -1,5 +1,5 @@
 import {
-  BrowserRouter,
+  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -18,7 +18,7 @@ import { SidebarProvider } from "./contexts/SidebarContext";
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <SidebarProvider>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
@@ -68,10 +68,19 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/slides/:courseId"
+            element={
+              <PrivateRoute>
+                <SlidesPage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
         <ToastContainer position="bottom-right" />
       </SidebarProvider>
-    </BrowserRouter>
+    </Router>
   );
 }
 

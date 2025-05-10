@@ -126,12 +126,43 @@ const api = {
   getCourseById: async (courseId) => {
     try {
       const response = await axios.get(`${API_URL}/courses/${courseId}`);
-      return response.data;
+      
+      // Verificar se o curso possui slides
+      const courseData = response.data;
+      if (courseData && courseData.steps && courseData.steps.content && 
+          courseData.steps.content.content_items) {
+        // O curso já tem os dados que precisamos
+        return courseData;
+      } else {
+        console.warn("Curso encontrado, mas sem conteúdo de slides:", courseId);
+        return courseData; // Retornar o que temos, mesmo que incompleto
+      }
     } catch (error) {
-      console.error('Error fetching course data:', error);
+      console.error('Erro ao buscar dados do curso:', error);
       throw error;
     }
   },
+
+  generateSlides: async (contentItem) => {
+    try {
+      console.log("Enviando item para geração de slides:", contentItem);
+      
+      const response = await axios.post(`${API_URL}/generate-slides`, {
+        content_item: contentItem
+      });
+      
+      if (!response.data || !response.data.slides) {
+        console.warn("API retornou dados inválidos para slides:", response.data);
+        return { slides: [] };
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error generating slides:', error);
+      // Retornar slides vazios em caso de erro para não quebrar o fluxo
+      return { slides: [] };
+    }
+  }
 };
 
 export default api;

@@ -122,7 +122,7 @@ class LLMService:
         {{
             "topics": [
                 {{"id": 1, "title": "Título do Tópico", "depth": 3}},
-                {{"id": 2, "title": "Outro tópico", "depth": 4}},
+                {{"id": 2", "title": "Outro tópico", "depth": 4}},
                 ...
             ]
         }}
@@ -229,56 +229,139 @@ class LLMService:
                 "related_objectives": []
             }
 
+    async def generate_slides(self, title, description, content):
+        """Generate educational slides based on content."""
+        prompt = f"""
+        Considerando o conteúdo:
+        
+        Título: {title}
+        Descrição: {description}
+        Conteúdo completo: {content}
+        
+        Gere um conjunto de 10 slides a partir deste conteúdo, sendo que:
+        
+        Slide 1: Deve apresentar uma situação problema 
+        Slide 2: Deve apresentar os objetivos específicos associados começando com "Ao final desta aula, você deverá ser capaz de...".
+        Slide 3: Gere um quiz de avaliação diagnóstica com 5 questões sobre o conteúdo. Ele deve ser de múltipla escolha, com 4 alternativas e deve indicar a opção correta.
+        Slides 4 ao 8: Contém o conteúdo na íntegra para o usuário. Esse conteúdo pode ser apresentado em uma das seguintes estruturas: 
+          - Título, subtítulo e parágrafo curto (apropriado para um slide) OU 
+          - Título e tópicos pontuais (ao menos uma frase por tópico). 
+        Os slides devem estar auto-contidos e ter um roteiro de início, meio e fim.
+        Slide 9: Deve apresentar um resumo do conteúdo estudado.
+        Slide 10: Um quiz avaliativo com 10 questões sobre o conteúdo estudado. Ele deve ser de múltipla escolha, com 4 alternativas e deve indicar a opção correta.
+        
+        RESPONDA APENAS COM O JSON PURO, sem comentários ou textos adicionais.
+        
+        {{
+            "slides": [
+                {{
+                    "tipo": "problema", 
+                    "titulo": "Título do Slide", 
+                    "conteudo": "Texto descrevendo uma situação problema"
+                }},
+                {{
+                    "tipo": "objetivos", 
+                    "titulo": "Objetivos de Aprendizagem", 
+                    "objetivos": ["Objetivo 1", "Objetivo 2", "..."]
+                }},
+                {{
+                    "tipo": "quiz_diagnostico",
+                    "titulo": "Avaliação Diagnóstica",
+                    "perguntas": [
+                        {{
+                            "pergunta": "Texto da pergunta 1?",
+                            "alternativas": ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
+                            "resposta": 2
+                        }},
+                        {{
+                            "pergunta": "Texto da pergunta 2?",
+                            "alternativas": ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
+                            "resposta": 0
+                        }}
+                    ]
+                }}
+            ]
+        }}
+        """
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an educational AI assistant that creates well-structured course slides based on content. You output ONLY properly formatted JSON without any text before or after it.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.7,
+            max_tokens=4000,  # Aumentar o limite de tokens para resposta completa
+            response_format={"type": "json_object"}  # Forçar resposta em formato JSON (para modelos que suportam)
+        )
+
+        content = response.choices[0].message.content
+        return self._clean_and_validate_json(content)
+
     def _clean_and_validate_json(self, content):
         """Clean and validate JSON from LLM response"""
-        # Remove code block markers if present
-        cleaned_content = content.strip()
-        if cleaned_content.startswith("```"):
-            parts = cleaned_content.split("```")
-            if len(parts) >= 3:
-                # Extract the middle part (actual JSON)
-                cleaned_content = parts[1]
-                # Remove language identifier if present
-                if cleaned_content.startswith("json"):
-                    cleaned_content = cleaned_content[4:].strip()
-                else:
-                    cleaned_content = cleaned_content.strip()
-
-        # Fix common JSON structure errors
+        import re  # Adicionar importação local para garantir acesso
+        
+        if not content or not content.strip():
+            print("Conteúdo vazio recebido do LLM")
+            return {"slides": []}
+            
         try:
-            # Try parsing directly first
-            return json.loads(cleaned_content)
-        except json.JSONDecodeError:
-            # Fix missing closing braces in array items
-            fixed_content = re.sub(
-                r'("text": "[^"]+?")(\s*\])', r"\1}\2", cleaned_content
-            )
-
-            # Fix extra closing braces at the end
-            bracket_count = 0
-            brace_count = 0
-            for char in fixed_content:
-                if char == "{":
-                    brace_count += 1
-                elif char == "}":
-                    brace_count -= 1
-                elif char == "[":
-                    bracket_count += 1
-                elif char == "]":
-                    bracket_count -= 1
-
-            # Add missing closing braces/brackets or remove extras
-            if brace_count > 0:
-                fixed_content += "}" * brace_count
-            elif brace_count < 0:
-                fixed_content = fixed_content.rsplit("}", -brace_count)[0]
-
-            if bracket_count > 0:
-                fixed_content += "]" * bracket_count
-            elif bracket_count < 0:
-                fixed_content = fixed_content.rsplit("]", -bracket_count)[0]
-
-            return json.loads(fixed_content)
+            # Primeira tentativa: tentar carregar diretamente
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            print(f"JSON inicial inválido, tentando corrigir: {str(e)}")
+            
+            # Remover marcadores de código de LLMs
+            cleaned_content = re.sub(r'^```json\s+|\s+```$', '', content.strip())
+            cleaned_content = re.sub(r'^```\s+|\s+```$', '', cleaned_content.strip())
+            
+            try:
+                # Segunda tentativa com conteúdo limpo
+                return json.loads(cleaned_content)
+            except json.JSONDecodeError as e:
+                print(f"Ainda inválido após limpeza básica: {str(e)}")
+                
+                # Corrigir escapes inválidos
+                fixed_content = ""
+                i = 0
+                while i < len(cleaned_content):
+                    if cleaned_content[i] == '\\':
+                        # Se o próximo caractere não for um escape válido, tratar como escape literal
+                        if i + 1 < len(cleaned_content) and cleaned_content[i+1] not in '"\\/bfnrtu':
+                            fixed_content += '\\\\'  # Escape duplo para representar um escape literal
+                            i += 1
+                            continue
+                    fixed_content += cleaned_content[i]
+                    i += 1
+                
+                try:
+                    # Terceira tentativa com escapes corrigidos
+                    return json.loads(fixed_content)
+                except json.JSONDecodeError as e:
+                    print(f"Ainda inválido após correção de escapes: {str(e)}")
+                    print(f"Trecho problemático: {fixed_content[max(0, e.pos-30):min(len(fixed_content), e.pos+30)]}")
+                    
+                    # Tentar corrigir comentários e outros problemas comuns
+                    try:
+                        # Remover comentários de estilo JS que o modelo pode gerar
+                        no_comments = re.sub(r'//.*?(\n|$)', '\n', fixed_content)
+                        # Substituir aspas simples por aspas duplas
+                        quotes_fixed = no_comments.replace("'", '"')
+                        return json.loads(quotes_fixed)
+                    except Exception:
+                        # Última tentativa: limpar caracteres problemáticos
+                        try:
+                            import re
+                            sanitized = re.sub(r'\\(?!["\\/bfnrtu])', '\\\\', fixed_content)
+                            return json.loads(sanitized)
+                        except Exception as final_e:
+                            print(f"Falha na tentativa final de correção: {str(final_e)}")
+                            # Fallback: retornar estrutura vazia
+                            return {"slides": []}
 
     async def process_document(self, document_content):
         """Extraia as informações-chave de um documento educacional."""
