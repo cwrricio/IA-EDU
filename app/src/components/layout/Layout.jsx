@@ -1,23 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Sidebar from "../sidebar/Sidebar";
+import { useSidebar } from "../../contexts/SidebarContext";
 import "./Layout.css";
 
 const Layout = ({ children }) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    window.innerWidth <= 768
-  );
-
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
+  const { collapsed: sidebarCollapsed, toggleSidebar } = useSidebar();
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setSidebarCollapsed(true);
-      } else {
-        setSidebarCollapsed(false);
-      }
+      // Você pode adicionar lógica aqui para ajustar automaticamente o estado
+      // da sidebar baseado no tamanho da janela, se necessário
     };
 
     window.addEventListener("resize", handleResize);
@@ -32,7 +24,6 @@ const Layout = ({ children }) => {
           sidebarCollapsed ? "sidebar-collapsed" : ""
         }`}
       >
-
         <main className="main-content">{children}</main>
       </div>
     </div>
