@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from '../../services/api';
 import './upload.css';
+import { BiLoaderAlt } from "react-icons/bi"; // Importar o ícone de loading
 
 const UploadPage = () => {
   const [files, setFiles] = useState([]);
@@ -22,6 +23,7 @@ const UploadPage = () => {
   const [contentData, setContentData] = useState(null);
   const [courseTitle, setCourseTitle] = useState("");
   const [courseDescription, setCourseDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Novo estado para controlar o loading
 
   const handleFilesSelected = (selectedFiles) => {
     const newFiles = selectedFiles.map(file => ({
@@ -220,6 +222,7 @@ const UploadPage = () => {
   // Na função handleContinueToCompletion, certifique-se de incluir o título
   const handleContinueToCompletion = async (contentData) => {
     setContentData(contentData);
+    setIsLoading(true); // Ativar o estado de loading
 
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : { id: "1" };
@@ -238,8 +241,12 @@ const UploadPage = () => {
       console.log('Resposta do salvamento:', response);
       toast.success("Conteúdo salvo com sucesso!");
 
-      // Continue to completion screen
-      setCurrentStep('completion');
+      // Aguardar 2 segundos antes de mostrar a tela de conclusão
+      setTimeout(() => {
+        setIsLoading(false);
+        setCurrentStep('completion');
+      }, 2000);
+      
     } catch (error) {
       console.error('Erro detalhado ao salvar conteúdo:', error);
 
@@ -249,8 +256,11 @@ const UploadPage = () => {
         toast.error("Erro desconhecido ao salvar conteúdo");
       }
 
-      // Ainda move para a tela de conclusão mesmo se houver falha no salvamento
-      setCurrentStep('completion');
+      // Mesmo em caso de erro, mostrar a tela de loading e depois ir para conclusão
+      setTimeout(() => {
+        setIsLoading(false);
+        setCurrentStep('completion');
+      }, 2000);
     }
   };
 
@@ -370,7 +380,7 @@ const UploadPage = () => {
           />
         )}
 
-        {currentStep === 'content' && (
+        {currentStep === 'content' && !isLoading && (
           <ContentListComponent
             onBack={handleBackToSyllabus}
             onContinue={handleContinueToCompletion}
@@ -379,7 +389,17 @@ const UploadPage = () => {
           />
         )}
 
-        {currentStep === 'completion' && (
+        {isLoading && (
+          <div className="loading-screen">
+            <div className="loading-content">
+              <BiLoaderAlt className="loading-icon spin-animation" size={40} />
+              <h2 className="loading-title">Preparando seu curso...</h2>
+              <p className="loading-message">Aguarde enquanto finalizamos tudo para você.</p>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 'completion' && !isLoading && (
           <CompletionScreen />
         )}
       </div>
