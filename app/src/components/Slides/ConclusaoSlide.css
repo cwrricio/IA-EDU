@@ -1,95 +1,83 @@
 .conclusao-slide {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
-  text-align: center;
+  padding: 0;
 }
 
 .conclusao-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  max-width: 600px;
+  text-align: center;
+  max-width: 90%;
+  padding: 1rem;
+  gap: 0.75rem; /* Espaçamento reduzido entre elementos */
 }
 
 .conclusao-titulo {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #288de0;
-  margin-bottom: 1.5rem;
+  margin: 0 0 0.5rem 0; /* Margem reduzida */
+  color: #2c3e50;
 }
 
 .conclusao-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.5rem;
-  animation: badge-appear 0.7s ease-out;
-}
-
-@keyframes badge-appear {
-  0% {
-    opacity: 0;
-    transform: scale(0.7);
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  margin: 0.5rem 0; /* Margem reduzida */
 }
 
 .conclusao-badge-icon {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem; /* Margem reduzida */
 }
 
 .conclusao-badge-text {
+  font-size: 1rem;
   font-weight: 600;
-  color: #4caf50;
-  font-size: 1.2rem;
+  color: #27ae60;
+  text-transform: uppercase;
 }
 
 .conclusao-mensagem {
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  font-size: 1.1rem;
-  color: #555;
+  margin: 0.5rem 0; /* Margem reduzida */
+}
+
+.conclusao-mensagem p {
+  margin: 0 0 0.5rem 0; /* Margem reduzida */
+  font-size: 1rem;
 }
 
 .conclusao-score {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+  margin: 0.5rem 0; /* Margem reduzida */
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 5px;
 }
 
 .conclusao-score-percentage {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #288de0;
-  margin-top: 0.5rem;
+  color: #2980b9;
+  margin-top: 0.25rem; /* Margem reduzida */
 }
 
 .conclusao-button {
-  padding: 0.8rem 1.5rem;
-  background-color: #288de0;
+  margin-top: 0.75rem; /* Margem reduzida */
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .conclusao-button:hover {
-  background-color: #1a7fd1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background-color: #2980b9;
 }

@@ -2,11 +2,21 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./ConclusaoSlide.css";
 
-const ConclusaoSlide = ({ titulo, mensagem, quizScore }) => {
+const ConclusaoSlide = ({
+  titulo,
+  mensagem,
+  quizScore,
+  onComplete,
+  buttonText = "Voltar para Trilhas",
+}) => {
   const navigate = useNavigate();
 
-  const voltarParaTrilhas = () => {
-    navigate("/trilhas");
+  const handleButtonClick = () => {
+    if (onComplete) {
+      onComplete();
+    } else {
+      navigate("/trilhas");
+    }
   };
 
   return (
@@ -16,7 +26,7 @@ const ConclusaoSlide = ({ titulo, mensagem, quizScore }) => {
 
         <div className="conclusao-badge">
           <div className="conclusao-badge-icon">🏆</div>
-          <div className="conclusao-badge-text">TRILHA Concluída</div>
+          <div className="conclusao-badge-text">CONTEÚDO Concluído</div>
         </div>
 
         <div className="conclusao-mensagem">
@@ -33,8 +43,8 @@ const ConclusaoSlide = ({ titulo, mensagem, quizScore }) => {
           )}
         </div>
 
-        <button className="conclusao-button" onClick={voltarParaTrilhas}>
-          Voltar para Trilhas
+        <button className="conclusao-button" onClick={handleButtonClick}>
+          {buttonText}
         </button>
       </div>
     </div>
