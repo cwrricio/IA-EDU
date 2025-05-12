@@ -8,7 +8,7 @@ import api from "../../services/api";
 import "./slides-page.css";
 
 const SlidesPage = () => {
-  const { courseId } = useParams();
+  const { courseId, contentId } = useParams();
   const navigate = useNavigate();
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [currentContentIndex, setCurrentContentIndex] = useState(0);
@@ -31,6 +31,20 @@ const SlidesPage = () => {
   useEffect(() => {
     const fetchCourseData = async () => {
       if (!courseId) return;
+      
+      // Obter o parâmetro de slide da URL
+      const urlParams = new URLSearchParams(window.location.search);
+      let initialSlide = parseInt(urlParams.get('slide')) || 0;
+
+      // Verificar se há um slide forçado armazenado
+      const forcedSlide = sessionStorage.getItem('forceInitialSlide');
+      if (forcedSlide) {
+        // Usar o slide forçado em vez do parâmetro URL
+        initialSlide = parseInt(forcedSlide);
+        // Limpar após uso
+        sessionStorage.removeItem('forceInitialSlide');
+        console.log("Using forced slide index:", initialSlide);
+      }
 
       try {
         setLoading(true);
@@ -46,15 +60,22 @@ const SlidesPage = () => {
           // Verificar se há conteúdo e slides
           if (courseData.steps?.content?.content_items) {
             const items = courseData.steps.content.content_items;
-
-            // Armazenar todos os itens de conteúdo
             setContentItems(items);
 
-            // Carregar apenas o primeiro conteúdo inicialmente
-            if (items.length > 0) {
-              loadContentSlides(items, 0);
+            // Se o contentId foi fornecido, ir direto para esse conteúdo
+            if (contentId) {
+              const contentIndex = items.findIndex(item => item.id.toString() === contentId);
+              if (contentIndex >= 0) {
+                // Pass the initialSlide to loadContentSlides
+                loadContentSlides(items, contentIndex, initialSlide);
+                setCurrentContentIndex(contentIndex);
+              } else {
+                // Se o contentId não for válido, usar o primeiro
+                loadContentSlides(items, 0, initialSlide);
+              }
             } else {
-              setError("Este curso não possui conteúdo disponível.");
+              // Se não foi fornecido contentId, carrega o primeiro conteúdo
+              loadContentSlides(items, 0, initialSlide);
             }
           } else {
             setError("Este curso não possui conteúdo disponível.");
@@ -71,17 +92,19 @@ const SlidesPage = () => {
     };
 
     fetchCourseData();
-  }, [courseId]);
+  }, [courseId, contentId]);
 
   // Função para carregar os slides de um conteúdo específico
-  const loadContentSlides = (items, contentIndex) => {
+  const loadContentSlides = (items, contentIndex, initialSlideIndex = 0) => {
     const currentItem = items[contentIndex];
 
     if (currentItem && currentItem.slides && currentItem.slides.length > 0) {
       setCurrentContentSlides(currentItem.slides);
       setTotalSlides(currentItem.slides.length);
-      setSlideData(currentItem.slides[0]); // Define o primeiro slide
-      setCurrentSlideIndex(0);
+      // Use the provided initialSlideIndex instead of always using 0
+      setCurrentSlideIndex(initialSlideIndex);
+      // Make sure to set the correct slide data based on the initialSlideIndex
+      setSlideData(currentItem.slides[initialSlideIndex < currentItem.slides.length ? initialSlideIndex : 0]);
       setShowContentCompletion(false);
     } else {
       setError(`O conteúdo ${contentIndex + 1} não possui slides.`);
@@ -195,54 +218,51 @@ const SlidesPage = () => {
     navigate("/professor"); // Ajuste conforme sua rota de painel
   };
 
-  // Modificar a função handleQuizComplete para corrigir a data
   const handleQuizComplete = async (score, total) => {
     setQuizScore({ score, total });
-  
-    // Armazenar resultado do quiz com timestamp correto
+
+    // Armazenar resultado do quiz
     const quizResults = JSON.parse(localStorage.getItem("quizResults") || "{}");
     quizResults[`${courseId}-${currentContentIndex}-${currentSlideIndex}`] = {
       score,
       total,
-      timestamp: new Date().toLocaleDateString(),
+      timestamp: new Date().toISOString(),
     };
     localStorage.setItem("quizResults", JSON.stringify(quizResults));
-  
-    // Salvar o progresso do usuário no banco de dados
+
     try {
       const userString = localStorage.getItem('user');
       const user = JSON.parse(userString || '{}');
-  
+
       if (user.id) {
-        // Obter o ID do conteúdo atual
         const currentContentItem = contentItems[currentContentIndex];
-  
+
         if (currentContentItem && currentContentItem.id) {
-          // Verificar se é um quiz avaliativo e se é o último slide ou próximo do último
           const isAvaliativo = slideData?.tipo === "quiz_avaliativo";
+          const isDiagnostic = slideData?.tipo === "quiz_diagnostico";
           const isLastOrNearLast = currentSlideIndex >= totalSlides - 2;
           
           await api.saveUserProgress({
             user_id: user.id,
             course_id: courseId,
             content_id: currentContentItem.id,
-            // Marcar como completo APENAS se for quiz avaliativo E estiver no final do conteúdo
             completed: isAvaliativo && isLastOrNearLast,
             score: Math.round((score / total) * 100),
             quiz_type: slideData?.tipo,
-            lastAccess: new Date().toLocaleDateString()
+            lastSlideIndex: currentSlideIndex,
+            hasCompletedDiagnosticQuiz: isDiagnostic || false,
+            lastAccess: new Date().toISOString()
           });
         }
       }
     } catch (error) {
       console.error("Erro ao salvar progresso do quiz:", error);
     }
-  
-    // Avançar para o slide após o quiz
+
+    // Avançar para o próximo slide após o quiz
     if (currentSlideIndex < totalSlides - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
     } else {
-      // Se for o último slide, mostrar tela de conclusão do conteúdo
       setShowContentCompletion(true);
     }
   };

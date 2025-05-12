@@ -77,6 +77,15 @@ function App() {
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/slides/:courseId/:contentId?"
+            element={
+              <PrivateRoute>
+                <SlidesPage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
         <ToastContainer position="bottom-right" />
       </SidebarProvider>
