@@ -119,6 +119,8 @@
   bottom: 0;
   left: 0;
   box-sizing: border-box;
+  display: flex;
+  gap: 10px;
 }
 
 .trilha-button {
@@ -130,10 +132,22 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  width: 100%;
   transition: background-color 0.2s;
+  flex: 1;
 }
 
 .trilha-button:hover {
   background-color: #4f46e5;
+}
+
+.trilha-button.details {
+  background-color: white;
+  border: 1px solid #7397ec;
+  color: #7397ec;
+}
+
+.trilha-button.details:hover {
+  background-color: #f0f4ff;
+  color: #4f46e5;
+  border-color: #4f46e5;
 }

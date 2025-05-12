@@ -162,6 +162,26 @@ const api = {
       // Retornar slides vazios em caso de erro para não quebrar o fluxo
       return { slides: [] };
     }
+  },
+
+  getUserProgress: async (userId, courseId) => {
+    try {
+      const response = await axios.get(`${API_URL}/user-progress/${userId}/${courseId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar progresso do usuário:', error);
+      return {};
+    }
+  },
+
+  saveUserProgress: async (data) => {
+    try {
+      const response = await axios.post(`${API_URL}/user-progress`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao salvar progresso do usuário:', error);
+      throw error;
+    }
   }
 };
 

@@ -155,8 +155,31 @@ const SlidesPage = () => {
     }
   };
 
-  // Avançar para o próximo conteúdo
-  const goToNextContent = () => {
+  // Modificar a função goToNextContent para salvar o progresso do módulo
+  const goToNextContent = async () => {
+    // Salvar progresso do conteúdo atual como concluído
+    try {
+      const userString = localStorage.getItem('user');
+      const user = JSON.parse(userString || '{}');
+
+      if (user.id) {
+        const currentContentItem = contentItems[currentContentIndex];
+
+        if (currentContentItem && currentContentItem.id) {
+          await api.saveUserProgress({
+            user_id: user.id,
+            course_id: courseId,
+            content_id: currentContentItem.id,
+            completed: true
+          });
+          console.log(`Conteúdo ${currentContentIndex + 1} marcado como concluído`);
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao salvar progresso do conteúdo:", error);
+    }
+
+    // Verificar se há mais conteúdo
     if (currentContentIndex < contentItems.length - 1) {
       const nextContentIndex = currentContentIndex + 1;
       setCurrentContentIndex(nextContentIndex);
@@ -172,25 +195,70 @@ const SlidesPage = () => {
     navigate("/professor"); // Ajuste conforme sua rota de painel
   };
 
-  // Handler para quando o quiz for completado
-  const handleQuizComplete = (score, total) => {
+  // Modificar a função handleQuizComplete para corrigir a data
+  const handleQuizComplete = async (score, total) => {
     setQuizScore({ score, total });
-
-    // Armazenar resultado do quiz
+  
+    // Armazenar resultado do quiz com timestamp correto
     const quizResults = JSON.parse(localStorage.getItem("quizResults") || "{}");
     quizResults[`${courseId}-${currentContentIndex}-${currentSlideIndex}`] = {
       score,
       total,
-      timestamp: Date.now(),
+      timestamp: new Date().toLocaleDateString(),
     };
     localStorage.setItem("quizResults", JSON.stringify(quizResults));
-
+  
+    // Salvar o progresso do usuário no banco de dados
+    try {
+      const userString = localStorage.getItem('user');
+      const user = JSON.parse(userString || '{}');
+  
+      if (user.id) {
+        // Obter o ID do conteúdo atual
+        const currentContentItem = contentItems[currentContentIndex];
+  
+        if (currentContentItem && currentContentItem.id) {
+          // Verificar se é um quiz avaliativo e se é o último slide ou próximo do último
+          const isAvaliativo = slideData?.tipo === "quiz_avaliativo";
+          const isLastOrNearLast = currentSlideIndex >= totalSlides - 2;
+          
+          await api.saveUserProgress({
+            user_id: user.id,
+            course_id: courseId,
+            content_id: currentContentItem.id,
+            // Marcar como completo APENAS se for quiz avaliativo E estiver no final do conteúdo
+            completed: isAvaliativo && isLastOrNearLast,
+            score: Math.round((score / total) * 100),
+            quiz_type: slideData?.tipo,
+            lastAccess: new Date().toLocaleDateString()
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao salvar progresso do quiz:", error);
+    }
+  
     // Avançar para o slide após o quiz
     if (currentSlideIndex < totalSlides - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
     } else {
       // Se for o último slide, mostrar tela de conclusão do conteúdo
       setShowContentCompletion(true);
+    }
+  };
+
+  // Exemplo de implementação em um componente de slides
+  const markContentAsComplete = async () => {
+    const userString = localStorage.getItem('user');
+    const user = JSON.parse(userString || '{}');
+
+    if (user.id) {
+      await api.saveUserProgress({
+        user_id: user.id,
+        course_id: courseId,
+        content_id: currentContentItem.id,
+        completed: true
+      });
     }
   };
 

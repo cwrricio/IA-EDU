@@ -153,6 +153,87 @@ class DatabaseService:
             raise e  # Re-raise para propagar o erro
 
     @classmethod
+    def save_user_progress(cls, user_id, course_id, content_id, data):
+        """
+        Salva o progresso de um usuário em um conteúdo específico
+        
+        Args:
+            user_id: ID do usuário
+            course_id: ID do curso
+            content_id: ID do item de conteúdo
+            data: Dados do progresso (completed, score, lastAccess, etc)
+        """
+        try:
+            db = cls.read_all()
+            
+            # Inicializa a estrutura de progresso se não existir
+            if "progress" not in db:
+                db["progress"] = {}
+                
+            if user_id not in db["progress"]:
+                db["progress"][user_id] = {}
+                
+            if course_id not in db["progress"][user_id]:
+                db["progress"][user_id][course_id] = {
+                    "lastAccessed": int(time.time()),
+                    "items": {},
+                }
+            else:
+                # Atualiza o timestamp de último acesso ao curso
+                db["progress"][user_id][course_id]["lastAccessed"] = int(time.time())
+                
+            # Inicializa a estrutura de itens se não existir
+            if "items" not in db["progress"][user_id][course_id]:
+                db["progress"][user_id][course_id]["items"] = {}
+                
+            # Converter content_id para string para garantir consistência como chave
+            content_id_str = str(content_id)
+            
+            # Verificar se content_id já existe para evitar duplicação
+            if content_id_str in db["progress"][user_id][course_id]["items"]:
+                existing_data = db["progress"][user_id][course_id]["items"][content_id_str]
+                # Atualiza os dados existentes com os novos dados
+                for key, value in data.items():
+                    existing_data[key] = value
+                # Se não tiver lastAccess, adiciona
+                if "lastAccess" not in existing_data:
+                    existing_data["lastAccess"] = int(time.time())
+            else:
+                # Adiciona os dados como novo progresso com timestamp de acesso atual
+                if "lastAccess" not in data:
+                    data["lastAccess"] = int(time.time())
+                db["progress"][user_id][course_id]["items"][content_id_str] = data
+                
+            # Salva as alterações no banco de dados
+            cls.save_all(db)
+            return True
+        except Exception as e:
+            print(f"Erro ao salvar progresso: {e}")
+            return False
+
+    @classmethod
+    def get_user_progress(cls, user_id, course_id=None):
+        """
+        Recupera o progresso do usuário
+
+        Args:
+            user_id: ID do usuário
+            course_id: ID do curso (opcional, se não fornecido, retorna todo o progresso do usuário)
+        """
+        db = cls.read_all()
+
+        if "progress" not in db:
+            return {} if course_id else {}
+
+        if user_id not in db["progress"]:
+            return {} if course_id else {}
+
+        if course_id:
+            return db["progress"][user_id].get(course_id, {}).get("items", {})
+
+        return db["progress"][user_id]
+
+    @classmethod
     def save_course_step(cls, course_id, step, content, metadata=None):
         """Save a course step's content"""
         db = cls.read_all()
