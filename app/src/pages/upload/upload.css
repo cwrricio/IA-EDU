@@ -1,24 +1,43 @@
 .upload-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  padding: 20px 40px 20px 20px;
   width: 100%;
-  min-height: 100vh;
-  padding: 20px;
   box-sizing: border-box;
-  background-color: #f5f5f5;
+}
+
+/* Regra para responsividade da sidebar */
+@media screen and (max-width: 768px) {
+  .upload-container {
+    padding: 15px;
+  }
 }
 
 .upload-card {
-  background-color: white;
-  border-radius: 12px;
-  padding: 30px;
   width: 100%;
-  max-width: 650px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  max-height: 90vh;
-  overflow-y: auto;
-  box-sizing: border-box;
+  max-width: 800px;
+  margin-left: 30px; /* Desloca um pouco para a direita para compensar o espaço da sidebar */
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para o cabeçalho sem o logo */
+.upload-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.upload-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.upload-header p {
+  color: #666;
+  margin-top: 0;
 }
 
 .course-metadata-preview {
@@ -29,7 +48,8 @@
   border-left: 4px solid #2563eb;
 }
 
-.course-title-preview, .course-description-preview {
+.course-title-preview,
+.course-description-preview {
   margin-bottom: 8px;
   color: #1e3a8a;
 }
@@ -52,6 +72,7 @@
     max-width: 100%;
     border-radius: 10px;
     max-height: none;
+    margin-left: 0;
   }
 }
 

@@ -1,7 +1,13 @@
-import { useState, useEffect } from 'react';
-import './styles/FileItem.css';
+import React, { useState, useEffect } from "react";
+import "./styles/FileItem.css";
+import { BiFile } from "react-icons/bi";
 
-const FileItem = ({ file, progress: initialProgress, onRemove, status = 'uploading' }) => {
+const FileItem = ({
+  file,
+  progress: initialProgress,
+  onRemove,
+  status = "uploading",
+}) => {
   const [progress, setProgress] = useState(initialProgress || 0);
   const [uploadStatus, setUploadStatus] = useState(status);
 
@@ -14,26 +20,26 @@ const FileItem = ({ file, progress: initialProgress, onRemove, status = 'uploadi
 
   useEffect(() => {
     let progressInterval;
-    
-    if (uploadStatus === 'uploading' && progress < 100) {
+
+    if (uploadStatus === "uploading" && progress < 100) {
       progressInterval = setInterval(() => {
-        setProgress(prevProgress => {
+        setProgress((prevProgress) => {
           const increment = Math.floor(Math.random() * 15) + 5;
           const newProgress = Math.min(prevProgress + increment, 99);
-          
+
           // Simulando upload completo quando chega a 99%
           if (newProgress >= 99) {
             clearInterval(progressInterval);
-            
+
             // Simulando chance de sucesso ou falha (90% de chance de sucesso)
             const isSuccess = Math.random() < 0.9;
-            
+
             setTimeout(() => {
-              setUploadStatus(isSuccess ? 'success' : 'error');
+              setUploadStatus(isSuccess ? "success" : "error");
               setProgress(isSuccess ? 100 : 95); // Em caso de erro, mantém em 95%
             }, 500);
           }
-          
+
           return newProgress;
         });
       }, 300);
@@ -45,36 +51,48 @@ const FileItem = ({ file, progress: initialProgress, onRemove, status = 'uploadi
   }, [uploadStatus]);
 
   const getProgressBarClass = () => {
-    if (uploadStatus === 'success') return 'file-item-progress-bar success';
-    if (uploadStatus === 'error') return 'file-item-progress-bar error';
-    return 'file-item-progress-bar';
+    if (uploadStatus === "success") return "file-item-progress-bar success";
+    if (uploadStatus === "error") return "file-item-progress-bar error";
+    return "file-item-progress-bar";
+  };
+
+  // Adicione uma verificação antes de chamar a função
+  const handleRemove = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Verificar se onRemove é uma função antes de chamá-la
+    if (typeof onRemove === "function") {
+      onRemove(file);
+    } else {
+      console.error("onRemove não é uma função", onRemove);
+    }
   };
 
   return (
     <div className="file-item">
-      <div className="file-item-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-          <path d="M7 12L10 15L17 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+      <div className="file-icon">
+        <BiFile size={24} />
       </div>
-      <div className="file-item-info">
-        <div className="file-item-name">{file.name}</div>
-        <div className="file-item-size">{formatFileSize(file.size)}</div>
+      <div className="file-details">
+        <div className="file-name">{file.name}</div>
+        <div className="file-size">{formatFileSize(file.size)}</div>
       </div>
       <div className="file-item-progress-container">
-        <div 
-          className={getProgressBarClass()} 
+        <div
+          className={getProgressBarClass()}
           style={{ width: `${progress}%` }}
         ></div>
       </div>
       <div className={`file-item-progress-text ${uploadStatus}`}>
-        {uploadStatus === 'error' ? 'Falha' : `${progress}%`}
+        {uploadStatus === "error" ? "Falha" : `${progress}%`}
       </div>
-      <button className="file-item-remove" onClick={() => onRemove(file)}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+      <button
+        className="remove-file-btn"
+        onClick={handleRemove}
+        aria-label="Remover arquivo"
+      >
+        <span>×</span>
       </button>
     </div>
   );
