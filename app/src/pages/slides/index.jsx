@@ -22,6 +22,7 @@ const SlidesPage = () => {
   const [error, setError] = useState(null);
   const [showContentCompletion, setShowContentCompletion] = useState(false);
   const [showCourseCompletion, setShowCourseCompletion] = useState(false);
+  const [showSkipNotification, setShowSkipNotification] = useState(false);
 
   // Referências para funções do quiz
   const quizNextRef = useRef(null);
@@ -31,7 +32,7 @@ const SlidesPage = () => {
   useEffect(() => {
     const fetchCourseData = async () => {
       if (!courseId) return;
-      
+
       // Obter o parâmetro de slide da URL
       const urlParams = new URLSearchParams(window.location.search);
       let initialSlide = parseInt(urlParams.get('slide')) || 0;
@@ -101,11 +102,10 @@ const SlidesPage = () => {
     if (currentItem && currentItem.slides && currentItem.slides.length > 0) {
       setCurrentContentSlides(currentItem.slides);
       setTotalSlides(currentItem.slides.length);
-      // Use the provided initialSlideIndex instead of always using 0
       setCurrentSlideIndex(initialSlideIndex);
-      // Make sure to set the correct slide data based on the initialSlideIndex
       setSlideData(currentItem.slides[initialSlideIndex < currentItem.slides.length ? initialSlideIndex : 0]);
       setShowContentCompletion(false);
+      setShowSkipNotification(false);
     } else {
       setError(`O conteúdo ${contentIndex + 1} não possui slides.`);
     }
@@ -213,6 +213,21 @@ const SlidesPage = () => {
     }
   };
 
+  const skipToNextContent = () => {
+    // Fechar a notificação antes de avançar
+    setShowSkipNotification(false);
+
+    // Verificar se há mais conteúdo
+    if (currentContentIndex < contentItems.length - 1) {
+      const nextContentIndex = currentContentIndex + 1;
+      setCurrentContentIndex(nextContentIndex);
+      loadContentSlides(contentItems, nextContentIndex);
+    } else {
+      // Este é o último conteúdo da trilha, mostrar conclusão da trilha
+      setShowCourseCompletion(true);
+    }
+  };
+
   // Voltar para o painel inicial
   const backToDashboard = () => {
     navigate("/professor"); // Ajuste conforme sua rota de painel
@@ -220,6 +235,9 @@ const SlidesPage = () => {
 
   const handleQuizComplete = async (score, total) => {
     setQuizScore({ score, total });
+
+    // Calcular percentual do score
+    const scorePercentage = Math.round((score / total) * 100);
 
     // Armazenar resultado do quiz
     const quizResults = JSON.parse(localStorage.getItem("quizResults") || "{}");
@@ -241,25 +259,35 @@ const SlidesPage = () => {
           const isAvaliativo = slideData?.tipo === "quiz_avaliativo";
           const isDiagnostic = slideData?.tipo === "quiz_diagnostico";
           const isLastOrNearLast = currentSlideIndex >= totalSlides - 2;
-          
+
+          // Verificar se é quiz diagnóstico com score alto (>=80%)
+          const highScoreDiagnostic = isDiagnostic && scorePercentage >= 80;
+
           await api.saveUserProgress({
             user_id: user.id,
             course_id: courseId,
             content_id: currentContentItem.id,
-            completed: isAvaliativo && isLastOrNearLast,
-            score: Math.round((score / total) * 100),
+            // Marcar como completo se for avaliativo nos últimos slides OU diagnóstico com score alto
+            completed: (isAvaliativo && isLastOrNearLast) || highScoreDiagnostic,
+            score: scorePercentage,
             quiz_type: slideData?.tipo,
             lastSlideIndex: currentSlideIndex,
             hasCompletedDiagnosticQuiz: isDiagnostic || false,
             lastAccess: new Date().toISOString()
           });
+
+          // Se for um quiz diagnóstico com score alto, mostrar notificação em vez de ir direto
+          if (isDiagnostic && currentSlideIndex === 2 && scorePercentage >= 80) {
+            setShowSkipNotification(true);
+            return; // Sair da função
+          }
         }
       }
     } catch (error) {
       console.error("Erro ao salvar progresso do quiz:", error);
     }
 
-    // Avançar para o próximo slide após o quiz
+    // Comportamento padrão (se não for diagnóstico com score alto)
     if (currentSlideIndex < totalSlides - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
     } else {
@@ -291,6 +319,19 @@ const SlidesPage = () => {
           mensagem={`Você concluiu com sucesso todos os conteúdos da trilha "${trilhaData?.titulo}".`}
           quizScore={quizScore}
           onComplete={backToDashboard}
+        />
+      );
+    }
+
+    if (showSkipNotification) {
+      const contentTitle = contentItems[currentContentIndex]?.title || "este conteúdo";
+      return (
+        <ConclusaoSlide
+          titulo="Conteúdo Avançado!"
+          mensagem={`Você demonstrou um excelente conhecimento no quiz diagnóstico (nota ${Math.round((quizScore.score / quizScore.total) * 100)}%). O conteúdo "${contentTitle}" será marcado como concluído e você avançará para o próximo módulo.`}
+          quizScore={quizScore}
+          onComplete={skipToNextContent}
+          buttonText="Avançar para o Próximo Conteúdo"
         />
       );
     }
@@ -432,6 +473,7 @@ const SlidesPage = () => {
 
           {/* Não mostrar botões de navegação durante quiz, conclusão de conteúdo ou trilha */}
           {!showCourseCompletion &&
+            !showSkipNotification &&
             slideData?.tipo !== "quiz_diagnostico" &&
             slideData?.tipo !== "quiz_avaliativo" &&
             slideData?.tipo !== "quiz" && (
