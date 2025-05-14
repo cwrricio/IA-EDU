@@ -24,6 +24,24 @@
   overflow: hidden;
 }
 
+/* Altura aumentada para slides de quiz */
+.slide-box-quiz {
+  height: 600px; /* Aumenta a altura para quizzes */
+}
+
+/* Ajustes responsivos para slides de quiz */
+@media (max-width: 768px) {
+  .slide-box-quiz {
+    height: 550px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slide-box-quiz {
+    height: 520px;
+  }
+}
+
 /* Cabeçalho do slide */
 .slide-header {
   display: flex;
@@ -132,7 +150,7 @@
     width: 90%;
     height: 450px;
   }
-  
+
   .nav-button {
     width: 28px;
     height: 28px;
@@ -144,7 +162,7 @@
     width: 95%;
     height: 400px;
   }
-  
+
   .slide-content-block {
     padding: 1.2rem;
   }
@@ -178,8 +196,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .regenerating-content h2 {

@@ -4,7 +4,7 @@ import "./QuizSlide.css";
 const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
   // Usar as perguntas recebidas via props em vez de usar os dados de exemplo fixos
   const quizQuestions = perguntas || [];
-  
+
   const [questionIndex, setQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState(
     Array(quizQuestions.length).fill(null)
@@ -23,13 +23,13 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
   const currentQuestion = quizQuestions[questionIndex] || {
     pergunta: "Carregando...",
     alternativas: [],
-    resposta: 0
+    resposta: 0,
   };
 
   // Processar as respostas e calcular a pontuação
   const processAnswers = () => {
     if (!quizQuestions.length) return;
-    
+
     let correctAnswers = 0;
     userAnswers.forEach((answer, index) => {
       if (answer === quizQuestions[index].resposta) {
@@ -102,7 +102,7 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
     return (
       <div className="quiz-slide-content">
         <h2 className="quiz-title">{titulo || "Quiz"}</h2>
-        
+
         <div className="quiz-progress">
           <span>
             Questão {questionIndex + 1} de {quizQuestions.length}
@@ -150,8 +150,8 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
             </button>
           )}
           <div className="quiz-nav-spacer"></div>
-          <button 
-            className="quiz-nav-button next" 
+          <button
+            className="quiz-nav-button next"
             onClick={goToNextQuestion}
             disabled={userAnswers[questionIndex] === null}
           >
@@ -165,13 +165,57 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
   // 2. Para o modo de resumo
   return (
     <div className="quiz-summary">
-      <h2 className="quiz-summary-title">{titulo || "Resultado do Quiz"}</h2>
-      <div className="quiz-score">
-        Você acertou {score} de {quizQuestions.length} questões!
-        <div className="quiz-score-percentage">
-          {Math.round((score / quizQuestions.length) * 100)}%
+      <div className="quiz-results-header">
+        <h2 className="quiz-summary-title">{titulo || "Resultado do Quiz"}</h2>
+
+        <div className="score-container">
+          <div className="score-circle">
+            <div className="score-number">
+              {Math.round((score / quizQuestions.length) * 100)}%
+            </div>
+            <svg className="progress-ring" width="120" height="120">
+              <circle
+                className="progress-ring-circle-bg"
+                strokeWidth="8"
+                fill="transparent"
+                r="52"
+                cx="60"
+                cy="60"
+              />
+              <circle
+                className="progress-ring-circle"
+                strokeWidth="8"
+                fill="transparent"
+                r="52"
+                cx="60"
+                cy="60"
+                strokeDasharray={`${2 * Math.PI * 52}`}
+                strokeDashoffset={
+                  2 * Math.PI * 52 * (1 - score / quizQuestions.length)
+                }
+              />
+            </svg>
+          </div>
+          <div className="score-details">
+            <div className="score-text">
+              Você acertou <span className="score-highlight">{score}</span> de{" "}
+              <span className="total-questions">{quizQuestions.length}</span>{" "}
+              questões!
+            </div>
+            <div className="score-feedback">
+              {score === quizQuestions.length
+                ? "Excelente! Você domina este conteúdo."
+                : score >= quizQuestions.length * 0.7
+                ? "Muito bom! Você está no caminho certo."
+                : score >= quizQuestions.length * 0.5
+                ? "Bom trabalho! Continue estudando."
+                : "Continue praticando para melhorar seu conhecimento."}
+            </div>
+          </div>
         </div>
       </div>
+
+      <h3 className="review-section-title">Revisão das Questões</h3>
 
       <div className="quiz-review">
         {quizQuestions.map((question, index) => {
@@ -183,31 +227,50 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
                 isCorrect ? "correct" : "incorrect"
               }`}
             >
-              <div className="quiz-review-question">
-                <span className="quiz-review-number">{index + 1}.</span>
-                <span>{question.pergunta}</span>
+              <div className="review-item-header">
+                <span className="question-number">Questão {index + 1}</span>
+                <span
+                  className={`status-badge ${
+                    isCorrect ? "correct" : "incorrect"
+                  }`}
+                >
+                  {isCorrect ? "Acertou" : "Errou"}
+                </span>
               </div>
-              <div className="quiz-review-answers">
-                <div>
-                  <strong>Sua resposta:</strong>{" "}
-                  {question.alternativas[userAnswers[index]]}
-                  {isCorrect ? " ✓" : " ✗"}
-                </div>
-                {!isCorrect && (
-                  <div>
-                    <strong>Resposta correta:</strong>{" "}
-                    {question.alternativas[question.resposta]}
+
+              <div className="review-item-content">
+                <div className="review-question">{question.pergunta}</div>
+
+                <div className="review-answers">
+                  <div className="user-answer">
+                    <span className="answer-label">Sua resposta:</span>
+                    <span
+                      className={`answer-value ${
+                        isCorrect ? "correct-text" : "incorrect-text"
+                      }`}
+                    >
+                      {question.alternativas[userAnswers[index]]}
+                    </span>
                   </div>
-                )}
+
+                  {!isCorrect && (
+                    <div className="correct-answer">
+                      <span className="answer-label">Resposta correta:</span>
+                      <span className="answer-value correct-text">
+                        {question.alternativas[question.resposta]}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-      
+
       <div className="quiz-completion">
-        <button 
-          className="quiz-complete-button" 
+        <button
+          className="quiz-complete-button"
           onClick={() => onComplete && onComplete(score, quizQuestions.length)}
         >
           Continuar

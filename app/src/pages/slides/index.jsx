@@ -37,15 +37,15 @@ const SlidesPage = () => {
 
       // Obter o parâmetro de slide da URL
       const urlParams = new URLSearchParams(window.location.search);
-      let initialSlide = parseInt(urlParams.get('slide')) || 0;
+      let initialSlide = parseInt(urlParams.get("slide")) || 0;
 
       // Verificar se há um slide forçado armazenado
-      const forcedSlide = sessionStorage.getItem('forceInitialSlide');
+      const forcedSlide = sessionStorage.getItem("forceInitialSlide");
       if (forcedSlide) {
         // Usar o slide forçado em vez do parâmetro URL
         initialSlide = parseInt(forcedSlide);
         // Limpar após uso
-        sessionStorage.removeItem('forceInitialSlide');
+        sessionStorage.removeItem("forceInitialSlide");
         console.log("Using forced slide index:", initialSlide);
       }
 
@@ -67,7 +67,9 @@ const SlidesPage = () => {
 
             // Se o contentId foi fornecido, ir direto para esse conteúdo
             if (contentId) {
-              const contentIndex = items.findIndex(item => item.id.toString() === contentId);
+              const contentIndex = items.findIndex(
+                (item) => item.id.toString() === contentId
+              );
               if (contentIndex >= 0) {
                 // Pass the initialSlide to loadContentSlides
                 loadContentSlides(items, contentIndex, initialSlide);
@@ -105,7 +107,11 @@ const SlidesPage = () => {
       setCurrentContentSlides(currentItem.slides);
       setTotalSlides(currentItem.slides.length);
       setCurrentSlideIndex(initialSlideIndex);
-      setSlideData(currentItem.slides[initialSlideIndex < currentItem.slides.length ? initialSlideIndex : 0]);
+      setSlideData(
+        currentItem.slides[
+          initialSlideIndex < currentItem.slides.length ? initialSlideIndex : 0
+        ]
+      );
       setShowContentCompletion(false);
       setShowSkipNotification(false);
     } else {
@@ -190,8 +196,8 @@ const SlidesPage = () => {
   const goToNextContent = async () => {
     // Salvar progresso do conteúdo atual como concluído
     try {
-      const userString = localStorage.getItem('user');
-      const user = JSON.parse(userString || '{}');
+      const userString = localStorage.getItem("user");
+      const user = JSON.parse(userString || "{}");
 
       if (user.id) {
         const currentContentItem = contentItems[currentContentIndex];
@@ -201,9 +207,11 @@ const SlidesPage = () => {
             user_id: user.id,
             course_id: courseId,
             content_id: currentContentItem.id,
-            completed: true
+            completed: true,
           });
-          console.log(`Conteúdo ${currentContentIndex + 1} marcado como concluído`);
+          console.log(
+            `Conteúdo ${currentContentIndex + 1} marcado como concluído`
+          );
         }
       }
     } catch (error) {
@@ -243,10 +251,10 @@ const SlidesPage = () => {
 
   const handleQuizComplete = async (score, total) => {
     setQuizScore({ score, total });
-  
+
     // Calcular percentual do score
     const scorePercentage = Math.round((score / total) * 100);
-  
+
     // Armazenar resultado do quiz
     const quizResults = JSON.parse(localStorage.getItem("quizResults") || "{}");
     quizResults[`${courseId}-${currentContentIndex}-${currentSlideIndex}`] = {
@@ -255,48 +263,53 @@ const SlidesPage = () => {
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem("quizResults", JSON.stringify(quizResults));
-  
+
     try {
-      const userString = localStorage.getItem('user');
-      const user = JSON.parse(userString || '{}');
-  
+      const userString = localStorage.getItem("user");
+      const user = JSON.parse(userString || "{}");
+
       if (user.id) {
         const currentContentItem = contentItems[currentContentIndex];
-  
+
         if (currentContentItem && currentContentItem.id) {
           const isAvaliativo = slideData?.tipo === "quiz_avaliativo";
           const isDiagnostic = slideData?.tipo === "quiz_diagnostico";
           const isLastOrNearLast = currentSlideIndex >= totalSlides - 2;
-  
+
           // Verificar scores para ambos os tipos de quiz
           const highScoreDiagnostic = isDiagnostic && scorePercentage >= 80;
           const passingScoreAvaliativo = isAvaliativo && scorePercentage >= 60;
-  
+
           await api.saveUserProgress({
             user_id: user.id,
             course_id: courseId,
             content_id: currentContentItem.id,
             // Marcar como completo se for avaliativo com score >=60 OU diagnóstico com score alto
-            completed: (isAvaliativo && passingScoreAvaliativo) || highScoreDiagnostic,
+            completed:
+              (isAvaliativo && passingScoreAvaliativo) || highScoreDiagnostic,
             score: scorePercentage,
             quiz_type: slideData?.tipo,
             lastSlideIndex: currentSlideIndex,
             hasCompletedDiagnosticQuiz: isDiagnostic || false,
-            lastAccess: new Date().toISOString()
+            lastAccess: new Date().toISOString(),
           });
-  
+
           // Para quiz diagnóstico com score alto
-          if (isDiagnostic && currentSlideIndex === 2 && scorePercentage >= 80) {
+          if (
+            isDiagnostic &&
+            currentSlideIndex === 2 &&
+            scorePercentage >= 80
+          ) {
             setShowSkipNotification(true);
             return; // Sair da função
           }
-  
+
           // Para quiz avaliativo com score >= 60
           if (isAvaliativo && scorePercentage >= 60) {
             setShowSkipNotification(true);
             return; // Sair da função
           }
-  
+
           // Para quiz avaliativo com score < 60
           if (isAvaliativo && scorePercentage < 60) {
             // Iniciar processo de regeneração do conteúdo
@@ -307,14 +320,15 @@ const SlidesPage = () => {
                 title: currentContentItem.title,
                 description: currentContentItem.description,
                 content: currentContentItem.content,
-                learning_objectives: currentContentItem.learning_objectives || [],
+                learning_objectives:
+                  currentContentItem.learning_objectives || [],
                 related_objectives: currentContentItem.related_objectives || [],
-                score_percentage: scorePercentage // Incluir a pontuação para contexto
+                score_percentage: scorePercentage, // Incluir a pontuação para contexto
               };
-              
+
               // Chamar função para regenerar o conteúdo
               const newSlides = await api.regenerateContentSlides(context);
-              
+
               if (newSlides && newSlides.slides) {
                 setRegeneratedSlides(newSlides.slides);
                 // Redirecionar para o slide 3 (quarto slide)
@@ -337,7 +351,7 @@ const SlidesPage = () => {
     } catch (error) {
       console.error("Erro ao salvar progresso do quiz:", error);
     }
-  
+
     // Comportamento padrão (para os casos que não têm tratamento especial acima)
     if (currentSlideIndex < totalSlides - 1) {
       setCurrentSlideIndex(currentSlideIndex + 1);
@@ -345,19 +359,18 @@ const SlidesPage = () => {
       setShowContentCompletion(true);
     }
   };
-  
 
   // Exemplo de implementação em um componente de slides
   const markContentAsComplete = async () => {
-    const userString = localStorage.getItem('user');
-    const user = JSON.parse(userString || '{}');
+    const userString = localStorage.getItem("user");
+    const user = JSON.parse(userString || "{}");
 
     if (user.id) {
       await api.saveUserProgress({
         user_id: user.id,
         course_id: courseId,
         content_id: currentContentItem.id,
-        completed: true
+        completed: true,
       });
     }
   };
@@ -373,9 +386,10 @@ const SlidesPage = () => {
           </div>
           <h2>Adaptando o conteúdo para você...</h2>
           <p>
-            Baseado no seu desempenho no quiz (nota {Math.round((quizScore.score / quizScore.total) * 100)}%), 
-            estamos preparando uma nova abordagem do conteúdo com explicações alternativas 
-            para ajudar no seu aprendizado.
+            Baseado no seu desempenho no quiz (nota{" "}
+            {Math.round((quizScore.score / quizScore.total) * 100)}%), estamos
+            preparando uma nova abordagem do conteúdo com explicações
+            alternativas para ajudar no seu aprendizado.
           </p>
           <p className="regenerating-wait">
             Por favor, aguarde alguns instantes.
@@ -396,15 +410,20 @@ const SlidesPage = () => {
     }
 
     if (showSkipNotification) {
-      const contentTitle = contentItems[currentContentIndex]?.title || "este conteúdo";
-      const scoreDisplay = Math.round((quizScore.score / quizScore.total) * 100);
+      const contentTitle =
+        contentItems[currentContentIndex]?.title || "este conteúdo";
+      const scoreDisplay = Math.round(
+        (quizScore.score / quizScore.total) * 100
+      );
 
       // Verificar se é um quiz diagnóstico ou avaliativo
       const isDiagnostic = slideData?.tipo === "quiz_diagnostico";
 
       return (
         <ConclusaoSlide
-          titulo={isDiagnostic ? "Conteúdo Avançado!" : "Quiz Avaliativo Aprovado!"}
+          titulo={
+            isDiagnostic ? "Conteúdo Avançado!" : "Quiz Avaliativo Aprovado!"
+          }
           mensagem={
             isDiagnostic
               ? `Você demonstrou um excelente conhecimento no quiz diagnóstico (nota ${scoreDisplay}%). O conteúdo "${contentTitle}" será marcado como concluído e você avançará para o próximo módulo.`
@@ -499,38 +518,43 @@ const SlidesPage = () => {
     try {
       // Extrair slides relevantes (do quarto slide até o quiz avaliativo)
       const startIndex = 3; // Índice do quarto slide
-      const endIndex = currentContentSlides.findIndex(slide => 
-        slide.tipo === "quiz_avaliativo"
+      const endIndex = currentContentSlides.findIndex(
+        (slide) => slide.tipo === "quiz_avaliativo"
       );
-      
+
       // Se não encontrou o quiz avaliativo ou o índice de início é inválido
       if (endIndex === -1 || startIndex >= currentContentSlides.length) {
         console.warn("Não foi possível identificar os slides a regenerar");
         return null;
       }
-      
-      const slidesToRegenerate = currentContentSlides.slice(startIndex, endIndex);
-      
+
+      const slidesToRegenerate = currentContentSlides.slice(
+        startIndex,
+        endIndex
+      );
+
       // Obter informações sobre o conteúdo para contexto
       const context = {
         title: contentItem.title,
         description: contentItem.description,
         content: contentItem.content,
         original_slides: slidesToRegenerate,
-        learning_objectives: contentItem.learning_objectives || []
+        learning_objectives: contentItem.learning_objectives || [],
       };
-      
+
       // Chamar a API para regenerar o conteúdo
       const result = await api.regenerateContentSlides(context);
-      
+
       if (!result || !result.slides || !Array.isArray(result.slides)) {
-        console.warn("API retornou formato inválido para os slides regenerados");
+        console.warn(
+          "API retornou formato inválido para os slides regenerados"
+        );
         return null;
       }
-      
+
       // Criar uma cópia dos slides atuais
       const newSlides = [...currentContentSlides];
-      
+
       // Substituir apenas os slides entre o quarto slide e o quiz avaliativo
       for (let i = 0; i < result.slides.length; i++) {
         const targetIndex = startIndex + i;
@@ -539,7 +563,7 @@ const SlidesPage = () => {
           newSlides[targetIndex] = result.slides[i];
         }
       }
-      
+
       return newSlides;
     } catch (error) {
       console.error("Erro ao regenerar conteúdo:", error);
@@ -591,7 +615,15 @@ const SlidesPage = () => {
         <div className="error-message">{error}</div>
       ) : (
         <>
-          <div className="slide-box">
+          <div
+            className={`slide-box ${
+              slideData?.tipo === "quiz" ||
+              slideData?.tipo === "quiz_diagnostico" ||
+              slideData?.tipo === "quiz_avaliativo"
+                ? "slide-box-quiz"
+                : ""
+            }`}
+          >
             <div className="slide-header">
               <div className="slide-logo">
                 <img src="/mentor.svg" alt="MentorIA" />

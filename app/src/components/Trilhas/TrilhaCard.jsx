@@ -16,10 +16,6 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
   const [userProgress, setUserProgress] = useState(null);
   const navigate = useNavigate();
 
-  // Console log para depuração (remova depois)
-  // console.log(`TrilhaCard for ${title}, isProfessorView: ${isProfessorView}`);
-
-  // Buscar progresso do usuário ao carregar o componente
   useEffect(() => {
     const fetchUserProgress = async () => {
       try {
@@ -123,7 +119,10 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
               </div>
             </div>
           )}
-          <StatusBadge status={status || "em andamento"} />
+          {/* Condicionar a exibição do StatusBadge apenas quando NÃO for visualização do professor */}
+          {!isProfessorView && (
+            <StatusBadge status={status || "em andamento"} />
+          )}
         </div>
 
         <p className="trilha-description">

@@ -14,7 +14,13 @@
   color: #26a65b;
 }
 
+.status-badge.em.andamento,
 .status-badge.andamento {
   background-color: #e7f2fc; /* Cor suave derivada da cor principal */
   color: #288de0; /* Cor principal */
+}
+
+/* Estilo para o ícone dentro do badge */
+.status-icon {
+  font-size: 12px;
 }
