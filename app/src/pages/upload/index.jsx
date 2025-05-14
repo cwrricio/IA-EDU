@@ -7,6 +7,7 @@ import ObjectivesComponent from '../../components/upload/ObjectivesComponent';
 import SyllabusComponent from '../../components/upload/SyllabusComponent';
 import ContentListComponent from '../../components/upload/ContentListComponent';
 import CompletionScreen from '../../components/upload/CompletionScreen';
+import Sidebar from '../../components/sidebar/Sidebar';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import api from '../../services/api';
@@ -379,6 +380,7 @@ const UploadPage = () => {
 
   return (
     <div className="upload-container">
+      <Sidebar />
       <div className="upload-card">
         {currentStep === 'upload' && (
           <>

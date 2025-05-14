@@ -30,8 +30,6 @@ const Sidebar = () => {
 
   return (
     <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
- 
-
       <div className="sidebar-header">
         <div className="sidebar-logo-container">
           <img src="/mentor.svg" alt="MentorIA Logo" className="sidebar-logo" />
@@ -73,18 +71,13 @@ const Sidebar = () => {
             <VscPerson className="sidebar-icon" />
             {!collapsed && <span>Professor</span>}
           </li>
-
-          <li className="sidebar-menu-item logout" onClick={handleLogout}>
-            <VscSignOut className="sidebar-icon" />
-            {!collapsed && <span>Sair</span>}
-          </li>
         </ul>
       </nav>
 
       <div className="sidebar-footer">
-        <div className="sidebar-help">
-          <VscQuestion className="sidebar-icon" />
-          {!collapsed && <span>Ajuda</span>}
+        <div className="sidebar-help" onClick={handleLogout}>
+          <VscSignOut className="sidebar-icon" />
+          {!collapsed && <span>Sair</span>}
         </div>
       </div>
     </div>
