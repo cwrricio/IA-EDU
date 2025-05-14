@@ -37,7 +37,9 @@ function App() {
             path="/professor"
             element={
               <PrivateRoute>
-                <ProfessorPage />
+                <NotStudentRoute>
+                  <ProfessorPage />
+                </NotStudentRoute>
               </PrivateRoute>
             }
           />
@@ -100,6 +102,17 @@ function PrivateRoute({ children }) {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+}
+
+function NotStudentRoute({ children }) {
+  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (user.role === "student") {
+    return <Navigate to="/home" state={{ from: location }} replace />;
   }
 
   return children;

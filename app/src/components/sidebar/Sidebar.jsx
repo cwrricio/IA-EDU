@@ -13,6 +13,7 @@ import "./styles/Sidebar.css";
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user"));
   const { collapsed, toggleSidebar } = useSidebar();
 
   const handleNavigation = (path) => {
@@ -44,6 +45,23 @@ const Sidebar = () => {
 
       <nav className="sidebar-nav">
         <ul className="sidebar-menu">
+          <li className="sidebar-menu-item user-profile">
+            <div className="profile-main">
+              <div className="user-avatar">
+                <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}&background=random`} alt="" />
+              </div>
+              {!collapsed && (
+                <div className="user-name">
+                  <span>{user.username}</span>
+                </div>
+              )}
+            </div>
+            {!collapsed && (
+              <div className="user-role">
+                <span>{user.role === "student" ? "Aluno" : user.role === "teacher" ? "Professor" : "Administrador"}</span>
+              </div>
+            )}
+          </li>
           <li
             className={`sidebar-menu-item ${isActive("/home") ? "active" : ""}`}
             onClick={() => handleNavigation("/home")}
@@ -53,24 +71,23 @@ const Sidebar = () => {
           </li>
 
           <li
-            className={`sidebar-menu-item ${
-              isActive("/trilhas") ? "active" : ""
-            }`}
+            className={`sidebar-menu-item ${isActive("/trilhas") ? "active" : ""
+              }`}
             onClick={() => handleNavigation("/trilhas")}
           >
             <VscBook className="sidebar-icon" />
             {!collapsed && <span>Trilhas</span>}
           </li>
 
-          <li
-            className={`sidebar-menu-item ${
-              isActive("/professor") ? "active" : ""
-            }`}
-            onClick={() => handleNavigation("/professor")}
-          >
-            <VscPerson className="sidebar-icon" />
-            {!collapsed && <span>Professor</span>}
-          </li>
+          {
+            user.role !== "student" && <li
+              className={`sidebar-menu-item ${isActive("/professor") ? "active" : ""}`}
+              onClick={() => handleNavigation("/professor")}
+            >
+              <VscPerson className="sidebar-icon" />
+              {!collapsed && <span>Professor</span>}
+            </li>
+          }
         </ul>
       </nav>
 

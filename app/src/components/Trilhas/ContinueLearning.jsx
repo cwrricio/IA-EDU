@@ -1,21 +1,19 @@
 import React from "react";
 import "./styles/ContinueLearning.css";
-// Remova a importação dos ícones de navegação
 import { FaCog } from "react-icons/fa";
+import { PiStudent } from "react-icons/pi";
 
 const ContinueLearning = () => {
   return (
     <div className="continue-learning-container">
       <div className="continue-learning-header">
-        <h2>Continue Learning</h2>
-        {/* Removidos os botões de navegação */}
+        <h2>Continue Aprendendo</h2>
       </div>
 
-      {/* Resto do componente permanece igual */}
       <div className="current-course-card">
         <div className="course-image-container">
           <div className="engineering-icon-container">
-            <FaCog className="engineering-icon" />
+            <PiStudent className="engineering-icon" />
           </div>
         </div>
         <div className="course-info">
