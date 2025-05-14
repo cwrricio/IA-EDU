@@ -126,11 +126,11 @@ const api = {
   getCourseById: async (courseId) => {
     try {
       const response = await axios.get(`${API_URL}/courses/${courseId}`);
-      
+
       // Verificar se o curso possui slides
       const courseData = response.data;
-      if (courseData && courseData.steps && courseData.steps.content && 
-          courseData.steps.content.content_items) {
+      if (courseData && courseData.steps && courseData.steps.content &&
+        courseData.steps.content.content_items) {
         // O curso já tem os dados que precisamos
         return courseData;
       } else {
@@ -146,16 +146,16 @@ const api = {
   generateSlides: async (contentItem) => {
     try {
       console.log("Enviando item para geração de slides:", contentItem);
-      
+
       const response = await axios.post(`${API_URL}/generate-slides`, {
         content_item: contentItem
       });
-      
+
       if (!response.data || !response.data.slides) {
         console.warn("API retornou dados inválidos para slides:", response.data);
         return { slides: [] };
       }
-      
+
       return response.data;
     } catch (error) {
       console.error('Error generating slides:', error);
@@ -180,6 +180,24 @@ const api = {
       return response.data;
     } catch (error) {
       console.error('Erro ao salvar progresso do usuário:', error);
+      throw error;
+    }
+  },
+
+  regenerateContentSlides: async (context) => {
+    try {
+      const response = await axios.post(`${API_URL}/generate-slides`, {
+        content_item: {
+          ...context,
+          is_regeneration: true // Flag para indicar que é uma regeneração
+        }
+      });
+
+      return {
+        slides: response.data.slides || []
+      };
+    } catch (error) {
+      console.error('Erro ao regenerar slides:', error);
       throw error;
     }
   }
