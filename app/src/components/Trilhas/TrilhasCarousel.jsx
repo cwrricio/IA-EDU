@@ -12,7 +12,11 @@ const TrilhasCarousel = ({ trilhas }) => {
     <div className="trilhas-carousel-container">
       <div className="trilhas-carousel">
         {trilhas.map((trilha) => (
-          <TrilhaCard key={trilha.id} trilha={trilha} />
+          <TrilhaCard
+            key={trilha.id}
+            trilha={trilha}
+            isProfessorView={false} // Adicionar explicitamente para garantir
+          />
         ))}
       </div>
     </div>

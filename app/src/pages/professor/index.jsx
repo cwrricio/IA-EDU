@@ -19,9 +19,9 @@ const ProfessorPage = () => {
       try {
         setLoading(true);
         // Obter o usuário do localStorage
-        const userString = localStorage.getItem('user');
+        const userString = localStorage.getItem("user");
         if (!userString) {
-          navigate('/login'); // Redirecionar para login se não houver usuário
+          navigate("/login"); // Redirecionar para login se não houver usuário
           return;
         }
 
@@ -31,20 +31,24 @@ const ProfessorPage = () => {
 
         if (result && result.courses) {
           // Transformar os dados do formato de objeto para array
-          const coursesArray = Object.entries(result.courses).map(([id, data]) => ({
-            id,
-            title: data.title,
-            status: data.status || "em andamento",
-            date: formatDate(data.created_at),
-            description: data.description || "Descrição não disponível",
-            created_by: data.created_by || "1"
-          }));
+          const coursesArray = Object.entries(result.courses).map(
+            ([id, data]) => ({
+              id,
+              title: data.title,
+              status: data.status || "em andamento",
+              date: formatDate(data.created_at),
+              description: data.description || "Descrição não disponível",
+              created_by: data.created_by || "1",
+            })
+          );
 
           setCourses(coursesArray);
         }
       } catch (err) {
         console.error("Erro ao buscar cursos:", err);
-        setError("Não foi possível carregar os cursos. Tente novamente mais tarde.");
+        setError(
+          "Não foi possível carregar os cursos. Tente novamente mais tarde."
+        );
       } finally {
         setLoading(false);
       }
@@ -58,11 +62,12 @@ const ProfessorPage = () => {
     if (!timestamp) return "Data desconhecida";
 
     // Se timestamp é número, converter para objeto Date
-    const date = typeof timestamp === 'number'
-      ? new Date(timestamp * 1000)  // Converter de Unix timestamp para Date
-      : new Date(timestamp);        // Já é string de data
+    const date =
+      typeof timestamp === "number"
+        ? new Date(timestamp * 1000) // Converter de Unix timestamp para Date
+        : new Date(timestamp); // Já é string de data
 
-    return `Atualizado em ${date.toLocaleDateString('pt-BR')}`;
+    return `Atualizado em ${date.toLocaleDateString("pt-BR")}`;
   };
 
   const toggleDropdown = () => {
@@ -80,9 +85,22 @@ const ProfessorPage = () => {
   };
 
   // Filtrar cursos com base no critério de filtro
-  const filteredCourses = filterType === "all"
-    ? courses
-    : courses.filter(course => course.status === filterType);
+  const filteredCourses =
+    filterType === "all"
+      ? courses
+      : courses.filter((course) => course.status === filterType);
+
+  // Função para atualizar a lista de cursos
+  const handleCourseUpdate = (updatedCourse) => {
+    // Atualizar a lista de cursos com o curso atualizado
+    setCourses((prevCourses) =>
+      prevCourses.map((course) =>
+        course.id === updatedCourse.id
+          ? { ...course, ...updatedCourse }
+          : course
+      )
+    );
+  };
 
   return (
     <div className="app-container">
@@ -98,9 +116,11 @@ const ProfessorPage = () => {
                   {filterType === "all"
                     ? "Todas as Trilhas"
                     : filterType === "concluido"
-                      ? "Trilhas Concluídas"
-                      : "Trilhas em Progresso"}{" "}
-                  <span className={`dropdown-icon ${dropdownOpen ? "open" : ""}`}>
+                    ? "Trilhas Concluídas"
+                    : "Trilhas em Progresso"}{" "}
+                  <span
+                    className={`dropdown-icon ${dropdownOpen ? "open" : ""}`}
+                  >
                     ▼
                   </span>
                 </button>
@@ -149,7 +169,12 @@ const ProfessorPage = () => {
           ) : (
             <div className="trilhas-grid">
               {filteredCourses.map((course) => (
-                <TrilhaCard key={course.id} trilha={course} />
+                <TrilhaCard
+                  key={course.id}
+                  trilha={course}
+                  isProfessorView={true} // Essa propriedade está correta
+                  onCourseUpdate={handleCourseUpdate}
+                />
               ))}
             </div>
           )}

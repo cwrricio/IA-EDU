@@ -1,21 +1,25 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = "http://localhost:8000/api";
 
 const api = {
   uploadDocument: async (file) => {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await axios.post(`${API_URL}/upload-document`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const response = await axios.post(
+        `${API_URL}/upload-document`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      });
+      );
       return response.data;
     } catch (error) {
-      console.error('Error uploading document:', error);
+      console.error("Error uploading document:", error);
       throw error;
     }
   },
@@ -25,7 +29,7 @@ const api = {
       const response = await axios.post(`${API_URL}/generate-objectives`, data);
       return response.data;
     } catch (error) {
-      console.error('Error generating objectives:', error);
+      console.error("Error generating objectives:", error);
       throw error;
     }
   },
@@ -35,7 +39,7 @@ const api = {
       const response = await axios.post(`${API_URL}/generate-syllabus`, data);
       return response.data;
     } catch (error) {
-      console.error('Error generating syllabus:', error);
+      console.error("Error generating syllabus:", error);
       throw error;
     }
   },
@@ -45,7 +49,7 @@ const api = {
       const response = await axios.post(`${API_URL}/generate-content`, data);
       return response.data;
     } catch (error) {
-      console.error('Error generating content:', error);
+      console.error("Error generating content:", error);
       throw error;
     }
   },
@@ -55,7 +59,7 @@ const api = {
       const response = await axios.post(`${API_URL}/save-progress`, data);
       return response.data;
     } catch (error) {
-      console.error('Error saving progress:', error);
+      console.error("Error saving progress:", error);
       throw error;
     }
   },
@@ -64,11 +68,11 @@ const api = {
     try {
       const response = await axios.post(`${API_URL}/login`, {
         email,
-        password
+        password,
       });
       return response.data;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       throw error;
     }
   },
@@ -78,17 +82,19 @@ const api = {
       const response = await axios.get(`${API_URL}/courses`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error("Error fetching courses:", error);
       throw error;
     }
   },
 
   getCoursesByProfessor: async (professorId) => {
     try {
-      const response = await axios.get(`${API_URL}/courses/professor/${professorId}`);
+      const response = await axios.get(
+        `${API_URL}/courses/professor/${professorId}`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error fetching professor courses:', error);
+      console.error("Error fetching professor courses:", error);
       throw error;
     }
   },
@@ -98,7 +104,7 @@ const api = {
       const response = await axios.get(`${API_URL}/users/${userId}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error("Error fetching user details:", error);
       return null;
     }
   },
@@ -108,18 +114,24 @@ const api = {
       const response = await axios.post(`${API_URL}/generate-title`, data);
       return response.data;
     } catch (error) {
-      console.error('Error generating title:', error);
-      return { title: "Curso Educacional" };  // Título padrão em caso de erro
+      console.error("Error generating title:", error);
+      return { title: "Curso Educacional" }; // Título padrão em caso de erro
     }
   },
 
   generateDescription: async (data) => {
     try {
-      const response = await axios.post(`${API_URL}/generate-description`, data);
+      const response = await axios.post(
+        `${API_URL}/generate-description`,
+        data
+      );
       return response.data;
     } catch (error) {
-      console.error('Error generating description:', error);
-      return { description: "Curso educacional com material didático e recursos interativos." };  // Descrição padrão em caso de erro
+      console.error("Error generating description:", error);
+      return {
+        description:
+          "Curso educacional com material didático e recursos interativos.",
+      }; // Descrição padrão em caso de erro
     }
   },
 
@@ -129,8 +141,12 @@ const api = {
 
       // Verificar se o curso possui slides
       const courseData = response.data;
-      if (courseData && courseData.steps && courseData.steps.content &&
-        courseData.steps.content.content_items) {
+      if (
+        courseData &&
+        courseData.steps &&
+        courseData.steps.content &&
+        courseData.steps.content.content_items
+      ) {
         // O curso já tem os dados que precisamos
         return courseData;
       } else {
@@ -138,7 +154,7 @@ const api = {
         return courseData; // Retornar o que temos, mesmo que incompleto
       }
     } catch (error) {
-      console.error('Erro ao buscar dados do curso:', error);
+      console.error("Erro ao buscar dados do curso:", error);
       throw error;
     }
   },
@@ -148,17 +164,20 @@ const api = {
       console.log("Enviando item para geração de slides:", contentItem);
 
       const response = await axios.post(`${API_URL}/generate-slides`, {
-        content_item: contentItem
+        content_item: contentItem,
       });
 
       if (!response.data || !response.data.slides) {
-        console.warn("API retornou dados inválidos para slides:", response.data);
+        console.warn(
+          "API retornou dados inválidos para slides:",
+          response.data
+        );
         return { slides: [] };
       }
 
       return response.data;
     } catch (error) {
-      console.error('Error generating slides:', error);
+      console.error("Error generating slides:", error);
       // Retornar slides vazios em caso de erro para não quebrar o fluxo
       return { slides: [] };
     }
@@ -166,10 +185,12 @@ const api = {
 
   getUserProgress: async (userId, courseId) => {
     try {
-      const response = await axios.get(`${API_URL}/user-progress/${userId}/${courseId}`);
+      const response = await axios.get(
+        `${API_URL}/user-progress/${userId}/${courseId}`
+      );
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar progresso do usuário:', error);
+      console.error("Erro ao buscar progresso do usuário:", error);
       return {};
     }
   },
@@ -179,7 +200,7 @@ const api = {
       const response = await axios.post(`${API_URL}/user-progress`, data);
       return response.data;
     } catch (error) {
-      console.error('Erro ao salvar progresso do usuário:', error);
+      console.error("Erro ao salvar progresso do usuário:", error);
       throw error;
     }
   },
@@ -189,18 +210,74 @@ const api = {
       const response = await axios.post(`${API_URL}/generate-slides`, {
         content_item: {
           ...context,
-          is_regeneration: true // Flag para indicar que é uma regeneração
-        }
+          is_regeneration: true, // Flag para indicar que é uma regeneração
+        },
       });
 
       return {
-        slides: response.data.slides || []
+        slides: response.data.slides || [],
       };
     } catch (error) {
-      console.error('Erro ao regenerar slides:', error);
+      console.error("Erro ao regenerar slides:", error);
       throw error;
     }
-  }
+  },
+
+  updateCourse: async (courseId, courseData) => {
+    try {
+      const response = await axios.post(`${API_URL}/update-course`, {
+        id: courseId,
+        ...courseData,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar curso:", error);
+      throw error;
+    }
+  },
+
+  updateCourseTitleAndDescription: async (courseId, title, description) => {
+    try {
+      // Configuração específica do Axios para lidar com possíveis problemas de CORS
+      const response = await axios.post(
+        `${API_URL}/update-course-metadata`,
+        {
+          course_id: courseId,
+          title: title,
+          description: description,
+        },
+        {
+          // Adicionar cabeçalhos que podem ajudar com problemas de CORS
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          // Aumentar o timeout para dar tempo ao servidor de processar
+          timeout: 10000,
+          // Permitir credenciais para CORS se necessário
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      // Melhorar o log de erros para depuração
+      if (error.response) {
+        // O servidor respondeu com um código de status fora do intervalo 2xx
+        console.error(
+          "Erro do servidor:",
+          error.response.status,
+          error.response.data
+        );
+      } else if (error.request) {
+        // A requisição foi feita mas não houve resposta
+        console.error("Sem resposta do servidor:", error.request);
+      } else {
+        // Erro na configuração da requisição
+        console.error("Erro na requisição:", error.message);
+      }
+      throw error;
+    }
+  },
 };
 
 export default api;
