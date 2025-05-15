@@ -173,25 +173,31 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
             <div className="score-number">
               {Math.round((score / quizQuestions.length) * 100)}%
             </div>
-            <svg className="progress-ring" width="120" height="120">
+            <svg className="progress-ring" width="100" height="100">
               <circle
                 className="progress-ring-circle-bg"
                 strokeWidth="8"
                 fill="transparent"
-                r="52"
-                cx="60"
-                cy="60"
+                r="42"
+                cx="50"
+                cy="50"
               />
               <circle
-                className="progress-ring-circle"
+                className={`progress-ring-circle ${
+                  score / quizQuestions.length >= 0.7
+                    ? "high"
+                    : score / quizQuestions.length >= 0.4
+                    ? "medium"
+                    : "low"
+                }`}
                 strokeWidth="8"
                 fill="transparent"
-                r="52"
-                cx="60"
-                cy="60"
-                strokeDasharray={`${2 * Math.PI * 52}`}
+                r="42"
+                cx="50"
+                cy="50"
+                strokeDasharray={`${2 * Math.PI * 42}`}
                 strokeDashoffset={
-                  2 * Math.PI * 52 * (1 - score / quizQuestions.length)
+                  2 * Math.PI * 42 * (1 - score / quizQuestions.length)
                 }
               />
             </svg>
@@ -223,36 +229,26 @@ const QuizSlide = ({ titulo, perguntas, onNext, onPrev, onComplete }) => {
           return (
             <div
               key={index}
-              className={`quiz-review-item ${
-                isCorrect ? "correct" : "incorrect"
-              }`}
+              className={`quiz-review-item ${isCorrect ? "correct" : "incorrect"}`}
             >
               <div className="review-item-header">
                 <span className="question-number">Questão {index + 1}</span>
-                <span
-                  className={`status-badge ${
-                    isCorrect ? "correct" : "incorrect"
-                  }`}
-                >
+                <span className={`status-badge ${isCorrect ? "correct" : "incorrect"}`}>
                   {isCorrect ? "Acertou" : "Errou"}
                 </span>
               </div>
-
+              
               <div className="review-item-content">
                 <div className="review-question">{question.pergunta}</div>
-
+                
                 <div className="review-answers">
                   <div className="user-answer">
                     <span className="answer-label">Sua resposta:</span>
-                    <span
-                      className={`answer-value ${
-                        isCorrect ? "correct-text" : "incorrect-text"
-                      }`}
-                    >
+                    <span className={`answer-value ${isCorrect ? "correct-text" : "incorrect-text"}`}>
                       {question.alternativas[userAnswers[index]]}
                     </span>
                   </div>
-
+                  
                   {!isCorrect && (
                     <div className="correct-answer">
                       <span className="answer-label">Resposta correta:</span>

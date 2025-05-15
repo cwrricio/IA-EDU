@@ -165,9 +165,11 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden; /* Garante que não haverá scroll horizontal */
+  overflow-y: hidden; /* O scroll vertical será apenas na área de revisão */
   position: relative;
-  padding: 0 10px 70px;
+  padding: 0 5px 70px; /* Reduzido padding lateral para mais espaço útil */
+  box-sizing: border-box; /* Garante que padding não cause overflow */
 }
 
 /* Cabeçalho com o resultado */
@@ -175,136 +177,183 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 25px;
-  padding: 20px;
+  margin-bottom: 10px; /* Pequena margem para separação visual */
+  margin-top: 0px;
+  padding: 10px 5px; /* Ajustado padding para evitar overflow */
   background-color: #f8fafc;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 100%; /* Impede que exceda a largura do container */
+  box-sizing: border-box; /* Garante que padding não cause overflow */
 }
 
 .quiz-summary-title {
-  font-size: 24px;
+  font-size: 20px; /* Ligeiramente menor para ajudar em telas pequenas */
   font-weight: 700;
   color: #334155;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: center;
+  width: 100%;
+  word-break: break-word; /* Garante quebra de palavras longas */
+  overflow-wrap: break-word;
 }
 
 /* Container de pontuação com gráfico circular */
 .score-container {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 15px;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .score-circle {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 100px; /* Reduzido para evitar overflow em telas pequenas */
+  height: 100px; /* Reduzido para evitar overflow em telas pequenas */
+  min-width: 100px; /* Define tamanho mínimo */
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; /* Previne que o círculo encolha */
 }
 
 .score-number {
   position: absolute;
-  font-size: 28px;
+  font-size: 24px; /* Reduzido de 28px */
   font-weight: 700;
   color: #2563eb;
 }
 
-/* Gráfico circular SVG */
+/* Gráfico circular SVG - ajustado para o novo tamanho */
+.progress-ring {
+  width: 100px;  /* Ajustado para o novo tamanho */
+  height: 100px;
+}
+
 .progress-ring-circle-bg {
   stroke: #e2e8f0;
+  fill: transparent;
+  stroke-width: 8;
+  r: 42; 
+  cx: 50; 
+  cy: 50;
 }
 
 .progress-ring-circle {
-  stroke: #2563eb;
-  transition: stroke-dashoffset 0.5s ease;
+  stroke-width: 8;
+  fill: transparent;
+  r: 42;  
+  cx: 50; 
+  cy: 50;
+  stroke-linecap: round;
   transform: rotate(-90deg);
   transform-origin: center;
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+/* Cores do círculo baseadas no desempenho */
+.progress-ring-circle.high {
+  stroke: #10b981; /* Verde para bom desempenho */
+}
+
+.progress-ring-circle.medium {
+  stroke: #f59e0b; /* Amarelo para desempenho médio */
+}
+
+.progress-ring-circle.low {
+  stroke: #ef4444; /* Vermelho para desempenho baixo */
 }
 
 .score-details {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 300px;
+  max-width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .score-text {
   font-size: 16px;
   color: #334155;
   font-weight: 500;
+  word-break: break-word;
 }
 
 .score-highlight {
   font-weight: 700;
   color: #2563eb;
-  font-size: 18px;
-}
-
-.total-questions {
-  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 12px;
+  background-color: rgba(37, 99, 235, 0.1);
 }
 
 .score-feedback {
   font-size: 14px;
   color: #64748b;
   font-style: italic;
+  word-break: break-word;
 }
 
 /* Seção de revisão */
 .review-section-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 14px; /* Aumentado ligeiramente */
+  font-weight: 600; /* Aumentado para maior ênfase */
   color: #334155;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin: 10px 0 8px;
+  padding-bottom: 5px;
   border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .quiz-review {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: auto; /* Permite rolagem vertical */
+  overflow-x: hidden; /* Bloqueia rolagem horizontal */
   padding-right: 5px;
+  padding-bottom: 10px; /* Espaço no final da lista */
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.quiz-review::-webkit-scrollbar {
-  width: 4px;
-}
-
-.quiz-review::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 4px;
+  gap: 12px; /* Reduzido de 15px */
+  width: 100%;
+  box-sizing: border-box;
+  max-height: calc(100% - 160px); /* Define uma altura máxima para garantir espaço de scroll */
 }
 
 /* Item de revisão */
 .quiz-review-item {
   background-color: #ffffff;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border-left: 4px solid #e2e8f0;
   transition: transform 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  margin-bottom: 2px;
 }
 
 .quiz-review-item.correct {
-  border-left-color: #10b981;
+  border-left-color: #10b981; /* Verde mais vibrante */
+  background-color: rgba(16, 185, 129, 0.05); /* Fundo verde suave */
 }
 
 .quiz-review-item.incorrect {
-  border-left-color: #ef4444;
+  border-left-color: #ef4444; /* Vermelho mais vibrante */
+  background-color: rgba(239, 68, 68, 0.05); /* Fundo vermelho suave */
 }
 
 .quiz-review-item:hover {
   transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Cabeçalho do item de revisão */
@@ -312,7 +361,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .question-number {
@@ -322,11 +373,12 @@
 }
 
 .status-badge {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .status-badge.correct {
@@ -343,7 +395,9 @@
 .review-item-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px; /* Reduzido de 12px */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .review-question {
@@ -351,47 +405,53 @@
   font-weight: 500;
   color: #1e293b;
   line-height: 1.5;
+  word-break: break-word; /* Garante quebra de palavras longas */
+  overflow-wrap: break-word;
 }
 
 .review-answers {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px;
+  padding: 10px; /* Reduzido de 12px */
   background-color: #f8fafc;
   border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .user-answer,
 .correct-answer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: 4px 0;
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .answer-label {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: #64748b;
-  width: 110px;
+  width: auto;
 }
 
 .answer-value {
-  flex: 1;
   font-size: 14px;
   font-weight: 500;
   color: #334155;
+  word-break: break-word; /* Garante quebra de palavras longas */
+  overflow-wrap: break-word;
+  width: 100%;
 }
 
 .correct-text {
-  color: #059669;
+  color: #10b981; /* Verde mais vibrante */
 }
 
 .incorrect-text {
-  color: #dc2626;
+  color: #ef4444; /* Vermelho mais vibrante */
 }
 
 /* Botão de conclusão */
@@ -402,53 +462,62 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 15px 0;
+  padding: 12px 0; /* Reduzido de 15px */
   background-color: white;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 2; /* Garante que fique acima do conteúdo */
 }
 
-.quiz-complete-button {
-  padding: 10px 24px;
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.quiz-complete-button:hover {
-  background-color: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-}
-
-/* Responsividade */
-@media screen and (max-width: 768px) {
-  .score-container {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .score-details {
-    text-align: center;
-  }
-
-  .review-item-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .answer-label {
-    width: 100%;
+/* Responsividade - ajusta para telas médias e grandes */
+@media screen and (min-width: 769px) {  
+  .quiz-summary {
+    padding: 0 10px 70px; /* Um pouco mais de padding em telas maiores */
   }
 
   .user-answer,
   .correct-answer {
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
+    gap: 10px;
   }
+  
+  .answer-label {
+    width: 110px;
+    flex-shrink: 0;
+  }
+  
+  .score-circle {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .progress-ring {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .progress-ring-circle-bg,
+  .progress-ring-circle {
+    r: 52;
+    cx: 60;
+    cy: 60;
+  }
+  
+  .score-number {
+    font-size: 28px;
+  }
+  
+  .review-section-title {
+    font-size: 16px;
+    margin-top: 15px;
+  }
+  
+  .quiz-review {
+    max-height: calc(100% - 180px);
+  }
+}
+
+/* Evitar scroll horizontal em qualquer situação */
+* {
+  max-width: 100%;
 }
