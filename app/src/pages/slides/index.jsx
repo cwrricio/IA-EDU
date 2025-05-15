@@ -4,6 +4,7 @@ import TextoSlide from "../../components/Slides/TextoSlide";
 import TopicosSlide from "../../components/Slides/TopicosSlide";
 import QuizSlide from "../../components/Slides/QuizSlide";
 import ConclusaoSlide from "../../components/Slides/ConclusaoSlide";
+import TopBar from "../../components/topbar/TopBar"; // Importar o componente TopBar
 import api from "../../services/api";
 import "./slides-page.css";
 
@@ -609,12 +610,18 @@ const SlidesPage = () => {
 
   return (
     <div className="slides-page-container">
+      {/* TopBar sempre visível no topo com posição fixa e z-index elevado */}
+      <TopBar
+        courseTitle={trilhaData?.titulo}
+        contentTitle={contentItems[currentContentIndex]?.title}
+      />
+
       {loading ? (
         <div className="loading-message">Carregando conteúdo do curso...</div>
       ) : error ? (
         <div className="error-message">{error}</div>
       ) : (
-        <>
+        <div className="slides-content-wrapper">
           <div
             className={`slide-box ${
               slideData?.tipo === "quiz" ||
@@ -625,9 +632,7 @@ const SlidesPage = () => {
             }`}
           >
             <div className="slide-header">
-              <div className="slide-logo">
-                <img src="/mentor.svg" alt="MentorIA" />
-              </div>
+              
               <h3 className="slide-trilha">
                 {trilhaData?.titulo || "Nome da Trilha"} - Conteúdo{" "}
                 {currentContentIndex + 1}/{contentItems.length}
@@ -668,7 +673,7 @@ const SlidesPage = () => {
                 )}
               </>
             )}
-        </>
+        </div>
       )}
     </div>
   );
