@@ -93,41 +93,6 @@ const ProfessorPage = () => {
             <h1 className="professor-title">Minhas Trilhas</h1>
 
             <div className="professor-actions">
-              <div className="filter-dropdown">
-                <button className="filter-button" onClick={toggleDropdown}>
-                  {filterType === "all"
-                    ? "Todas as Trilhas"
-                    : filterType === "concluido"
-                      ? "Trilhas Concluídas"
-                      : "Trilhas em Progresso"}{" "}
-                  <span className={`dropdown-icon ${dropdownOpen ? "open" : ""}`}>
-                    ▼
-                  </span>
-                </button>
-
-                {dropdownOpen && (
-                  <div className="filter-menu">
-                    <div
-                      className="filter-item"
-                      onClick={() => handleFilterSelect("all")}
-                    >
-                      Todas as Trilhas
-                    </div>
-                    <div
-                      className="filter-item"
-                      onClick={() => handleFilterSelect("concluido")}
-                    >
-                      Trilhas Concluídas
-                    </div>
-                    <div
-                      className="filter-item"
-                      onClick={() => handleFilterSelect("em andamento")}
-                    >
-                      Trilhas em Progresso
-                    </div>
-                  </div>
-                )}
-              </div>
 
               <button className="nova-trilha-btn" onClick={redirectToUpload}>
                 Nova Trilha
