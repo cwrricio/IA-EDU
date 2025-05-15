@@ -11,6 +11,7 @@ import ProfessorPage from "./pages/professor";
 import TrilhasPage from "./pages/trilhas-page";
 import SlidesPage from "./pages/slides";
 import UploadPage from "./pages/upload";
+import PainelPage from "./pages/painel";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
@@ -39,6 +40,28 @@ function App() {
               <PrivateRoute>
                 <NotStudentRoute>
                   <ProfessorPage />
+                </NotStudentRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="painel"
+            element={
+              <PrivateRoute>
+                <NotStudentRoute>
+                  <PainelPage />
+                </NotStudentRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/painel/:id"
+            element={
+              <PrivateRoute>
+                <NotStudentRoute>
+                  <PainelPage />
                 </NotStudentRoute>
               </PrivateRoute>
             }

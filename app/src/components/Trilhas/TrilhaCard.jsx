@@ -114,7 +114,13 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
 
   // Função para navegar para a página de slides
   const handleAccessTrilha = () => {
-    navigate(`/slides/${id}/1`);
+    // Se estamos na visão do professor, navegar para o painel com ID da trilha
+    if (isProfessorView) {
+      navigate(`/painel/${id}`);
+    } else {
+      // Caso contrário, manter o comportamento original
+      navigate(`/slides/${id}/1`);
+    }
   };
 
   // Função para mostrar/ocultar os detalhes
@@ -199,7 +205,7 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
 
         <div className="trilha-actions">
           <button className="trilha-button" onClick={handleAccessTrilha}>
-            Acessar
+            {isProfessorView ? "Painel" : "Acessar"}
           </button>
           {isProfessorView ? (
             <button
