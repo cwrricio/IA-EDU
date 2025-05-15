@@ -70,3 +70,50 @@ async def delete_course(course_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/update-course-metadata")
+async def update_course_metadata(data: dict):
+    try:
+        course_id = data.get("course_id")
+        title = data.get("title")
+        description = data.get("description")
+        
+        if not course_id:
+            raise HTTPException(status_code=400, detail="ID do curso é obrigatório")
+        
+        # Buscar curso no banco de dados
+        try:
+            course = DatabaseService.get_course(course_id)
+            
+            if not course:
+                raise HTTPException(status_code=404, detail="Curso não encontrado")
+            
+            # Criar um dicionário com os dados atualizados
+            course_data = {}
+            
+            if isinstance(course, dict):
+                course_data = course.copy()
+                if title:
+                    course_data["title"] = title
+                if description:
+                    course_data["description"] = description
+            else:
+                # Se course é um objeto
+                course_data = {
+                    "id": course_id,
+                    "title": title if title else getattr(course, "title", ""),
+                    "description": description if description else getattr(course, "description", "")
+                }
+            
+            # Passar tanto o course quanto o course_data
+            DatabaseService.update_course(course_id, course_data)
+            
+            return {"message": "Metadados do curso atualizados com sucesso"}
+        except Exception as e:
+            print(f"Erro ao atualizar metadados: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Erro ao processar curso: {str(e)}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Exceção não tratada: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")

@@ -7,13 +7,24 @@
   padding: 0;
   background-color: #f5f7fa;
   position: relative;
+  padding-top: 70px; /* Altura da TopBar + espaçamento */
+  width: 100%;
 }
 
-/* Caixa principal do slide - Tamanho padronizado */
+/* Ajuste do container principal de slides para melhor centralização */
+.slides-content-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  position: relative;
+}
+
+/* Caixa principal do slide - Tamanho aumentado horizontalmente */
 .slide-box {
-  width: 80%;
-  max-width: 900px;
-  height: 500px; /* Altura fixa, padronizada */
+  width: 90%; /* Aumentado de 80% para 90% */
+  max-width: 1200px; /* Aumentado de 900px para 1200px */
+  height: 500px;
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -22,6 +33,25 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  margin: 20px auto; /* Centralização melhorada */
+}
+
+/* Altura aumentada para slides de quiz */
+.slide-box-quiz {
+  height: 600px; /* Mantida a altura aumentada para quizzes */
+}
+
+/* Ajustes responsivos para slides de quiz */
+@media (max-width: 768px) {
+  .slide-box-quiz {
+    height: 550px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slide-box-quiz {
+    height: 520px;
+  }
 }
 
 /* Cabeçalho do slide */
@@ -58,13 +88,13 @@
   overflow-y: auto;
 }
 
-/* Botões de navegação */
+/* Botões de navegação - ajustados para o slide mais largo */
 .nav-button {
-  position: absolute;
+  position: fixed; /* Alterado de absolute para fixed */
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 40px; /* Aumentado para melhor visibilidade */
+  height: 40px; /* Aumentado para melhor visibilidade */
   border-radius: 50%;
   background-color: #288de0;
   color: white;
@@ -76,7 +106,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   z-index: 10;
   transition: all 0.2s ease;
-  font-size: 14px;
+  font-size: 16px; /* Aumentado para melhor visibilidade */
 }
 
 .nav-button:hover:not(:disabled) {
@@ -91,25 +121,26 @@
 }
 
 .nav-button.prev {
-  left: 2%;
+  left: 20px; /* Ajustado para uma posição fixa da borda */
 }
 
 .nav-button.next {
-  right: 2%;
+  right: 20px; /* Ajustado para uma posição fixa da borda */
 }
 
 /* Indicador de slides */
 .slide-indicator {
-  position: absolute;
+  position: fixed; /* Alterado para fixed para consistência */
   bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(255, 255, 255, 0.8);
-  padding: 4px 12px;
+  padding: 6px 16px; /* Aumentado para melhor visibilidade */
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 14px; /* Aumentado para melhor legibilidade */
   color: #666;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 20;
 }
 
 /* Estilos para o slide tipo texto */
@@ -126,27 +157,18 @@
   color: #444;
 }
 
-/* Ajustes responsivos */
+/* Ajustes responsivos com tamanhos aumentados */
 @media (max-width: 768px) {
   .slide-box {
-    width: 90%;
+    width: 95%;
     height: 450px;
-  }
-  
-  .nav-button {
-    width: 28px;
-    height: 28px;
   }
 }
 
 @media (max-width: 480px) {
   .slide-box {
-    width: 95%;
+    width: 98%;
     height: 400px;
-  }
-  
-  .slide-content-block {
-    padding: 1.2rem;
   }
 }
 
@@ -178,8 +200,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .regenerating-content h2 {
@@ -194,4 +220,14 @@
   max-width: 600px;
   line-height: 1.6;
   margin-bottom: 0.5rem;
+}
+
+.slides-container {
+  margin-top: 70px; /* Mesma lógica do padding-top acima */
+}
+
+/* Ajustes para garantir que elementos já existentes respeitem esse espaçamento */
+.slide-content,
+.slide-box {
+  margin-top: 0;
 }

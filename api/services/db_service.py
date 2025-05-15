@@ -94,6 +94,16 @@ class DatabaseService:
         return course_data
 
     @classmethod
+    def update_course(cls, course_id, course_data):
+        """Update course data"""
+        db = cls.read_all()
+        if "courses" in db and str(course_id) in db["courses"]:
+            db["courses"][str(course_id)].update(course_data)
+            cls.save_all(db)
+            return db["courses"][str(course_id)]
+        return None
+
+    @classmethod
     def save_progress(
         cls, user_id, course_id, step, content, title=None, description=None
     ):
