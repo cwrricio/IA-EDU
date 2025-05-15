@@ -36,69 +36,102 @@ const SlidesPage = () => {
     const fetchCourseData = async () => {
       if (!courseId) return;
 
-      // Obter o parâmetro de slide da URL
-      const urlParams = new URLSearchParams(window.location.search);
-      let initialSlide = parseInt(urlParams.get("slide")) || 0;
-
-      // Verificar se há um slide forçado armazenado
-      const forcedSlide = sessionStorage.getItem("forceInitialSlide");
-      if (forcedSlide) {
-        // Usar o slide forçado em vez do parâmetro URL
-        initialSlide = parseInt(forcedSlide);
-        // Limpar após uso
-        sessionStorage.removeItem("forceInitialSlide");
-        console.log("Using forced slide index:", initialSlide);
-      }
-
       try {
         setLoading(true);
+        
+        // Obter dados do usuário
+        const userString = localStorage.getItem("user");
+        const user = userString ? JSON.parse(userString) : null;
+        
+        if (!user || !user.id) {
+          navigate("/login");
+          return;
+        }
+        
+        // Buscar dados do curso
         const courseData = await api.getCourseById(courseId);
+        
+        if (!courseData) {
+          setError("Não foi possível carregar os dados do curso.");
+          setLoading(false);
+          return;
+        }
+        
+        setTrilhaData({
+          titulo: courseData.title,
+          descricao: courseData.description,
+          id: courseId,
+        });
 
-        if (courseData) {
-          setTrilhaData({
-            titulo: courseData.title,
-            descricao: courseData.description,
-            id: courseId,
-          });
-
-          // Verificar se há conteúdo e slides
-          if (courseData.steps?.content?.content_items) {
-            const items = courseData.steps.content.content_items;
-            setContentItems(items);
-
-            // Se o contentId foi fornecido, ir direto para esse conteúdo
-            if (contentId) {
-              const contentIndex = items.findIndex(
-                (item) => item.id.toString() === contentId
-              );
-              if (contentIndex >= 0) {
-                // Pass the initialSlide to loadContentSlides
-                loadContentSlides(items, contentIndex, initialSlide);
-                setCurrentContentIndex(contentIndex);
-              } else {
-                // Se o contentId não for válido, usar o primeiro
-                loadContentSlides(items, 0, initialSlide);
-              }
-            } else {
-              // Se não foi fornecido contentId, carrega o primeiro conteúdo
-              loadContentSlides(items, 0, initialSlide);
+        // Verificar se há conteúdo e slides
+        if (!courseData.steps?.content?.content_items || courseData.steps.content.content_items.length === 0) {
+          setError("Este curso não possui conteúdo disponível.");
+          setLoading(false);
+          return;
+        }
+        
+        const items = courseData.steps.content.content_items;
+        setContentItems(items);
+        
+        // Buscar o progresso do usuário para este curso
+        const userProgress = await api.getUserProgress(user.id, courseId);
+        
+        // Determinar o conteúdo e slide iniciais com base no progresso
+        let targetContentIndex = 0;
+        let targetSlideIndex = 0;
+        
+        // Caso 1: Não há progresso para este curso - iniciar do começo
+        if (!userProgress || Object.keys(userProgress).length === 0) {
+          console.log("Sem progresso prévio, iniciando do começo");
+          loadContentSlides(items, 0, 0);
+          setCurrentContentIndex(0);
+        } 
+        // Caso 2 e 3: Verificar o progresso de cada conteúdo
+        else {
+          let foundIncompleteContent = false;
+          
+          for (let i = 0; i < items.length; i++) {
+            const contentId = items[i].id.toString();
+            const contentProgress = userProgress[contentId];
+            
+            // Conteúdo sem progresso
+            if (!contentProgress) {
+              targetContentIndex = i;
+              targetSlideIndex = 0;
+              foundIncompleteContent = true;
+              break;
             }
-          } else {
-            setError("Este curso não possui conteúdo disponível.");
+            
+            // Conteúdo incompleto
+            if (!contentProgress || contentProgress.completed === false) {
+              targetContentIndex = i;
+              targetSlideIndex = 3;
+              foundIncompleteContent = true;
+              break;
+            }
           }
+          
+          // Se todos os conteúdos estiverem completos, vá para o primeiro
+          if (!foundIncompleteContent) {
+            targetContentIndex = 0;
+            targetSlideIndex = 0;
+          }
+          
+          // Aplicar o redirecionamento
+          console.log(`Redirecionando para conteúdo ${targetContentIndex}, slide ${targetSlideIndex}`);
+          loadContentSlides(items, targetContentIndex, targetSlideIndex);
+          setCurrentContentIndex(targetContentIndex);
         }
       } catch (err) {
         console.error("Erro ao carregar dados do curso:", err);
-        setError(
-          "Não foi possível carregar os dados do curso. Tente novamente mais tarde."
-        );
+        setError("Não foi possível carregar os dados do curso. Tente novamente mais tarde.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchCourseData();
-  }, [courseId, contentId]);
+  }, [courseId, navigate]);
 
   // Função para carregar os slides de um conteúdo específico
   const loadContentSlides = (items, contentIndex, initialSlideIndex = 0) => {
@@ -346,6 +379,36 @@ const SlidesPage = () => {
               setRegeneratingContent(false);
             }
             return; // Sair da função
+          }
+
+          if (isDiagnostic && scorePercentage >= 80) {
+            await api.saveUserProgress({
+              user_id: user.id,
+              course_id: courseId,
+              content_id: currentContentItem.id,
+              completed: true,
+              hasCompletedDiagnosticQuiz: true,
+              score: scorePercentage,
+              lastAccess: new Date().toISOString(),
+            });
+            
+            setShowSkipNotification(true);
+            return;
+          } else if (isDiagnostic) {
+            // Se não passou no diagnóstico com nota alta, ainda assim marque o quiz como completado
+            await api.saveUserProgress({
+              user_id: user.id,
+              course_id: courseId,
+              content_id: currentContentItem.id,
+              completed: false,
+              hasCompletedDiagnosticQuiz: true,
+              score: scorePercentage,
+              lastAccess: new Date().toISOString(),
+            });
+            
+            // Continua para o slide 3 (após o quiz diagnóstico)
+            setCurrentSlideIndex(3);
+            return;
           }
         }
       }
