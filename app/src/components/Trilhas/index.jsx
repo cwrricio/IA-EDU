@@ -22,9 +22,9 @@ const Trilhas = () => {
       try {
         setLoading(true);
         // Obter o usuário do localStorage
-        const userString = localStorage.getItem('user');
+        const userString = localStorage.getItem("user");
         if (!userString) {
-          navigate('/login'); // Redirecionar para login se não houver usuário
+          navigate("/login"); // Redirecionar para login se não houver usuário
           return;
         }
 
@@ -33,20 +33,24 @@ const Trilhas = () => {
 
         if (result && result.courses) {
           // Transformar os dados do formato de objeto para array
-          const coursesArray = Object.entries(result.courses).map(([id, data]) => ({
-            id,
-            title: data.title,
-            status: data.status || "em andamento",
-            date: formatDate(data.created_at),
-            description: data.description || "Descrição não disponível",
-            created_by: data.created_by || "1"
-          }));
+          const coursesArray = Object.entries(result.courses).map(
+            ([id, data]) => ({
+              id,
+              title: data.title,
+              status: data.status || "em andamento",
+              date: formatDate(data.created_at),
+              description: data.description || "Descrição não disponível",
+              created_by: data.created_by || "1",
+            })
+          );
 
           setCourses(coursesArray);
         }
       } catch (err) {
         console.error("Erro ao buscar cursos:", err);
-        setError("Não foi possível carregar os cursos. Tente novamente mais tarde.");
+        setError(
+          "Não foi possível carregar os cursos. Tente novamente mais tarde."
+        );
       } finally {
         setLoading(false);
       }
@@ -59,11 +63,12 @@ const Trilhas = () => {
     if (!timestamp) return "Data desconhecida";
 
     // Se timestamp é número, converter para objeto Date
-    const date = typeof timestamp === 'number'
-      ? new Date(timestamp * 1000)  // Converter de Unix timestamp para Date
-      : new Date(timestamp);        // Já é string de data
+    const date =
+      typeof timestamp === "number"
+        ? new Date(timestamp * 1000) // Converter de Unix timestamp para Date
+        : new Date(timestamp); // Já é string de data
 
-    return `Atualizado em ${date.toLocaleDateString('pt-BR')}`;
+    return `Atualizado em ${date.toLocaleDateString("pt-BR")}`;
   };
 
   // Filtrar trilhas de acordo com o status selecionado
