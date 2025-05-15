@@ -5,7 +5,6 @@ import "./home-page.css";
 
 const HomePage = () => {
   // URL do vídeo definida diretamente no código
-  // Você pode alterar esta URL para qualquer vídeo do YouTube
   const videoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
   return (

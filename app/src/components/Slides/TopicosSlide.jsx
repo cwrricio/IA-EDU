@@ -7,11 +7,13 @@ const TopicosSlide = ({ titulo, topicos }) => (
     <ul className="slide-topicos">
       {topicos.map((topico, index) => (
         <li key={index} className="slide-topico-item">
-          {topico}
+          {/* Verifica se o tópico é um objeto ou uma string */}
+          {typeof topico === "object" && topico !== null
+            ? topico.topico || topico.descricao || "Tópico sem descrição"
+            : topico}
         </li>
       ))}
     </ul>
-    {/* Logo removido daqui */}
   </div>
 );
 
