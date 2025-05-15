@@ -2,7 +2,7 @@
   width: 100%;
   margin-bottom: 30px;
   position: relative;
-  overflow: hidden; /* Impede que o conteúdo se estenda além do contêiner */
+  overflow: hidden;
 }
 
 .trilhas-carousel {
@@ -11,6 +11,21 @@
   gap: 20px;
   padding: 10px 0;
   width: 100%;
+}
+
+/* Estilo para a mensagem quando não há trilhas */
+.trilhas-empty {
+  background-color: #f9fafb;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  font-size: 16px;
+  color: #6b7280;
+  width: 100%;
+  max-width: 100%;
+  margin: 20px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  grid-column: 1 / -1; /* Faz o elemento ocupar todas as colunas do grid */
 }
 
 /* Para telas menores, ajustar o tamanho dos cards */

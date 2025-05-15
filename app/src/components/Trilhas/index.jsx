@@ -71,11 +71,30 @@ const Trilhas = () => {
     return `Atualizado em ${date.toLocaleDateString("pt-BR")}`;
   };
 
-  // Filtrar trilhas de acordo com o status selecionado
-  const trilhasFiltradas =
-    filtro === "all"
-      ? courses
-      : courses.filter((trilha) => trilha.status === filtro);
+  // Substitua a função de filtragem existente por esta:
+  const trilhasFiltradas = React.useMemo(() => {
+    if (filtro === "all") {
+      return courses;
+    } else if (filtro === "concluido") {
+      // Garantir que filtra corretamente as trilhas concluídas
+      return courses.filter(
+        (trilha) =>
+          trilha.status === "concluido" ||
+          trilha.status === "Concluído" ||
+          trilha.status === "Concluido" ||
+          trilha.status === "completed"
+      );
+    } else if (filtro === "em andamento") {
+      // Filtro para trilhas em andamento
+      return courses.filter(
+        (trilha) =>
+          trilha.status === "em andamento" ||
+          trilha.status === "Em andamento" ||
+          trilha.status === "in progress"
+      );
+    }
+    return courses; // Fallback para qualquer outro caso
+  }, [courses, filtro]);
 
   // Handler para quando o filtro muda no TrilhasHeader
   const handleFiltroChange = (novoFiltro) => {

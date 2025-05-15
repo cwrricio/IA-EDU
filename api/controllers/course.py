@@ -117,3 +117,50 @@ async def update_course_metadata(data: dict):
     except Exception as e:
         print(f"Exceção não tratada: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+
+@router.post("/update-course")
+async def update_course(data: dict):
+    """Update a course with all fields including icon."""
+    try:
+        # Extrair o ID do curso
+        course_id = data.get("id")
+        if not course_id:
+            raise HTTPException(status_code=400, detail="Course ID is required")
+        
+        # Ler o banco de dados diretamente
+        import json
+        import os
+        
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "database.json")
+        
+        # Ler o arquivo atual
+        with open(db_path, 'r', encoding='utf-8') as f:
+            db_data = json.load(f)
+        
+        # Verificar se o curso existe
+        if course_id not in db_data["courses"]:
+            raise HTTPException(status_code=404, detail=f"Course {course_id} not found")
+        
+        # Atualizar os campos recebidos
+        for key, value in data.items():
+            if key != "id":  # Não copiar o ID para dentro do objeto
+                db_data["courses"][course_id][key] = value
+        
+        # Garantir que temos um ícone
+        if "icon" not in db_data["courses"][course_id] or not db_data["courses"][course_id]["icon"]:
+            db_data["courses"][course_id]["icon"] = "PiStudent"
+        
+        # Salvar as alterações
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(db_data, f, indent=4, ensure_ascii=False)
+        
+        return {"message": "Course updated successfully", "course_id": course_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error updating course: {str(e)}")
+        print(f"Error details: {error_details}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

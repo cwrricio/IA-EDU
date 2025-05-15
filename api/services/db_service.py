@@ -59,9 +59,17 @@ class DatabaseService:
 
     @classmethod
     def get_course(cls, course_id):
-        """Get a course by ID"""
-        db = cls.read_all()
-        return db.get("courses", {}).get(str(course_id))
+        """Get a course by ID and ensure it has a default icon if none is present."""
+        data = cls.read_all()
+        course = data["courses"].get(course_id)
+
+        # Adicionar ícone padrão se não existir
+        if course and "icon" not in course:
+            course["icon"] = "PiStudent"
+            # Salve a alteração no banco de dados
+            cls.update_course(course_id, course)
+
+        return course
 
     @classmethod
     def get_all_courses(cls):
@@ -95,13 +103,28 @@ class DatabaseService:
 
     @classmethod
     def update_course(cls, course_id, course_data):
-        """Update course data"""
-        db = cls.read_all()
-        if "courses" in db and str(course_id) in db["courses"]:
-            db["courses"][str(course_id)].update(course_data)
-            cls.save_all(db)
-            return db["courses"][str(course_id)]
-        return None
+        """Update a course in the database with complete data including icon."""
+        try:
+            data = cls.read_all()
+            
+            # Verificar se o curso existe
+            if course_id not in data["courses"]:
+                return False
+            
+            # Atualizar os campos fornecidos
+            for key, value in course_data.items():
+                data["courses"][course_id][key] = value
+            
+            # Garantir que o ícone seja mantido ou atualizado
+            if "icon" not in data["courses"][course_id] or not data["courses"][course_id]["icon"]:
+                data["courses"][course_id]["icon"] = "PiStudent"  # ícone padrão
+            
+            # Salvar no database.json
+            cls.save_all(data)
+            return True
+        except Exception as e:
+            print(f"Erro ao atualizar curso: {str(e)}")
+            return False
 
     @classmethod
     def save_progress(
@@ -289,3 +312,20 @@ class DatabaseService:
     def generate_course_id(cls):
         """Generate a unique course ID"""
         return f"course_{int(time.time())}"
+
+    @staticmethod
+    def write_database(data):
+        """Write data to the database file."""
+        import json
+        import os
+        
+        # Caminho para o arquivo de banco de dados
+        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "database.json")
+        
+        try:
+            with open(db_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"Erro ao escrever no banco de dados: {str(e)}")
+            return False

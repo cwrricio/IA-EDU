@@ -1,4 +1,4 @@
-.trilha-edit-overlay {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -6,132 +6,133 @@
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
-.trilha-edit-container {
-  width: 90%;
-  max-width: 600px;
+.modal-content {
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
+  border-radius: 5px;
+  width: 500px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.trilha-edit-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
+.modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.trilha-edit-header h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #6b7280;
+  font-size: 1.5rem;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
+}
+
+.modal-body {
+  padding: 16px 20px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-control {
+  width: 96%;
+  padding: 6px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+/* Adicione esta classe para o input de título */
+.title-input {
+  padding-left: 2px; /* Reduzido para apenas 2px */
+}
+
+/* Se quiser ser ainda mais específico, pode adicionar */
+.form-group input[type="text"] {
+  padding-left: 10px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border: 1px solid #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border: 1px solid #6c757d;
+  color: white;
+}
+
+.alert {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.icon-selector {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.icon-option {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.trilha-edit-content {
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.edit-field {
-  margin-bottom: 20px;
-}
-
-.edit-field label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #4b5563;
-}
-
-.edit-input,
-.edit-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  height: 42px;
   border-radius: 6px;
-  font-size: 16px;
-  background-color: white;
-  color: #111827;
-  box-sizing: border-box;
-}
-
-.edit-input:focus,
-.edit-textarea:focus {
-  outline: none;
-  border-color: #7397ec;
-  box-shadow: 0 0 0 2px rgba(115, 151, 236, 0.2);
-}
-
-.edit-textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.trilha-edit-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.cancel-button,
-.save-button {
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  background-color: #f8f9fa;
+  transition: all 0.2s ease;
 }
 
-.cancel-button {
-  background-color: white;
-  border: 1px solid #d1d5db;
-  color: #4b5563;
+.icon-option:hover {
+  background-color: #e9ecef;
+  transform: scale(1.05);
 }
 
-.cancel-button:hover {
-  background-color: #f9fafb;
+.icon-option.selected {
+  background-color: #d1e7ff;
+  border: 2px solid #0d6efd;
 }
 
-.save-button {
-  background-color: #7397ec;
-  color: white;
-  border: none;
+.icon-option svg {
+  font-size: 20px;
+  color: #495057;
 }
 
-.save-button:hover {
-  background-color: #4f46e5;
-}
-
-.save-button:disabled,
-.cancel-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.icon-option.selected svg {
+  color: #0d6efd;
 }
 
 @media (max-width: 600px) {
@@ -147,4 +148,10 @@
   .trilha-edit-content {
     padding: 16px;
   }
+}
+
+/* Tornando a área de texto mais compacta */
+textarea.form-control {
+  resize: none; /* Impede redimensionamento manual */
+  height: 60px; /* Altura fixa para evitar scroll */
 }

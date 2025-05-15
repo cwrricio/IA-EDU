@@ -79,7 +79,36 @@ const api = {
 
   getAllCourses: async () => {
     try {
-      const response = await axios.get(`${API_URL}/courses`);
+      // Limpamos qualquer cache que possa existir
+      const response = await axios.get(`${API_URL}/courses`, {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      });
+
+      console.log(
+        "Cursos brutos recebidos da API:",
+        JSON.stringify(response.data)
+      );
+
+      // Importante: não modificar os dados originais, apenas garantir que ícones padrão sejam adicionados se estiverem faltando
+      if (response.data && response.data.courses) {
+        // Não vamos substituir ícones existentes! Apenas adicionar quando não existir
+        Object.keys(response.data.courses).forEach((courseId) => {
+          const course = response.data.courses[courseId];
+          if (!course.icon) {
+            console.log(
+              `Adicionando ícone padrão para curso ${courseId} que não possui ícone`
+            );
+            course.icon = "PiStudent";
+          } else {
+            console.log(`Curso ${courseId} já possui ícone: ${course.icon}`);
+          }
+        });
+      }
+
       return response.data;
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -225,13 +254,18 @@ const api = {
 
   updateCourse: async (courseId, courseData) => {
     try {
-      const response = await axios.post(`${API_URL}/update-course`, {
-        id: courseId,
-        ...courseData,
-      });
+      console.log(`Atualizando curso ${courseId} com dados:`, courseData);
+      const response = await axios.post(`${API_URL}/update-course`, courseData);
+      
+      // Importante: log completo da resposta para análise
+      console.log("Curso atualizado com sucesso:", response.data);
+      
+      // Ao atualizar um curso, invalidamos qualquer cache
+      await axios.get(`${API_URL}/courses?_=${new Date().getTime()}`);
+      
       return response.data;
     } catch (error) {
-      console.error("Erro ao atualizar curso:", error);
+      console.error("Error updating course:", error);
       throw error;
     }
   },
@@ -278,9 +312,6 @@ const api = {
       throw error;
     }
   },
-
-  
-
 };
 
 export default api;

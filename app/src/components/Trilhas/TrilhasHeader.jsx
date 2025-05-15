@@ -6,11 +6,11 @@ const TrilhasHeader = ({ onFiltroChange, filtroAtual }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Mapear os valores de filtro para textos de exibição
+  // Mapear os valores de filtro para textos de exibição (mais claros)
   const filterLabels = {
     all: "Todas as trilhas",
     "em andamento": "Em andamento",
-    concluido: "Concluídas",
+    // concluido: "Concluídas", // Comentado temporariamente
   };
 
   // Manipular cliques fora do dropdown
@@ -61,12 +61,14 @@ const TrilhasHeader = ({ onFiltroChange, filtroAtual }) => {
             >
               Em andamento
             </div>
+            {/* Opção de trilhas concluídas comentada temporariamente
             <div
               className="dropdown-item"
               onClick={() => handleFilterClick("concluido")}
             >
               Concluídas
             </div>
+            */}
           </div>
         )}
       </div>

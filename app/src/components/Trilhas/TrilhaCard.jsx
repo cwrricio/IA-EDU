@@ -6,6 +6,20 @@ import "./styles/TrilhaCard.css";
 import api from "../../services/api";
 import TrilhaDetails from "./TrilhaDetails";
 import TrilhaEdit from "./TrilhaEdit";
+import {
+  PiStudent,
+  PiMathOperations,
+  PiAtom,
+  PiBooks,
+  PiCode,
+  PiFlask,
+  PiChalkboardTeacher,
+  PiPencil,
+  PiGlobe,
+  PiRobot,
+  PiMicroscope,
+  PiPaintBrush,
+} from "react-icons/pi";
 
 const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
   const { id, title, status, description, created_by } = trilha;
@@ -14,9 +28,49 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [userProgress, setUserProgress] = useState(null);
+
+  // Importante: usar memoização para evitar atualizações desnecessárias
+  const [currentIcon, setCurrentIcon] = useState(() => {
+    console.log(
+      `TrilhaCard inicializado com ícone: ${trilha.icon || "PiStudent"}`
+    );
+    return trilha.icon || "PiStudent";
+  });
+
   const navigate = useNavigate();
 
+  // Mapeamento de ícones disponíveis
+  const iconComponents = {
+    PiStudent,
+    PiMathOperations,
+    PiAtom,
+    PiBooks,
+    PiCode,
+    PiFlask,
+    PiChalkboardTeacher,
+    PiPencil,
+    PiGlobe,
+    PiRobot,
+    PiMicroscope,
+    PiPaintBrush,
+  };
+
+  // useEffect para sincronizar o ícone quando a trilha muda
   useEffect(() => {
+    if (trilha && trilha.icon) {
+      console.log(`Sincronizando ícone para ${id}: ${trilha.icon}`);
+      setCurrentIcon(trilha.icon);
+    }
+  }, [trilha, id]);
+
+  // Determinar qual ícone exibir (usa o padrão se não houver ícone definido)
+  const IconComponent = React.useMemo(() => {
+    return iconComponents[currentIcon] || iconComponents.PiStudent;
+  }, [currentIcon]);
+
+  useEffect(() => {
+    console.log("TrilhaCard - trilha recebida:", trilha);
+
     const fetchUserProgress = async () => {
       try {
         const userString = localStorage.getItem("user");
@@ -56,7 +110,7 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
     };
 
     fetchCreatorInfo();
-  }, [id, created_by]);
+  }, [id, created_by, trilha, currentIcon]);
 
   // Função para navegar para a página de slides
   const handleAccessTrilha = () => {
@@ -75,6 +129,13 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
 
   // Função para lidar com atualizações do curso
   const handleCourseUpdate = (updatedTrilha) => {
+    console.log("TrilhaCard - Recebendo atualização:", updatedTrilha);
+
+    // Forçar atualização do ícone local
+    setCurrentIcon(updatedTrilha.icon);
+    console.log("TrilhaCard - Ícone atualizado para:", updatedTrilha.icon);
+
+    // Atualizar a trilha completa no componente pai
     if (onCourseUpdate) {
       onCourseUpdate(updatedTrilha);
     }
@@ -88,7 +149,14 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
         <div className="trilha-image-container">
           <div className="trilha-image">
             <div className="trilha-image-wrapper">
-              <img src={codefolioImg} alt={title} />
+              <div className="trilha-icon">
+                <IconComponent size={50} />
+              </div>
+              <img
+                src={codefolioImg}
+                alt={title}
+                className="background-image"
+              />
             </div>
           </div>
         </div>
@@ -157,7 +225,7 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
 
       {showEdit && (
         <TrilhaEdit
-          trilha={trilha}
+          trilha={{ ...trilha, icon: currentIcon }}
           onClose={() => setShowEdit(false)}
           onUpdate={handleCourseUpdate}
         />
