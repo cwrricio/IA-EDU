@@ -7,26 +7,26 @@
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  min-height: 380px;
+  min-height: 320px; /* Altura reduzida para melhor proporção */
   position: relative;
-  padding-bottom: 70px; /* Espaço para o botão de ação */
+  padding-bottom: 65px; /* Espaço reduzido para o botão de ação */
   box-sizing: border-box;
 }
 
 .trilha-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px); /* Reduzido o movimento de hover */
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .trilha-image-container {
-  padding: 15px 15px 0 15px;
+  padding: 12px 12px 0 12px; /* Padding reduzido */
 }
 
 .trilha-image {
   width: 100%;
-  height: 150px; /* Altura fixa para padronizar as imagens */
-  min-height: 140px;
-  border-radius: 12px;
+  height: 130px; /* Altura reduzida */
+  min-height: 120px; /* Altura mínima reduzida */
+  border-radius: 10px; /* Raio de borda reduzido */
   overflow: hidden;
   background-color: #f0f4ff;
   display: flex;
@@ -115,7 +115,7 @@
   line-height: 1.5;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4; /* Aumentado de 3 para 4 linhas */
   -webkit-box-orient: vertical;
   max-width: 100%; /* Garantir que não ultrapasse o card */
 }

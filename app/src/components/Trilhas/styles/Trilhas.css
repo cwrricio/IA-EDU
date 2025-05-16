@@ -1,24 +1,40 @@
 .trilhas-container {
   width: 100%;
-  max-width: calc(100% - 32px); /* Evitar que ultrapasse o limite da tela */
+  max-width: 100%; /* Alterado para ocupar todo o espaço disponível */
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 20px 16px 20px 5%; /* Padding à esquerda para deslocar para direita */
   box-sizing: border-box;
-  overflow-x: hidden; /* Impedir scroll horizontal na página inteira */
+  overflow-x: hidden;
 }
 
 .trilhas-section {
   width: 100%;
-  padding: 0 16px;
+  padding: 0;
   box-sizing: border-box;
+  margin-left: 0; /* Removido margem à esquerda para alinhamento consistente */
 }
 
 .featured-content-row {
   display: flex;
   gap: 20px;
   margin-bottom: 30px;
-  width: 100%;
-  align-items: stretch; /* Garante que os itens tenham a mesma altura */
+  width: 100%; /* Reduzido ligeiramente para evitar overflow horizontal */
+  align-items: stretch;
+  margin-left: 0; /* Removido para alinhar com os cards de trilha */
+}
+
+/* Ajuste para que o ContinueLearning ocupe mais espaço */
+.continue-learning-container {
+  width: 100%; /* Alterado de 80% para 100% */
+  flex-grow: 1;
+  margin-left: 0; /* Removido o deslocamento para alinhar com cards de trilha */
+}
+
+/* Adiciona estilo para os elementos filhos para consistência */
+.trilhas-heading,
+.trilhas-tabs,
+.trilhas-grid {
+  padding-left: 0; /* Removido padding à esquerda para alinhamento consistente */
 }
 
 /* Melhorar responsividade */
@@ -26,15 +42,28 @@
   .featured-content-row {
     gap: 15px;
   }
+
+  .trilhas-container {
+    padding: 20px 16px 20px 5%; /* Mantém o padding esquerdo consistente */
+  }
 }
 
 @media (max-width: 768px) {
   .trilhas-container {
-    padding: 15px 12px 20px;
+    padding: 15px 16px 20px;
   }
 
   .featured-content-row {
     flex-direction: column;
     gap: 20px;
+  }
+
+  .trilhas-section,
+  .continue-learning-container,
+  .trilhas-heading,
+  .trilhas-tabs,
+  .trilhas-grid {
+    margin-left: 0;
+    padding-left: 0;
   }
 }

@@ -24,9 +24,11 @@
 /* Container do conteúdo principal com espaçamento controlado */
 .content-container {
   flex: 1;
-  margin-left: 262px; /* 250px da sidebar + 12px de espaçamento */
+  margin-left: 300px; /* Mantido o tamanho da sidebar */
   padding: 0;
   overflow-x: hidden;
+  width: calc(100% - 250px); /* Adiciona largura explícita */
+  box-sizing: border-box;
 }
 
 /* Estilização da top bar */
@@ -56,7 +58,8 @@
   }
 
   .content-container {
-    margin-left: 82px; /* 70px da sidebar + 12px de espaçamento */
+    margin-left: 70px; /* Ajustado para o tamanho da sidebar colapsada */
+    width: calc(100% - 70px); /* Ajustado para o tamanho da sidebar colapsada */
   }
 }
 
@@ -66,5 +69,6 @@
 }
 
 .sidebar.collapsed + .content-container {
-  margin-left: 82px; /* 70px + 12px de espaçamento */
+  margin-left: 70px; /* Ajustado para o tamanho da sidebar colapsada */
+  width: calc(100% - 70px); /* Ajustado para o tamanho da sidebar colapsada */
 }
