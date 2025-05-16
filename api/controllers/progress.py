@@ -79,13 +79,51 @@ async def save_user_progress(data: dict = Body(...)):
         raise HTTPException(status_code=500, detail=f"Erro ao salvar progresso: {str(e)}")
 
 
-@router.get("/user-progress/{user_id}/{course_id}")
-async def get_user_progress(user_id: str, course_id: str):
+@router.get("/user-progress-by-course/{user_id}/{course_id}")
+async def get_user_progress_by_course(user_id: str, course_id: str):
     """
     Retorna o progresso do usuário em um curso específico
     """
     try:
-        progress = DatabaseService.get_user_progress(user_id, course_id)
+        progress = DatabaseService.get_user_progress_by_course(user_id, course_id)
         return progress
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao buscar progresso: {str(e)}")
+    
+@router.get("/user-progress/{user_id}")
+async def get_user_progress(user_id: str):
+    """
+    Retorna o progresso do usuário em todos os cursos
+    """
+    try:
+        progress = DatabaseService.get_user_progress(user_id)
+        return progress
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar progresso: {str(e)}")
+    
+@router.post("/update-course-access")
+async def update_course_access(data: dict = Body(...)):
+    """
+    Atualiza o timestamp de último acesso a um curso
+    """
+    try:
+        user_id = data.get("user_id")
+        course_id = data.get("course_id")
+        timestamp = data.get("timestamp") or int(time.time())
+        
+        if not user_id or not course_id:
+            raise HTTPException(
+                status_code=400, 
+                detail="user_id e course_id são obrigatórios"
+            )
+        
+        # Atualizar apenas o campo lastAccessed
+        DatabaseService.update_course_last_accessed(user_id, course_id, timestamp)
+        
+        return {
+            "success": True, 
+            "message": "Timestamp de acesso atualizado com sucesso"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao atualizar timestamp: {str(e)}")

@@ -22,7 +22,7 @@ const TrilhaDetails = ({ trilha, onClose }) => {
         const user = userString ? JSON.parse(userString) : { id: null };
         
         if (user.id && courseData) {
-          const progressData = await api.getUserProgress(user.id, trilha.id);
+          const progressData = await api.getUserProgressByCourse(user.id, trilha.id);
           setUserProgress(progressData || {});
         }
         

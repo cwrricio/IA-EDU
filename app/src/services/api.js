@@ -212,12 +212,27 @@ const api = {
     }
   },
 
-  getUserProgress: async (userId, courseId) => {
+  getUserProgressByCourse: async (userId, courseId) => {
     try {
       const response = await axios.get(
-        `${API_URL}/user-progress/${userId}/${courseId}`
+        `${API_URL}/user-progress-by-course/${userId}/${courseId}`
       );
       return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar progresso do usuário:", error);
+      return {};
+    }
+  },
+
+  getUserProgress: async (userId) => {
+    try {
+      const response = await axios.get(`${API_URL}/user-progress/${userId}`);
+      // Não espera mais o campo progress, aceita os dados diretamente
+      if (!response.data) {
+        console.warn("API retornou dados vazios para progresso do usuário");
+        return {};
+      }
+      return response.data; // Use os dados diretamente
     } catch (error) {
       console.error("Erro ao buscar progresso do usuário:", error);
       return {};
@@ -256,13 +271,13 @@ const api = {
     try {
       console.log(`Atualizando curso ${courseId} com dados:`, courseData);
       const response = await axios.post(`${API_URL}/update-course`, courseData);
-      
+
       // Importante: log completo da resposta para análise
       console.log("Curso atualizado com sucesso:", response.data);
-      
+
       // Ao atualizar um curso, invalidamos qualquer cache
       await axios.get(`${API_URL}/courses?_=${new Date().getTime()}`);
-      
+
       return response.data;
     } catch (error) {
       console.error("Error updating course:", error);
@@ -310,6 +325,21 @@ const api = {
         console.error("Erro na requisição:", error.message);
       }
       throw error;
+    }
+  },
+
+    updateCourseLastAccessed: async (userId, courseId) => {
+    try {
+      const response = await axios.post(`${API_URL}/update-course-access`, {
+        user_id: userId,
+        course_id: courseId,
+        timestamp: Math.floor(Date.now() / 1000) // Timestamp atual em segundos
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao atualizar último acesso do curso:", error);
+      // Não lançar erro para não interromper a navegação do usuário
+      return { success: false };
     }
   },
 };

@@ -74,7 +74,7 @@ const SlidesPage = () => {
         setContentItems(items);
         
         // Buscar o progresso do usuário para este curso
-        const userProgress = await api.getUserProgress(user.id, courseId);
+        const userProgress = await api.getUserProgressByCourse(user.id, courseId);
         
         // Determinar o conteúdo e slide iniciais com base no progresso
         let targetContentIndex = 0;

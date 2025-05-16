@@ -106,19 +106,22 @@ class DatabaseService:
         """Update a course in the database with complete data including icon."""
         try:
             data = cls.read_all()
-            
+
             # Verificar se o curso existe
             if course_id not in data["courses"]:
                 return False
-            
+
             # Atualizar os campos fornecidos
             for key, value in course_data.items():
                 data["courses"][course_id][key] = value
-            
+
             # Garantir que o ícone seja mantido ou atualizado
-            if "icon" not in data["courses"][course_id] or not data["courses"][course_id]["icon"]:
+            if (
+                "icon" not in data["courses"][course_id]
+                or not data["courses"][course_id]["icon"]
+            ):
                 data["courses"][course_id]["icon"] = "PiStudent"  # ícone padrão
-            
+
             # Salvar no database.json
             cls.save_all(data)
             return True
@@ -189,7 +192,7 @@ class DatabaseService:
     def save_user_progress(cls, user_id, course_id, content_id, data):
         """
         Salva o progresso de um usuário em um conteúdo específico
-        
+
         Args:
             user_id: ID do usuário
             course_id: ID do curso
@@ -198,14 +201,14 @@ class DatabaseService:
         """
         try:
             db = cls.read_all()
-            
+
             # Inicializa a estrutura de progresso se não existir
             if "progress" not in db:
                 db["progress"] = {}
-                
+
             if user_id not in db["progress"]:
                 db["progress"][user_id] = {}
-                
+
             if course_id not in db["progress"][user_id]:
                 db["progress"][user_id][course_id] = {
                     "lastAccessed": int(time.time()),
@@ -214,17 +217,19 @@ class DatabaseService:
             else:
                 # Atualiza o timestamp de último acesso ao curso
                 db["progress"][user_id][course_id]["lastAccessed"] = int(time.time())
-                
+
             # Inicializa a estrutura de itens se não existir
             if "items" not in db["progress"][user_id][course_id]:
                 db["progress"][user_id][course_id]["items"] = {}
-                
+
             # Converter content_id para string para garantir consistência como chave
             content_id_str = str(content_id)
-            
+
             # Verificar se content_id já existe para evitar duplicação
             if content_id_str in db["progress"][user_id][course_id]["items"]:
-                existing_data = db["progress"][user_id][course_id]["items"][content_id_str]
+                existing_data = db["progress"][user_id][course_id]["items"][
+                    content_id_str
+                ]
                 # Atualiza os dados existentes com os novos dados
                 for key, value in data.items():
                     existing_data[key] = value
@@ -236,7 +241,7 @@ class DatabaseService:
                 if "lastAccess" not in data:
                     data["lastAccess"] = int(time.time())
                 db["progress"][user_id][course_id]["items"][content_id_str] = data
-                
+
             # Salva as alterações no banco de dados
             cls.save_all(db)
             return True
@@ -245,7 +250,7 @@ class DatabaseService:
             return False
 
     @classmethod
-    def get_user_progress(cls, user_id, course_id=None):
+    def get_user_progress_by_course(cls, user_id, course_id=None):
         """
         Recupera o progresso do usuário
 
@@ -265,6 +270,45 @@ class DatabaseService:
             return db["progress"][user_id].get(course_id, {}).get("items", {})
 
         return db["progress"][user_id]
+
+    @classmethod
+    def get_user_progress(cls, user_id):
+        """Get all progress for a specific user"""
+        db = cls.read_all()
+        return db["progress"].get(user_id, {})
+
+    @classmethod
+    def update_course_last_accessed(cls, user_id, course_id, timestamp):
+        """
+        Atualiza apenas o timestamp de último acesso a um curso para um usuário
+        """
+        try:
+            # Carregar todo o banco de dados
+            data = cls.read_all()
+
+            # Verificar se o usuário existe
+            if user_id not in data["progress"]:
+                # Criar estrutura para o usuário se não existir
+                data["progress"][user_id] = {}
+
+            # Verificar se o curso existe para este usuário
+            if course_id not in data["progress"][user_id]:
+                # Criar estrutura para o curso se não existir
+                data["progress"][user_id][course_id] = {
+                    "lastAccessed": timestamp,
+                    "items": {},
+                }
+            else:
+                # Atualizar apenas o timestamp de último acesso
+                data["progress"][user_id][course_id]["lastAccessed"] = timestamp
+
+            # Salvar as alterações no banco de dados
+            cls.save_all(data)
+
+            return True
+        except Exception as e:
+            print(f"Erro ao atualizar timestamp de acesso: {str(e)}")
+            raise e
 
     @classmethod
     def save_course_step(cls, course_id, step, content, metadata=None):
@@ -318,12 +362,14 @@ class DatabaseService:
         """Write data to the database file."""
         import json
         import os
-        
+
         # Caminho para o arquivo de banco de dados
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "database.json")
-        
+        db_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "database.json"
+        )
+
         try:
-            with open(db_path, 'w', encoding='utf-8') as f:
+            with open(db_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
             return True
         except Exception as e:

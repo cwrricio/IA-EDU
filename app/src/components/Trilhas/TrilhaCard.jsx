@@ -77,7 +77,7 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
         if (!userString) return;
 
         const user = JSON.parse(userString);
-        const progress = await api.getUserProgress(user.id, id);
+        const progress = await api.getUserProgressByCourse(user.id, id);
         setUserProgress(progress);
       } catch (error) {
         console.error("Erro ao buscar progresso do usuário:", error);
@@ -113,7 +113,19 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
   }, [id, created_by, trilha, currentIcon]);
 
   // Função para navegar para a página de slides
-  const handleAccessTrilha = () => {
+  const handleAccessTrilha = async () => {
+    try {
+      // Obter o usuário do localStorage
+      const userString = localStorage.getItem("user");
+      if (userString) {
+        const user = JSON.parse(userString);
+        // Atualizar o timestamp de último acesso
+        await api.updateCourseLastAccessed(user.id, id);
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar timestamp de acesso:", error);
+    }
+
     // Se estamos na visão do professor, navegar para o painel com ID da trilha
     if (isProfessorView) {
       navigate(`/painel/${id}`);
