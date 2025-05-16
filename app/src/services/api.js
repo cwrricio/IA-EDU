@@ -328,18 +328,28 @@ const api = {
     }
   },
 
-    updateCourseLastAccessed: async (userId, courseId) => {
+  updateCourseLastAccessed: async (userId, courseId) => {
     try {
       const response = await axios.post(`${API_URL}/update-course-access`, {
         user_id: userId,
         course_id: courseId,
-        timestamp: Math.floor(Date.now() / 1000) // Timestamp atual em segundos
+        timestamp: Math.floor(Date.now() / 1000), // Timestamp atual em segundos
       });
       return response.data;
     } catch (error) {
       console.error("Erro ao atualizar último acesso do curso:", error);
       // Não lançar erro para não interromper a navegação do usuário
       return { success: false };
+    }
+  },
+
+  getAllUsers: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/users`);
+      return response.data.users || [];
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return [];
     }
   },
 };
