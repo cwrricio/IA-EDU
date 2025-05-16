@@ -73,17 +73,21 @@ const ContinueLearning = () => {
           const courseData = await api.getCourseById(lastAccessedCourseId);
 
           if (courseData) {
+            // Obter o número total de itens do curso
+            const totalCourseItems = courseData.steps && courseData.steps.content && 
+                                    courseData.steps.content.content_items ? 
+                                    courseData.steps.content.content_items.length : 0;
+            
             // Calcular progresso do curso
             const courseProgress = userProgress[lastAccessedCourseId];
             const items = courseProgress.items || {};
-            const totalItems = Object.keys(items).length;
-
+            
             // Contar itens concluídos
             const completedItems = Object.values(items).filter(item => item.completed).length;
-
-            // Calcular porcentagem de progresso
-            const progressPercent = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
-
+            
+            // Calcular porcentagem de progresso baseado no total de itens do curso
+            const progressPercent = totalCourseItems > 0 ? (completedItems / totalCourseItems) * 100 : 0;
+            
             setLastCourse({
               id: lastAccessedCourseId,
               title: courseData.title || "Curso sem título",
@@ -91,7 +95,7 @@ const ContinueLearning = () => {
               icon: courseData.icon || "PiStudent",
               created_by: courseData.created_by
             });
-
+            
             setProgress(progressPercent);
 
             // Buscar informações do criador do curso
