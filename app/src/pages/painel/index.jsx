@@ -35,220 +35,169 @@ const PainelPage = () => {
           return;
         }
 
-        // Buscar usuários com role 'student'
-        const usuarios = await api.getAllUsers();
-        const estudantesUsuarios = usuarios.filter((u) => u.role === "student");
+        // COMENTADO: Busca de usuários reais
+        // const usuarios = await api.getAllUsers();
+        // const estudantesUsuarios = usuarios.filter((u) => u.role === "student");
 
-        if (!estudantesUsuarios || estudantesUsuarios.length === 0) {
-          // Se não há estudantes reais, usar dados fictícios
-          const dadosFicticios = [
-            {
-              id: 1,
-              nome: "Emanuel Carricio Ferreira",
-              email: "emanuelferreira.aluno@unipampa.edu.br",
-              repeticoes: 2,
-              avancos: 5,
-              progressoAtual: "35%",
-            },
-            {
-              id: 2,
-              nome: "Matheus Martins Ciocca",
-              email: "matheusciocca2@gmail.com",
-              repeticoes: 0,
-              avancos: 8,
-              progressoAtual: "65%",
-            },
-            {
-              id: 3,
-              nome: "Ana Clara Silveira",
-              email: "anaclara@estudante.edu.br",
-              repeticoes: 3,
-              avancos: 12,
-              progressoAtual: "87%",
-            },
-            {
-              id: 4,
-              nome: "Pedro Henrique Oliveira",
-              email: "pedroh@aluno.edu.br",
-              repeticoes: 5,
-              avancos: 4,
-              progressoAtual: "42%",
-            },
-            {
-              id: 5,
-              nome: "Juliana Mendes Santos",
-              email: "julianams@estudante.edu.br",
-              repeticoes: 1,
-              avancos: 7,
-              progressoAtual: "58%",
-            },
-            {
-              id: 6,
-              nome: "Ricardo Almeida Costa",
-              email: "ricardoac@aluno.edu.br",
-              repeticoes: 4,
-              avancos: 9,
-              progressoAtual: "76%",
-            },
-            {
-              id: 7,
-              nome: "Fernanda Gomes Silva",
-              email: "fernandag@estudante.edu.br",
-              repeticoes: 0,
-              avancos: 6,
-              progressoAtual: "50%",
-            },
-          ];
-          setEstudantes(dadosFicticios);
-          setLoading(false);
-          return;
-        }
+        // Forçar o uso de dados fictícios, simulando que não há estudantes reais
+        const estudantesUsuarios = [];
 
-        // Obter o total de conteúdos na trilha para cálculo de progresso
-        const totalConteudos =
-          trilhaData.steps?.content?.content_items?.length || 5;
+        // Se não há estudantes reais, usar dados fictícios
+        // Esta parte agora sempre será executada
+        const dadosFicticios = [
+          {
+            id: 1,
+            nome: "Emanuel Carricio Ferreira",
+            email: "emanuelferreira.aluno@unipampa.edu.br",
+            repeticoes: 2,
+            avancos: 5,
+            progressoAtual: "35%",
+          },
+          {
+            id: 2,
+            nome: "Matheus Martins Ciocca",
+            email: "matheusciocca2@gmail.com",
+            repeticoes: 0,
+            avancos: 8,
+            progressoAtual: "65%",
+          },
+          {
+            id: 3,
+            nome: "Ana Clara Silveira",
+            email: "anaclara@estudante.edu.br",
+            repeticoes: 3,
+            avancos: 12,
+            progressoAtual: "87%",
+          },
+          {
+            id: 4,
+            nome: "Pedro Henrique Oliveira",
+            email: "pedroh@aluno.edu.br",
+            repeticoes: 5,
+            avancos: 4,
+            progressoAtual: "42%",
+          },
+          {
+            id: 5,
+            nome: "Juliana Mendes Santos",
+            email: "julianams@estudante.edu.br",
+            repeticoes: 1,
+            avancos: 7,
+            progressoAtual: "58%",
+          },
+          {
+            id: 6,
+            nome: "Ricardo Almeida Costa",
+            email: "ricardoac@aluno.edu.br",
+            repeticoes: 4,
+            avancos: 9,
+            progressoAtual: "76%",
+          },
+          {
+            id: 7,
+            nome: "Fernanda Gomes Silva",
+            email: "fernandag@estudante.edu.br",
+            repeticoes: 0,
+            avancos: 6,
+            progressoAtual: "50%",
+          },
+        ];
+        setEstudantes(dadosFicticios);
+        setLoading(false);
+        return;
 
-        // Array para armazenar os dados processados dos estudantes
-        const dadosEstudantes = [];
+        /* COMENTADO: Todo o código de processamento de estudantes reais
+      // Obter o total de conteúdos na trilha para cálculo de progresso
+      const totalConteudos =
+        trilhaData.steps?.content?.content_items?.length || 5;
 
-        // Para cada estudante, buscar seu progresso nesta trilha
-        for (const estudante of estudantesUsuarios) {
-          // Buscar progresso do estudante nesta trilha
-          const progresso = await api.getUserProgressByCourse(estudante.id, id);
+      // Array para armazenar os dados processados dos estudantes
+      const dadosEstudantes = [];
 
-          // Se não tem progresso, significa que nunca acessou a trilha
-          if (!progresso || Object.keys(progresso).length === 0) {
-            dadosEstudantes.push({
-              id: estudante.id,
-              nome: estudante.username || "Estudante",
-              email: estudante.email || "",
-              repeticoes: 0,
-              avancos: 0,
-              progressoAtual: "0%",
-            });
-            continue;
-          }
+      // Para cada estudante, buscar seu progresso nesta trilha
+      for (const estudante of estudantesUsuarios) {
+        // Buscar progresso do estudante nesta trilha
+        const progresso = await api.getUserProgressByCourse(estudante.id, id);
 
-          // Calcular métricas baseadas no progresso
-          let repeticoes = 0;
-          let avancos = 0;
-          let conteudosCompletos = 0;
-
-          // Percorrer cada item de conteúdo no progresso
-          Object.entries(progresso).forEach(([contentId, contentProgress]) => {
-            // Contar conteúdos completos para o progresso
-            if (contentProgress.completed) {
-              conteudosCompletos++;
-            }
-
-            // Contar avanços: quando a nota do quiz diagnóstico foi > 40%
-            if (
-              contentProgress.quiz_type === "quiz_diagnostico" &&
-              contentProgress.score > 40
-            ) {
-              avancos++;
-            }
-
-            // Contar repetições: quando reprovou no quiz avaliativo (nota < 80%)
-            if (
-              contentProgress.quiz_type === "quiz_avaliativo" &&
-              contentProgress.score < 80
-            ) {
-              repeticoes++;
-            }
-          });
-
-          // Calcular progresso percentual
-          // Verificar se concluiu totalmente o último conteúdo
-          const ultimoContentId = String(totalConteudos);
-          const concluiuUltimo = progresso[ultimoContentId]?.completed;
-
-          // Se concluiu o último conteúdo, progresso é 100%
-          let progressoPercentual = 0;
-          if (concluiuUltimo) {
-            progressoPercentual = 100;
-          } else {
-            // Caso contrário, baseado no número de conteúdos completos
-            progressoPercentual = Math.round(
-              (conteudosCompletos / totalConteudos) * 100
-            );
-          }
-
-          // Adicionar dados do estudante ao array
+        // Se não tem progresso, significa que nunca acessou a trilha
+        if (!progresso || Object.keys(progresso).length === 0) {
           dadosEstudantes.push({
             id: estudante.id,
             nome: estudante.username || "Estudante",
             email: estudante.email || "",
-            repeticoes,
-            avancos,
-            progressoAtual: `${progressoPercentual}%`,
+            repeticoes: 0,
+            avancos: 0,
+            progressoAtual: "0%",
           });
+          continue;
         }
 
-        // Se não temos dados reais mesmo depois da busca, usar os fictícios
-        if (dadosEstudantes.length === 0) {
-          const dadosFicticios = [
-            {
-              id: 1,
-              nome: "Emanuel Carricio Ferreira",
-              email: "emanuelferreira.aluno@unipampa.edu.br",
-              repeticoes: 2,
-              avancos: 5,
-              progressoAtual: "35%",
-            },
-            {
-              id: 2,
-              nome: "Matheus Martins Ciocca",
-              email: "matheusciocca2@gmail.com",
-              repeticoes: 0,
-              avancos: 8,
-              progressoAtual: "65%",
-            },
-            {
-              id: 3,
-              nome: "Ana Clara Silveira",
-              email: "anaclara@estudante.edu.br",
-              repeticoes: 3,
-              avancos: 12,
-              progressoAtual: "87%",
-            },
-            {
-              id: 4,
-              nome: "Pedro Henrique Oliveira",
-              email: "pedroh@aluno.edu.br",
-              repeticoes: 5,
-              avancos: 4,
-              progressoAtual: "42%",
-            },
-            {
-              id: 5,
-              nome: "Juliana Mendes Santos",
-              email: "julianams@estudante.edu.br",
-              repeticoes: 1,
-              avancos: 7,
-              progressoAtual: "58%",
-            },
-            {
-              id: 6,
-              nome: "Ricardo Almeida Costa",
-              email: "ricardoac@aluno.edu.br",
-              repeticoes: 4,
-              avancos: 9,
-              progressoAtual: "76%",
-            },
-            {
-              id: 7,
-              nome: "Fernanda Gomes Silva",
-              email: "fernandag@estudante.edu.br",
-              repeticoes: 0,
-              avancos: 6,
-              progressoAtual: "50%",
-            },
-          ];
-          setEstudantes(dadosFicticios);
+        // Calcular métricas baseadas no progresso
+        let repeticoes = 0;
+        let avancos = 0;
+        let conteudosCompletos = 0;
+
+        // Percorrer cada item de conteúdo no progresso
+        Object.entries(progresso).forEach(([contentId, contentProgress]) => {
+          // Contar conteúdos completos para o progresso
+          if (contentProgress.completed) {
+            conteudosCompletos++;
+          }
+
+          // Contar avanços: quando a nota do quiz diagnóstico foi > 40%
+          if (
+            contentProgress.quiz_type === "quiz_diagnostico" &&
+            contentProgress.score > 40
+          ) {
+            avancos++;
+          }
+
+          // Contar repetições: quando reprovou no quiz avaliativo (nota < 80%)
+          if (
+            contentProgress.quiz_type === "quiz_avaliativo" &&
+            contentProgress.score < 80
+          ) {
+            repeticoes++;
+          }
+        });
+
+        // Calcular progresso percentual
+        // Verificar se concluiu totalmente o último conteúdo
+        const ultimoContentId = String(totalConteudos);
+        const concluiuUltimo = progresso[ultimoContentId]?.completed;
+
+        // Se concluiu o último conteúdo, progresso é 100%
+        let progressoPercentual = 0;
+        if (concluiuUltimo) {
+          progressoPercentual = 100;
         } else {
-          setEstudantes(dadosEstudantes);
+          // Caso contrário, baseado no número de conteúdos completos
+          progressoPercentual = Math.round(
+            (conteudosCompletos / totalConteudos) * 100
+          );
         }
+
+        // Adicionar dados do estudante ao array
+        dadosEstudantes.push({
+          id: estudante.id,
+          nome: estudante.username || "Estudante",
+          email: estudante.email || "",
+          repeticoes,
+          avancos,
+          progressoAtual: `${progressoPercentual}%`,
+        });
+      }
+
+      // Se não temos dados reais mesmo depois da busca, usar os fictícios
+      if (dadosEstudantes.length === 0) {
+        const dadosFicticios = [
+          // ... dados fictícios (mesmo array anterior)
+        ];
+        setEstudantes(dadosFicticios);
+      } else {
+        setEstudantes(dadosEstudantes);
+      }
+      */
       } catch (error) {
         console.error("Erro ao buscar dados dos estudantes:", error);
 
