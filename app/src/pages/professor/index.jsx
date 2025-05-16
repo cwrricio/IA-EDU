@@ -39,6 +39,7 @@ const ProfessorPage = () => {
               date: formatDate(data.created_at),
               description: data.description || "Descrição não disponível",
               created_by: data.created_by || "1",
+              icon: data.icon || "PiStudent",
             })
           );
 

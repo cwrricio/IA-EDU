@@ -28,7 +28,7 @@
   min-height: 140px;
   border-radius: 12px;
   overflow: hidden;
-  background-color: #f8f5ff;
+  background-color: #f0f4ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,17 +48,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  padding: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 2;
+  width: auto;
+  height: auto;
 }
 
 .background-image {
-  position: relative;
-  opacity: 0.7;
-  z-index: 1;
+  display: none; /* Ocultar completamente */
 }
 
 .instructor-info {

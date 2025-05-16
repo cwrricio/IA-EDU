@@ -168,13 +168,8 @@ const TrilhaCard = ({ trilha, isProfessorView = false, onCourseUpdate }) => {
           <div className="trilha-image">
             <div className="trilha-image-wrapper">
               <div className="trilha-icon">
-                <IconComponent size={50} />
+                <IconComponent size={80} color="#4f46e5" />
               </div>
-              <img
-                src={codefolioImg}
-                alt={title}
-                className="background-image"
-              />
             </div>
           </div>
         </div>
