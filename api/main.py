@@ -24,6 +24,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+print("teste de renderização")
+
 # Include routers
 app.include_router(document_router)
 app.include_router(objectives_router)
